@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('table_id')->references('id')->on('tables');
             $table->text('order');
             $table->timestamps();
         });

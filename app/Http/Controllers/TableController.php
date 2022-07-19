@@ -14,7 +14,7 @@ class TableController extends Controller
      */
     public function index()
     {
-        //
+        return Table::all();
     }
 
     /**

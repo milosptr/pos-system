@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('tables', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('table_number');
             $table->integer('area')->default(0);
             $table->integer('position_x')->default(0);
             $table->integer('position_y')->default(0);
