@@ -1,15 +1,20 @@
 <template>
   <div class="p-4">
-    <div class="grid grid-cols-4 gap-2 text-center">
+    <div class="flex items-center gap-2 text-center">
       <div
         v-for="parent in parentCategories"
         :key="parent.id"
-        class="px-6 py-3 bg-primary rounded-sm text-white text-lg uppercase font-medium"
+        class="w-48 px-6 py-3 bg-primary rounded-sm text-white text-lg uppercase font-medium"
         :class="[parent.id === activeParentCategoryId ? 'opacity-100' : 'opacity-70']"
         @click="setParentCategory(parent.id)"
       >
         {{ parent.name }}
       </div>
+      <router-link to="/"
+        class="w-32 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium ml-auto"
+      >
+        Nazad
+      </router-link>
     </div>
     <div v-if="showCategories" class="grid grid-cols-4 gap-2 mt-4">
       <div
@@ -28,6 +33,7 @@
         v-for="item in inventory"
         :key="item.id"
         class="InventoryBox flex items-center justify-center rounded-sm"
+        @click="addToOrder(item)"
         >
         <div class="text-center font-bold">
           {{ item.name }}
@@ -67,6 +73,9 @@
       setActiveCategory(id) {
         this.$store.dispatch('storeActiveCategory', id)
         this.showCategories = false
+      },
+      addToOrder(item) {
+        this.$store.commit('setOrder', {...item, table_id: this.$route.params.id})
       }
     }
   }
@@ -76,7 +85,7 @@
   .InventoryBox {
     padding: 0 8px;
     aspect-ratio: 5/3;
-    background: #eee;
+    background: #d5d5d5;
     font-size: 18px;
     font-weight: 500;
   }

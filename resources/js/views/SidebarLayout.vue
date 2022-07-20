@@ -1,10 +1,10 @@
 <template>
   <div class="flex h-screen">
-    <div class="OverviewWidth bg-gray-50">
-      <router-view />
-    </div>
-    <div class="SidebarWidth border-l border-gray-200">
+    <div class="SidebarWidth border-l border-gray-300">
       <router-view name="sidebar" />
+    </div>
+    <div class="OverviewWidth bg-gray-100">
+      <router-view />
     </div>
   </div>
 </template>

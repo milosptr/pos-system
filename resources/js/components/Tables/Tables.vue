@@ -3,7 +3,7 @@
     <router-link
       v-for="table in tables"
       :key="table.id"
-      :to="{ name: 'table', params: { id: table.id } }"
+      :to="'/table/' + table.id"
       :style="'left: ' + table.position_x * 2 + '%; top: ' + table.position_y * 4 + '%;'"
       class="SingleTable"
     >

@@ -8,6 +8,8 @@ const general = {
     ],
     categories: [],
     inventory: [],
+    orders: [],
+    order: [],
   }),
 
   actions: {
@@ -48,6 +50,24 @@ const general = {
       setInventory( state, inventory ) {
         state.inventory = inventory
       },
+      setOrders( state, order ) {
+        state.orders = [ ...state.orders, order]
+      },
+      setOrder( state, order ) {
+        let shouldAdd = true
+        state.order = state.order.map((o) => {
+          if(o.id === order.id) {
+            o.qty += 1
+            shouldAdd = false
+          }
+          return o
+        })
+
+        if(shouldAdd) state.order = [ ...state.order, order]
+      },
+      clearOrder( state ) {
+        state.order = []
+      }
   },
 
   getters: {
@@ -71,6 +91,12 @@ const general = {
       },
       activeParentCategoryId( state ) {
         return state.activeParentCategoryId
+      },
+      orders( state ) {
+        return state.orders
+      },
+      order( state ) {
+        return state.order
       },
   }
 }
