@@ -20,13 +20,11 @@
 <script>
   export default {
     data: () => ({
-      tables: []
     }),
-    mounted() {
-      axios.get('/api/tables')
-        .then((res) => {
-          this.tables = res.data
-        })
+    computed: {
+      tables() {
+        return this.$store.getters.getTables
+      }
     },
     methods: {}
   }
@@ -38,8 +36,9 @@
   }
   .SingleTable {
     box-sizing: border-box;
-    height: 13%;
-    width: 12%;
+    aspect-ratio: 16/9;
+    /* height: 13%; */
+    width: 10%;
     border: 8px solid #56b44f;
     background: #fff;
     margin: 1%;
@@ -49,13 +48,11 @@
   @media(max-width: 1400px) {
     .SingleTable {
       width: 17%;
-      height: 16%;
     }
   }
   @media(max-width: 1024px) {
     .SingleTable {
-      width: 16%;
-      height: 14%;
+      width: 18%;
     }
   }
 </style>

@@ -16,6 +16,15 @@ class TableController extends Controller
     {
         return Table::all();
     }
+    /**
+     * Display a listing of the resource for area.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexForArea($id)
+    {
+        return Table::where('area', $id)->get();
+    }
 
     /**
      * Show the form for creating a new resource.

@@ -2,7 +2,9 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import App from './views/App.vue'
 import Transactions from './views/Transactions.vue'
 import Invoices from './views/Invoices.vue'
+import SidebarLayout from './views/SidebarLayout.vue'
 import Table from './components/Tables/Table.vue'
+import InventoryOverview from './components/InventoryOverview/InventoryOverview.vue'
 
 const routes = [
   {
@@ -11,9 +13,18 @@ const routes = [
     component: App,
   },
   {
-    path: '/table/:id',
+    path: '/table',
     name: 'table',
-    component: Table,
+    component: SidebarLayout,
+    children: [
+      {
+        path: ':id',
+        components: {
+          default: InventoryOverview,
+          sidebar: Table,
+        }
+      }
+    ]
   },
   {
     path: '/transactions',

@@ -9,6 +9,7 @@ class Inventory extends Model
 {
     use HasFactory;
 
+    protected $table = 'inventory';
     protected $fillable = ['category_id', 'name', 'description', 'active', 'sold_by', 'price', 'sku', 'qty', 'color', 'order'];
     public $timestamps = true;
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 use Illuminate\Http\Request;
@@ -22,6 +24,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Tables
 Route::get('tables', [TableController::class, 'index']);
+Route::get('tables/{id}', [TableController::class, 'indexForArea']);
+
+//Inventory
+Route::get('inventory', [InventoryController::class, 'index']);
+
+//Categories
+Route::get('categories', [CategoryController::class, 'index']);
 
 // Orders
 Route::get('orders', [OrderController::class, 'all']);

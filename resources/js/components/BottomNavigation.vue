@@ -1,0 +1,75 @@
+<template>
+  <div class="fixed bottom-0 left-0 w-full z-10" style="background: rgb(32,	73,	101)">
+    <div class="flex items-center justify-between">
+      <div class="flex gap-5 px-6 my-3 w-72">
+        <div
+          v-for="area in areas"
+          :key="area.id"
+          class="w-1/2 p-2 rounded-md"
+          style="background: rgb(65,	154,	174)"
+          @click="selectActiveArea(area.id)"
+        >
+          <div class="text-center text-white text-xl uppercase font-medium">
+            {{ area.name }}
+          </div>
+          <div class="h-10 w-full" :style="'background-image: url('+ area.pattern + '); background-size: 80%;'"></div>
+        </div>
+      </div>
+      <div class="flex gap-5">
+        <router-link
+          v-for="tab in tabs"
+          :key="tab.id"
+          :to="tab.url"
+          class="rounded-md bg-primary text-white text-xl py-5 px-6 flex items-center gap-3"
+        >
+          <img :src="tab.icon" alt="icon" width="28" />
+          <div class="uppercase w-full tracking-wide font-medium">{{ tab.name }}</div>
+        </router-link>
+      </div>
+      <div class="flex flex-col text-lg font-bold text-white text-center w-72">
+        <div>Radni dan</div>
+        <div>{{ timestamp }}</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  export default {
+    data: () => ({
+      timestamp: null
+    }),
+    computed: {
+      activeArea() {
+        return this.$store.getters.getActiveArea
+      },
+      areas() {
+        return this.$store.getters.getAreas
+      },
+      tabs() {
+        return this.$store.getters.getTabs
+      },
+    },
+    mounted() {
+      this.timestamp = this.getDate()
+      setInterval(() => {
+        this.timestamp = this.getDate()
+      }, 1000);
+    },
+    methods: {
+      selectActiveArea(id) {
+       this.$store.dispatch('storeActiveArea', this.areas.find((a) => a.id === id))
+       this.$router.push('/')
+      },
+      getDate() {
+        const now = new Date()
+        const date = now.getDate() + '.' + (now.getMonth() + 1) + '.' + now.getFullYear()
+        const hours = now.getHours() < 10 ? '0' + now.getHours() : now.getHours()
+        const minutes = now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes()
+        const seconds = now.getSeconds() < 10 ? '0' + now.getSeconds() : now.getSeconds()
+        const time = hours + ":" + minutes + ":" + seconds;
+        return date + ' ' + time
+      }
+    }
+  }
+</script>
