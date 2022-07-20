@@ -27,7 +27,7 @@ class OrderController extends Controller
      */
     public function indexForTable($id)
     {
-        return response()->json(new OrderCollection(Order::where('table_id', $id)->get()->last()), 200);
+        return new OrderResource(Order::where('table_id', $id)->get()->last());
     }
 
     /**
@@ -48,7 +48,7 @@ class OrderController extends Controller
      */
     public function store(OrderStoreRequest $request)
     {
-        return response()->json(new OrderResource(Order::create($request->all())), 200);
+        return new OrderResource(Order::create($request->all()));
     }
 
     /**

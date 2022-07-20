@@ -20,13 +20,13 @@ const general = {
     getCategories( { commit, state }) {
       axios.get('/api/categories/')
         .then((res) => {
-          commit('setCategories', res.data)
+          commit('setCategories', res.data.data)
         })
     },
     getInventory( { commit, state }) {
       axios.get('/api/inventory/')
         .then((res) => {
-          commit('setInventory', res.data)
+          commit('setInventory', res.data.data)
         })
     },
     storeActiveCategory( { commit, state }, category ){

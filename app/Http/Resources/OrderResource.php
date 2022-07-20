@@ -14,10 +14,11 @@ class OrderResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        return isset($this->id) ? [
+            'id' => $this->id,
             'user_id' => $this->user_id,
             'table_id' => $this->table_id,
             'order' => $this->order
-        ];
+        ] : [];
     }
 }

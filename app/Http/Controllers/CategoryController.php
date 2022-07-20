@@ -17,7 +17,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return response()->json(new CategoryCollection(Category::all()), 200);
+        return new CategoryCollection(Category::all());
     }
 
     /**
@@ -38,7 +38,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request)
     {
-        return response()->json(new CategoryResource(Category::create($request->all())), 200);
+        return new CategoryResource(Category::create($request->all()));
     }
 
     /**

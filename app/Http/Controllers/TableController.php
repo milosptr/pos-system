@@ -17,7 +17,7 @@ class TableController extends Controller
      */
     public function index()
     {
-        return response()->json(new TableCollection(Table::all()), 200);
+        return TableResource::collection(Table::all());
     }
     /**
      * Display a listing of the resource for area.
@@ -26,7 +26,7 @@ class TableController extends Controller
      */
     public function indexForArea($id)
     {
-        return response()->json(new TableResource(Table::where('area', $id)->get()), 200);
+        return  TableResource::collection(Table::where('area', $id)->get());
     }
 
     /**
@@ -47,7 +47,7 @@ class TableController extends Controller
      */
     public function store(TableStoreRequest $request)
     {
-        return response()->json(new TableResource(Table::create($request->all())), 200);
+        return new TableResource(Table::create($request->all()));
     }
 
     /**

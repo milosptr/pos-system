@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Inventory;
 use Illuminate\Http\Request;
-use App\Http\Resources\ItemCollection;
+use App\Http\Resources\InventoryCollection;
 use App\Http\Requests\InventoryStoreRequest;
 
 class InventoryController extends Controller
@@ -16,7 +16,7 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        return response()->json(new ItemCollection(Inventory::all()), 200);
+        return new InventoryCollection(Inventory::all());
     }
 
     /**
@@ -37,7 +37,7 @@ class InventoryController extends Controller
      */
     public function store(InventoryStoreRequest $request)
     {
-        return response()->json(new ItemCollection(Inventory::create($request->all())), 200);
+        return new ItemCollection(Inventory::create($request->all()));
     }
 
     /**
