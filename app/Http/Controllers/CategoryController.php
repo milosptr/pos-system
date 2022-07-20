@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Http\Resources\CategoryResource;
+use App\Http\Requests\CategoryStoreRequest;
+use App\Http\Resources\CategoryCollection;
 
 class CategoryController extends Controller
 {
@@ -14,7 +17,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return Category::all();
+        return response()->json(new CategoryCollection(Category::all()), 200);
     }
 
     /**
@@ -33,9 +36,9 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CategoryStoreRequest $request)
     {
-        //
+        return response()->json(new CategoryResource(Category::create($request->all())), 200);
     }
 
     /**

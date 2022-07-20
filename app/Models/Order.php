@@ -10,5 +10,14 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = ['user_id', 'order'];
+    protected $casts = ['order' => 'array'];
     public $timestamps = true;
+
+    /** Relationships **/
+
+    public function table()
+    {
+        $this->belongsTo(Table::class);
+    }
+
 }

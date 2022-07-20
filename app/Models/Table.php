@@ -11,4 +11,12 @@ class Table extends Model
 
     protected $fillable = ['name', 'area', 'position_x', 'position_y'];
     public $timestamps = true;
+
+
+    /** Relationships **/
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

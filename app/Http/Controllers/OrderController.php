@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Http\Resources\OrderResource;
+use App\Http\Resources\OrderCollection;
+use App\Http\Requests\OrderStoreRequest;
 
 class OrderController extends Controller
 {
@@ -24,7 +27,7 @@ class OrderController extends Controller
      */
     public function indexForTable($id)
     {
-        return Order::where('table_id', $id)->get()->last();
+        return response()->json(new OrderCollection(Order::where('table_id', $id)->get()->last()), 200);
     }
 
     /**
@@ -43,9 +46,9 @@ class OrderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(OrderStoreRequest $request)
     {
-        //
+        return response()->json(new OrderResource(Order::create($request->all())), 200);
     }
 
     /**
