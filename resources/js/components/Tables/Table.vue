@@ -4,22 +4,8 @@
       <div class="text-2xl font-bold border-b border-gray-200 pb-1 uppercase">
         Račun za sto #{{ tableNo }}
       </div>
-      <div class="OrderSidebar mt-4">
-        <div class="bg-gray-500 flex justify-between items-center text-white px-2">
-          <div>Porudzbina #1</div>
-          <div>17:00:00</div>
-        </div>
-        <div
-          v-for="order in orders"
-          :key="order.id"
-          class="py-1 px-2 text-xl bg-gray-100 mt-2">
-          <div class="font-semibold ">{{ order.name }}</div>
-          <div class="flex justify-between items-center">
-            <div>{{ order.qty}} x {{ order.price }},00</div>
-            <div class="font-semibold">{{ order.qty * order.price }} RSD</div>
-          </div>
-        </div>
-      </div>
+      <SingleOrder :order="order" :saved="false" />
+      <SingleOrder :order="orders" :saved="true" />
     </div>
     <div class="flex gap-2">
       <div class="bg-primary w-1/2 py-5 rounded-sm text-lg uppercase font-bold text-center text-white">
@@ -33,7 +19,9 @@
 </template>
 
 <script>
+import SingleOrder from './SingleOrder.vue'
   export default {
+  components: { SingleOrder },
     data: () => ({
     }),
     computed: {
@@ -41,8 +29,11 @@
         return this.$route.params.id
       },
       orders() {
-        return this.$store.getters.order
+        return this.$store.getters.orders
       },
+      order() {
+        return { orders: this.$store.getters.order }
+      }
     },
     mounted() {
       this.$store.commit('clearOrder')

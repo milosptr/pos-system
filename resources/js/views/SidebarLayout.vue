@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-screen">
-    <div class="SidebarWidth border-l border-gray-300">
+    <div class="SidebarWidth border-r border-gray-300">
       <router-view name="sidebar" />
     </div>
     <div class="OverviewWidth bg-gray-100">
