@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Table;
 use Illuminate\Http\Request;
+use App\Http\Resources\TableResource;
+use App\Http\Resources\TableCollection;
+use App\Http\Requests\TableStoreRequest;
 
 class TableController extends Controller
 {
@@ -14,7 +17,7 @@ class TableController extends Controller
      */
     public function index()
     {
-        return Table::all();
+        return response()->json(new TableCollection(Table::all()), 200);
     }
     /**
      * Display a listing of the resource for area.
@@ -23,7 +26,7 @@ class TableController extends Controller
      */
     public function indexForArea($id)
     {
-        return Table::where('area', $id)->get();
+        return response()->json(new TableResource(Table::where('area', $id)->get()), 200);
     }
 
     /**
@@ -42,9 +45,9 @@ class TableController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TableStoreRequest $request)
     {
-        //
+        return response()->json(new TableResource(Table::create($request->all())), 200);
     }
 
     /**

@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Tables
 Route::get('tables', [TableController::class, 'index']);
 Route::get('tables/{id}', [TableController::class, 'indexForArea']);
+Route::post('tables', [TableController::class, 'store']);
 
 //Inventory
 Route::get('inventory', [InventoryController::class, 'index']);
@@ -36,3 +37,4 @@ Route::get('categories', [CategoryController::class, 'index']);
 Route::get('orders', [OrderController::class, 'all']);
 Route::get('orders/table/{id}', [OrderController::class, 'indexForTable']);
 Route::get('orders/{id}', [OrderController::class, 'index']);
+Route::post('orders', [OrderController::class, 'store']);
