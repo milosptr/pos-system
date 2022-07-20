@@ -1,10 +1,11 @@
 <template>
   <div class="relative w-full TablesWrapper">
-    <div
+    <router-link
       v-for="table in tables"
       :key="table.id"
-      class="SingleTable"
+      :to="{ name: 'table', params: { id: table.id } }"
       :style="'left: ' + table.position_x * 2 + '%; top: ' + table.position_y * 4 + '%;'"
+      class="SingleTable"
     >
       <div class="relative flex items-center justify-center h-full text-3xl font-bold">
         {{ table.table_number}}
@@ -12,7 +13,7 @@
           4.080,00
         </div>
       </div>
-    </div>
+    </router-link>
   </div>
 </template>
 
@@ -26,7 +27,8 @@
         .then((res) => {
           this.tables = res.data
         })
-    }
+    },
+    methods: {}
   }
 </script>
 

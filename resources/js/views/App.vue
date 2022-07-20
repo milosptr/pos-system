@@ -18,14 +18,15 @@
           </div>
         </div>
         <div class="flex gap-5">
-          <div
+          <router-link
             v-for="tab in tabs"
             :key="tab.id"
+            :to="tab.url"
             class="rounded-md bg-primary text-white text-xl py-5 px-6 flex items-center gap-3"
           >
             <img :src="tab.icon" alt="icon" width="28" />
             <div class="uppercase w-full tracking-wide font-medium">{{ tab.name }}</div>
-          </div>
+          </router-link>
         </div>
         <div class="flex flex-col text-lg font-bold text-white text-center w-72">
           <div>Radni dan</div>
@@ -36,8 +37,9 @@
   </div>
 </template>
 
+
 <script>
-  import Tables from './Tables/Tables.vue'
+  import Tables from '../components/Tables/Tables.vue'
 
   export default {
     components: {
@@ -49,8 +51,8 @@
         {id: 1, name: 'Basta', pattern: '/images/basta.jpg'},
       ],
       tabs: [
-        {id: 0, name: 'Promet', icon: '/images/coins.svg'},
-        {id: 1, name: 'Racuni', icon: '/images/receipt.svg'},
+        {id: 0, name: 'Promet', url: '/transactions', icon: '/images/coins.svg'},
+        {id: 1, name: 'Racuni', url: '/invoices', icon: '/images/receipt.svg'},
       ],
       activeArea: null,
       timestamp: null

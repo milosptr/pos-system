@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -19,4 +20,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Tables
 Route::get('tables', [TableController::class, 'index']);
+
+// Orders
+Route::get('orders', [OrderController::class, 'all']);
+Route::get('orders/table/{id}', [OrderController::class, 'indexForTable']);
+Route::get('orders/{id}', [OrderController::class, 'index']);
