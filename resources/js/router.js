@@ -5,6 +5,8 @@ import Invoices from './views/Invoices.vue'
 import SidebarLayout from './views/SidebarLayout.vue'
 import Table from './components/Tables/Table.vue'
 import InventoryOverview from './components/InventoryOverview/InventoryOverview.vue'
+import InvoicesOverview from './components/Invoices/InvoicesOverview.vue'
+import InvoicesSidebar from './components/Invoices/InvoicesSidebar.vue'
 
 const routes = [
   {
@@ -20,7 +22,7 @@ const routes = [
       {
         path: ':id',
         components: {
-          default: InventoryOverview,
+          main: InventoryOverview,
           sidebar: Table,
         }
       }
@@ -34,7 +36,16 @@ const routes = [
   {
     path: '/invoices',
     name: 'invoices',
-    component: Invoices,
+    component: SidebarLayout,
+    children: [
+      {
+        path: '',
+        components: {
+          main: InvoicesOverview,
+          sidebar: InvoicesSidebar
+        }
+      }
+    ]
   },
 
 ]

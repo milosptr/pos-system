@@ -11,5 +11,6 @@ class Inventory extends Model
 
     protected $table = 'inventory';
     protected $fillable = ['category_id', 'name', 'description', 'active', 'sold_by', 'price', 'sku', 'qty', 'color', 'order'];
+    protected $casts = ['order' => 'array'];
     public $timestamps = true;
 }

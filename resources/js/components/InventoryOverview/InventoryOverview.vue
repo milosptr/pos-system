@@ -67,11 +67,11 @@
     },
     methods: {
       setParentCategory(id) {
-        this.$store.dispatch('storeActiveParentCategoryId', id)
+        this.$store.commit('setActiveParentCategoryId', id)
         this.showCategories = true
       },
       setActiveCategory(id) {
-        this.$store.dispatch('storeActiveCategory', id)
+        this.$store.commit('setActiveCategory', id)
         this.showCategories = false
       },
       addToOrder(item) {

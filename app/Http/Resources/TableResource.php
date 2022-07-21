@@ -18,6 +18,7 @@ class TableResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'table_number' => $this->table_number,
+            'total' => $this->orders->sum('total'),
             'area' => $this->area,
             'position_x' => $this->position_x,
             'position_y' => $this->position_y

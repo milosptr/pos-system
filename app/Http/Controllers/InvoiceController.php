@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
+use App\Http\Resources\InvoiceResource;
+use App\Http\Requests\InvoiceStoreRequest;
 
 class InvoiceController extends Controller
 {
@@ -12,9 +15,9 @@ class InvoiceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all()
     {
-        //
+        return InvoiceResource::collection(Invoice::all());
     }
 
     /**
@@ -33,9 +36,12 @@ class InvoiceController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(InvoiceStoreRequest $request)
     {
-        //
+      $invoice = Invoice::create($request->all());
+      if($invoice)
+        Order::where('table_id', $request->get('table_id'))->delete();
+      return $invoice;
     }
 
     /**

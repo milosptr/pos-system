@@ -6,11 +6,13 @@
       :to="'/table/' + table.id"
       :style="'left: ' + table.position_x * 2 + '%; top: ' + table.position_y * 4 + '%;'"
       class="SingleTable"
+      :class="{'HasOrders': table.total}"
+      @click="setActiveTable(table)"
     >
       <div class="relative flex items-center justify-center h-full text-3xl font-bold">
         {{ table.table_number}}
-        <div class="absolute bottom-0 left-0 w-full text-center text-xl font-semibold">
-          4.080,00
+        <div v-if="table.total" class="absolute bottom-0 left-0 w-full text-center text-xl font-semibold">
+          {{ table.total }} RSD
         </div>
       </div>
     </router-link>
@@ -26,7 +28,14 @@
         return this.$store.getters.getTables
       }
     },
-    methods: {}
+    mounted() {
+      this.$store.commit('clearOrder')
+    },
+    methods: {
+      setActiveTable(table) {
+        this.$store.commit('setActiveTable', table)
+      }
+    }
   }
 </script>
 
@@ -43,6 +52,10 @@
     background: #fff;
     margin: 1%;
     position: absolute;
+  }
+
+  .SingleTable.HasOrders {
+    border: 8px solid rgb(220, 38, 38);
   }
 
   @media(max-width: 1400px) {

@@ -10,12 +10,17 @@ use App\Http\Requests\TableStoreRequest;
 
 class TableController extends Controller
 {
+
+    public function index($id)
+    {
+      return new TableResource(Table::find($id));
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all()
     {
         return TableResource::collection(Table::all());
     }

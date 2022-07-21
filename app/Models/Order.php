@@ -9,7 +9,7 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'order'];
+    protected $fillable = ['table_id', 'total', 'order'];
     protected $casts = ['order' => 'array'];
     public $timestamps = true;
 

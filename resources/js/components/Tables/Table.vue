@@ -4,14 +4,28 @@
       <div class="text-2xl font-bold border-b border-gray-200 pb-1 uppercase">
         Račun za sto #{{ tableNo }}
       </div>
-      <SingleOrder :order="order" :saved="false" />
-      <SingleOrder :order="orders" :saved="true" />
+      <div class="OrderSidebar">
+        <SingleOrder :order="order" :index="orders.length + 1" :saved="false" />
+        <SingleOrder
+          v-for="(o, i) in orders"
+          :order="o"
+          :key="o.id"
+          :index="orders.length - i"
+          :saved="true"
+        />
+      </div>
     </div>
     <div class="flex gap-2">
-      <div class="bg-primary w-1/2 py-5 rounded-sm text-lg uppercase font-bold text-center text-white">
+      <div
+        class="bg-primary w-1/2 py-5 rounded-sm text-lg uppercase font-bold text-center text-white"
+        @click="cashOut()"
+         >
         Naplati
       </div>
-      <div class="bg-green-600 w-1/2 py-5 rounded-sm text-lg uppercase font-bold text-center text-white">
+      <div
+        class="bg-green-600 w-1/2 py-5 rounded-sm text-lg uppercase font-bold text-center text-white"
+        @click="storeOrder()"
+      >
         Sačuvaj
       </div>
     </div>
@@ -19,30 +33,40 @@
 </template>
 
 <script>
-import SingleOrder from './SingleOrder.vue'
+  import SingleOrder from './SingleOrder.vue'
+
   export default {
   components: { SingleOrder },
     data: () => ({
     }),
     computed: {
       tableNo() {
-        return this.$route.params.id
+        return this.$store.getters.activeTable?.table_number
       },
       orders() {
         return this.$store.getters.orders
       },
       order() {
-        return { orders: this.$store.getters.order }
+        return { order: this.$store.getters.order }
       }
     },
     mounted() {
-      this.$store.commit('clearOrder')
-      axios.get('/api/orders/table/' + this.$route.params.id)
-        .then((res) => {
-          if(res.data && res.data.order)
-            this.order = res.data.order
-        })
+      this.$store.dispatch('getCurrentTable', this.$route.params.id)
     },
+    methods: {
+      storeOrder() {
+        if(this.order.order.length) {
+          this.$store.dispatch('storeOrder', this.$route.params.id)
+          this.$router.push('/')
+        }
+      },
+      cashOut() {
+        if(this.orders.length) {
+          this.$store.dispatch('cashOut', this.$route.params.id)
+          this.$router.push('/')
+        }
+      }
+    }
   }
 </script>
 
