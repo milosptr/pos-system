@@ -7,14 +7,13 @@ use Carbon\Carbon;
 class WorkingDay
 {
 
-    public static function getWorkingDay()
+    public static function getWorkingDay(Carbon $date = null)
     {
-        $now = Carbon::now();
-        return [$now->startOfDay()->addHours(4), $now->endOfDay()->addHours(4)];
+        if (!$date) $date = Carbon::now();
+
+        if($date->between("00:00:00", "03:59:59", true)) $date = $date->yesterday();
+
+        return [$date->startOfDay()->addHours(4)->toDateTimeString(), $date->endOfDay()->addHours(4)->toDateTimeString()];
     }
 
-    public static function getWorkingDayForDate(Carbon $dateTime)
-    {
-        return [$dateTime->startOfDay()->addHours(4), $dateTime->endOfDay()->addHours(4)];
-    }
 }
