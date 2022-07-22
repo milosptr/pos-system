@@ -11,7 +11,7 @@ const app = createApp(App)
   .use(store)
   .use(Portal)
 
-const backoffice = CreateApp(App)
+const backoffice = createApp(App)
   .use(Portal)
 
 app.config.globalProperties.$filters = {

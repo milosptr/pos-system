@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use Illuminate\Http\Request;
 use App\Http\Resources\InvoiceResource;
 use App\Http\Requests\InvoiceStoreRequest;
+use Services\WorkingDay;
 
 class InvoiceController extends Controller
 {
@@ -75,7 +76,7 @@ class InvoiceController extends Controller
         ->selectRaw('sum(case when status = 0 then total else 0 end) as storno')
         ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as neto')
         ->selectRaw('70000 as maximum')
-        ->whereDate('created_at', Carbon::today())
+        ->whereBetween('created_at', WorkingDay::getWorkingDay())
         ->get()
         ->first();
     }
