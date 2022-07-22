@@ -45,6 +45,19 @@ class InvoiceController extends Controller
       return $invoice;
     }
 
+    /**
+     *
+     * @param  \Illuminate\Http\Request  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function refund($id)
+    {
+      $invoice = Invoice::find($id);
+      if($invoice)
+        $invoice->update(['status' => Invoice::STATUS_REFUNDED]);
+      return InvoiceResource::collection(Invoice::all());;
+    }
+
     public function todayTransactions()
     {
       // get transactions from last day if time is 4 am or less

@@ -10,7 +10,14 @@ const general = {
         .then((res) => {
           commit('setInvoices', res.data.data)
         })
-    }
+    },
+    refundInvoice( {commit, state }) {
+      axios.post(`/api/invoices/${state.activeInvoice.id}/refund`)
+        .then((res) => {
+          commit('setInvoices', res.data.data)
+          commit('setActiveInvoice', state.activeInvoice.id)
+        })
+    },
   },
 
   mutations: {

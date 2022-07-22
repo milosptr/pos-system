@@ -5,7 +5,7 @@
         <div class="text-2xl font-bold uppercase">
           Račun broj #{{ invoice?.id }}
         </div>
-        <img src="/images/refund.svg" class="ml-auto mr-2" alt="print" width="32" />
+        <img v-if="invoice.status" src="/images/refund.svg" class="ml-auto mr-2" alt="print" width="32" @click="refund" />
         <img src="/images/printer.svg" alt="print" width="32" />
       </div>
       <SingleOrder
@@ -42,6 +42,11 @@ import SingleOrder from "../Tables/SingleOrder.vue"
       },
       orders() {
         return this.invoice ? this.invoice.order : []
+      }
+    },
+    methods: {
+      refund() {
+        this.$store.dispatch('refundInvoice')
       }
     }
   }

@@ -10,6 +10,9 @@ class Invoice extends Model
 {
     use HasFactory;
 
+    CONST STATUS_REFUNDED = 0;
+    CONST STATUS_PAYED = 1;
+
     protected $fillable = ['user_id', 'table_id', 'status', 'order', 'total', 'payment_type', 'note'];
     protected $casts = ['order' => 'array'];
     public $timestamps = true;
