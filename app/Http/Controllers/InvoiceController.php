@@ -40,8 +40,10 @@ class InvoiceController extends Controller
     public function store(InvoiceStoreRequest $request)
     {
       $invoice = Invoice::create($request->all());
-      if($invoice)
+      if ($invoice) {
         Order::where('table_id', $request->get('table_id'))->delete();
+        app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+      }
       return $invoice;
     }
 

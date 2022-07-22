@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\OrderCollection;
 use App\Http\Requests\OrderStoreRequest;
+use Services\Pusher;
 
 class OrderController extends Controller
 {
@@ -48,7 +49,12 @@ class OrderController extends Controller
      */
     public function store(OrderStoreRequest $request)
     {
-        return new OrderResource(Order::create($request->all()));
+        $order = Order::create($request->all());
+
+        if($order)
+            app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+
+        return new OrderResource($order);
     }
 
     /**
