@@ -6,7 +6,7 @@ const general = {
 
   actions: {
     getInvoices({ commit }) {
-      axios.get('/api/invoices')
+      axios.get('/api/invoices/today')
         .then((res) => {
           commit('setInvoices', res.data.data)
         })

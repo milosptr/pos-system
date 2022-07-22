@@ -48,6 +48,7 @@ Route::post('orders', [OrderController::class, 'store']);
 
 // Invoices
 Route::get('invoices', [InvoiceController::class, 'all']);
+Route::get('invoices/today', [InvoiceController::class, 'allForToday']);
 Route::get('invoices/today-transactions', [InvoiceController::class, 'todayTransactions']);
 Route::post('invoices', [InvoiceController::class, 'store']);
 Route::post('invoices/{id}/refund', [InvoiceController::class, 'refund']);

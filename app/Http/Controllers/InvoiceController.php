@@ -23,6 +23,11 @@ class InvoiceController extends Controller
         return InvoiceResource::collection(Invoice::all());
     }
 
+    public function allForToday()
+    {
+      return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->get());
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -64,14 +69,6 @@ class InvoiceController extends Controller
 
     public function todayTransactions()
     {
-      // get transactions from last day if time is 4 am or less
-      // $now = Carbon::now();
-
-      // $start = Carbon::createFromTime(0, 0);
-      // $end = Carbon::createFromTime(4, 0);
-      // if ($now->between($start, $end)) {
-      //   return Invoice::whereDate('created_at', Carbon::yesterday())->sum('total');
-      // }
       return Invoice::selectRaw('sum(total) AS total')
         ->selectRaw('sum(case when status = 0 then total else 0 end) as storno')
         ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as neto')
