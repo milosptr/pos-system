@@ -16,14 +16,19 @@
         </div>
       </div>
       <div class="flex gap-5">
+        <div
+          class="rounded-md bg-primary text-white text-xl py-5 px-6 flex items-center gap-3"
+          @click="showTransactionsModal = true"
+        >
+          <img src="/images/coins.svg" alt="icon" width="28" />
+          <div class="uppercase w-full tracking-wide font-medium">Promet</div>
+        </div>
         <router-link
-          v-for="tab in tabs"
-          :key="tab.id"
-          :to="tab.url"
+          to="/invoices"
           class="rounded-md bg-primary text-white text-xl py-5 px-6 flex items-center gap-3"
         >
-          <img :src="tab.icon" alt="icon" width="28" />
-          <div class="uppercase w-full tracking-wide font-medium">{{ tab.name }}</div>
+          <img src="/images/receipt.svg" alt="icon" width="28" />
+          <div class="uppercase w-full tracking-wide font-medium">Racuni</div>
         </router-link>
       </div>
       <div class="flex flex-col text-lg font-bold text-white text-center w-72">
@@ -31,13 +36,22 @@
         <div>{{ timestamp }}</div>
       </div>
     </div>
+    <TransactionsModal v-if="showTransactionsModal" @close="showTransactionsModal = false" />
   </div>
 </template>
 
 <script>
+  import TransactionsModal from './Modals/TransactionsModal.vue'
+
   export default {
+  components: { TransactionsModal },
     data: () => ({
-      timestamp: null
+      timestamp: null,
+      showTransactionsModal: false,
+      tabs: [
+        {id: 0, name: 'Promet', url: '/transactions', icon: '/images/coins.svg'},
+        {id: 1, name: 'Racuni', url: '/invoices', icon: '/images/receipt.svg'},
+      ],
     }),
     computed: {
       activeArea() {
@@ -45,9 +59,6 @@
       },
       areas() {
         return this.$store.getters.getAreas
-      },
-      tabs() {
-        return this.$store.getters.getTabs
       },
     },
     mounted() {

@@ -1,7 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import App from './views/App.vue'
-import Transactions from './views/Transactions.vue'
-import Invoices from './views/Invoices.vue'
 import SidebarLayout from './views/SidebarLayout.vue'
 import Table from './components/Tables/Table.vue'
 import InventoryOverview from './components/InventoryOverview/InventoryOverview.vue'
@@ -27,11 +25,6 @@ const routes = [
         }
       }
     ]
-  },
-  {
-    path: '/transactions',
-    name: 'transactions',
-    component: Transactions,
   },
   {
     path: '/invoices',

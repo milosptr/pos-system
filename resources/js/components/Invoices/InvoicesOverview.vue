@@ -16,44 +16,44 @@
           Total
         </div>
       </div>
-      <div class="">
-        Broj artikla
+      <div class="text-center">
+        Broj stola
       </div>
-      <div class="">
+      <div class="text-center">
         Status
       </div>
-      <div class="">
+      <div class="text-center">
         Konobar
       </div>
-      <div class="">
+      <div class="text-center">
         Vreme naplate
       </div>
     </div>
     <div
       v-for="(invoice, index) in invoices"
       :key="invoice.id"
-      class="bg-white mt-2 py-3 px-4 text-lg rounded-sm border  grid grid-cols-5 gap-3 items-center font-medium"
-      :class="[activeInvoice && invoice.id === activeInvoice.id ? 'border-primary' : 'border-gray-300']"
+      class="bg-white mt-2 py-3 px-4 text-xl rounded-sm border  grid grid-cols-5 gap-3 items-center font-medium"
+      :class="[activeInvoice && invoice.id === activeInvoice.id ? 'border-primary' : 'border-gray-300', invoice.status === 0 ? 'text-red-500' : '']"
       @click="selectInvoice(invoice.id)"
     >
       <div class="flex items-center">
         <div class="w-10">
           {{ index + 1 }}
         </div>
-        <div class="">
-          {{ invoice.total }} RSD
+        <div :class="{'line-through': invoice.status === 0}">
+          {{ $filters.formatPrice(invoice.total) }} RSD
         </div>
       </div>
-      <div class="">
-        {{ invoice.order.length }} artikala
+      <div class="text-center">
+        {{ invoice?.table?.name }}
       </div>
-      <div class="">
-        {{ invoice.status ? 'Naplacen' : 'Refundiran' }}
+      <div class="text-center">
+        {{ invoice.status ? 'Naplacen' : 'Storniran' }}
       </div>
-      <div class="">
+      <div class="text-center">
         Srdjan
       </div>
-      <div class="">
+      <div class="text-center text-lg">
         {{ invoice.created_at }}
       </div>
     </div>

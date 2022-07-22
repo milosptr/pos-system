@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
@@ -42,6 +43,25 @@ class InvoiceController extends Controller
       if($invoice)
         Order::where('table_id', $request->get('table_id'))->delete();
       return $invoice;
+    }
+
+    public function todayTransactions()
+    {
+      // get transactions from last day if time is 4 am or less
+      // $now = Carbon::now();
+
+      // $start = Carbon::createFromTime(0, 0);
+      // $end = Carbon::createFromTime(4, 0);
+      // if ($now->between($start, $end)) {
+      //   return Invoice::whereDate('created_at', Carbon::yesterday())->sum('total');
+      // }
+      return Invoice::selectRaw('sum(total) AS total')
+        ->selectRaw('sum(case when status = 0 then total else 0 end) as storno')
+        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as neto')
+        ->selectRaw('70000 as maximum')
+        ->whereDate('created_at', Carbon::today())
+        ->get()
+        ->first();
     }
 
     /**

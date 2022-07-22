@@ -11,14 +11,19 @@
       <SingleOrder
         :order="invoice"
         :showOrderLine="false"
+        :boxBackground="false"
+        :class="{'text-red-500': invoice.status === 0}"
       />
     </div>
-    <div class="p-4 flex items-center justify-between border-t border-gray-200 pt-4">
+    <div
+      class="p-4 flex items-center justify-between border-t border-gray-200 pt-4"
+      :class="{'text-red-500': invoice.status === 0}"
+    >
       <div class="text-2xl font-bold uppercase">
         Total
       </div>
       <div class="text-2xl font-bold">
-        {{ invoice?.total }} RSD
+        {{ $filters.formatPrice(invoice?.total) }} RSD
       </div>
     </div>
   </div>

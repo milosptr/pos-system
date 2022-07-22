@@ -28,6 +28,7 @@
         "vue-loader": "^17.0.0",
         "vue-router": "4",
         "vue-swipe-actions": "^2.0.0-beta.20",
+        "vue3-portal": "^1.0.3",
         "vuex": "^4.0.2"
     },
     "version": "0.0.0"

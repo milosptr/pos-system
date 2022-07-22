@@ -976,6 +976,16 @@ vue-router@4:
   dependencies:
     "@vue/devtools-api" "^6.1.4"
 
+vue-swipe-actions@^2.0.0-beta.20:
+  version "2.0.0-beta.20"
+  resolved "https://registry.yarnpkg.com/vue-swipe-actions/-/vue-swipe-actions-2.0.0-beta.20.tgz#1d758e55a2449c71f62617c8dc4c1c3a18bcedd4"
+  integrity sha512-gcHO9EKF+sS2P1JdMqi1PhATD24IFyUldMa9trDBHg+mq+3SRXAL8OZgeVmLd79Eu9rLhbavzj1CJQ7EGbKhjg==
+
+vue3-portal@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/vue3-portal/-/vue3-portal-1.0.3.tgz#dcfde7cd8abf943abdd33906ebb64503f9aa0fed"
+  integrity sha512-CXHGP3+xiP163tsYVmNrRi94JctleqG23WPchd1pT3zj6q9wDkXb/HbZTp7RWn2q5PVrz/g0Cs/L0/8FhhvZ3g==
+
 vue@^3.2.36:
   version "3.2.37"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.2.37.tgz#da220ccb618d78579d25b06c7c21498ca4e5452e"

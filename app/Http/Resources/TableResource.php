@@ -21,7 +21,11 @@ class TableResource extends JsonResource
             'total' => $this->orders->sum('total'),
             'area' => $this->area,
             'position_x' => $this->position_x,
-            'position_y' => $this->position_y
+            'position_y' => $this->position_y,
+            'position_y_middle' => $this->position_y_middle,
+            'position_x_middle' => $this->position_x_middle,
+            'rotate' => $this->rotate,
+            'size' => $this->size,
         ];
     }
 }

@@ -18,8 +18,12 @@ return new class extends Migration
             $table->string('name');
             $table->integer('table_number');
             $table->integer('area')->default(0);
+            $table->integer('size')->default(1);
+            $table->integer('rotate')->default(0);
             $table->integer('position_x')->default(0);
             $table->integer('position_y')->default(0);
+            $table->integer('position_x_middle')->default(0);
+            $table->integer('position_y_middle')->default(0);
             $table->timestamps();
         });
     }

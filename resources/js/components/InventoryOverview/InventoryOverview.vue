@@ -23,7 +23,7 @@
         @click="setActiveCategory(category.id)"
         class="InventoryBox flex items-center justify-center rounded-sm"
         >
-        <div class="text-center font-bold">
+        <div class="text-center font-bold uppercase">
           {{ category.name }}
         </div>
       </div>
@@ -86,7 +86,7 @@
     padding: 0 8px;
     aspect-ratio: 5/3;
     background: #d5d5d5;
-    font-size: 18px;
+    font-size: 23px;
     font-weight: 500;
   }
 

@@ -4,10 +4,6 @@ const general = {
       {id: 0, name: 'Sala', pattern: '/images/sala.jpg'},
       {id: 1, name: 'Basta', pattern: '/images/basta.jpg'},
     ],
-    tabs: [
-      {id: 0, name: 'Promet', url: '/transactions', icon: '/images/coins.svg'},
-      {id: 1, name: 'Racuni', url: '/invoices', icon: '/images/receipt.svg'},
-    ],
     parentCategories: [
       { id: 0, name: 'Šank' },
       { id: 1, name: 'Kuhinja' },
@@ -83,7 +79,7 @@ const general = {
       axios.post('/api/invoices', {
         user_id: state.selectedUserId,
         table_id,
-        order: JSON.stringify(orders),
+        order: orders,
         total: orders.reduce((a, b) => a + b.price * b.qty, 0)
       })
         .then((res) => {
@@ -144,9 +140,6 @@ const general = {
     },
     getAreas( state ) {
       return state.areas
-    },
-    getTabs( state ) {
-      return state.tabs
     },
     getTables( state ) {
       return state.tables
