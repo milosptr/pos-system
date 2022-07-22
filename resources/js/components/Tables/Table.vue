@@ -29,15 +29,18 @@
         Sačuvaj
       </div>
     </div>
+    <CacheOutModal v-if="showCacheOutModal" @close="showCacheOutModal = false" />
   </div>
 </template>
 
 <script>
+  import CacheOutModal from '../Modals/CacheOutModal.vue'
   import SingleOrder from './SingleOrder.vue'
 
   export default {
-  components: { SingleOrder },
+    components: { SingleOrder, CacheOutModal },
     data: () => ({
+     showCacheOutModal: false,
     }),
     computed: {
       tableNo() {
@@ -62,8 +65,7 @@
       },
       cashOut() {
         if(this.orders.length) {
-          this.$store.dispatch('cashOut', this.$route.params.id)
-          this.$router.push('/')
+          this.showCacheOutModal = true
         }
       }
     }

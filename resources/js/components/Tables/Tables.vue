@@ -54,6 +54,8 @@
       tableNumber(n) {
         if(n === 28)
           return 'N'
+        if(n === 30)
+          return 'Banket'
         return n
       },
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4">
+  <div class="p-4 bg-gray-100">
     <div class="flex items-center gap-2 justify-end">
       <router-link to="/"
         class="w-32 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium ml-auto"
@@ -51,9 +51,9 @@
         {{ invoice.status ? 'Naplacen' : 'Storniran' }}
       </div>
       <div class="text-center">
-        Srdjan
+        {{ invoice.user.name }}
       </div>
-      <div class="text-center text-lg">
+      <div class="text-center text-xl px-2">
         {{ invoice.created_at }}
       </div>
     </div>

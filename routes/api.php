@@ -5,6 +5,8 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\ValidatePinController;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -49,3 +51,9 @@ Route::get('invoices', [InvoiceController::class, 'all']);
 Route::get('invoices/today-transactions', [InvoiceController::class, 'todayTransactions']);
 Route::post('invoices', [InvoiceController::class, 'store']);
 Route::post('invoices/{id}/refund', [InvoiceController::class, 'refund']);
+
+// Waiters
+Route::get('waiters', [UsersController::class, 'waiters']);
+
+// Pin
+Route::post('validate-pin', [ValidatePinController::class, 'validatePin']);

@@ -12,12 +12,13 @@ const general = {
     activeTable: null,
     activeCategory: null,
     activeParentCategoryId: 0,
+    waiters: [],
     tables: [],
     categories: [],
     inventory: [],
     orders: [],
     order: [],
-    selectedUserId: 1,
+    selectedWaiterId: null,
     totalForTable: 0,
   }),
 
@@ -25,6 +26,13 @@ const general = {
     loadEPOS( { dispatch }) {
       dispatch('getCategories')
       dispatch('getInventory')
+      dispatch('getWaiters')
+    },
+    getWaiters( { commit }) {
+      axios.get('/api/waiters')
+        .then((res) => {
+          commit('setWaiters', res.data.data)
+        })
     },
     getTables( { commit, state }) {
       axios.get('/api/tables/' + state.activeArea.id)
@@ -77,7 +85,7 @@ const general = {
       let orders = []
       state.orders.forEach((o) => { orders = [...orders, ...o.order]})
       axios.post('/api/invoices', {
-        user_id: state.selectedUserId,
+        user_id: state.selectedWaiterId,
         table_id,
         order: orders,
         total: orders.reduce((a, b) => a + b.price * b.qty, 0)
@@ -94,6 +102,12 @@ const general = {
     },
     setTables( state, tables ) {
       state.tables = tables
+    },
+    setWaiters( state, waiters ) {
+      state.waiters = waiters
+    },
+    setSelectedWaiterId( state, id ) {
+      state.selectedWaiterId = id
     },
     setActiveTable( state, table ) {
       state.activeTable = table
@@ -173,6 +187,12 @@ const general = {
     },
     order( state ) {
       return state.order
+    },
+    waiters( state ) {
+      return state.waiters
+    },
+    selectedWaiterId( state ) {
+      return state.selectedWaiterId
     },
   }
 }

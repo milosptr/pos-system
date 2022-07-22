@@ -23,31 +23,34 @@
           <img src="/images/coins.svg" alt="icon" width="28" />
           <div class="uppercase w-full tracking-wide font-medium">Promet</div>
         </div>
-        <router-link
-          to="/invoices"
+        <div
           class="rounded-md bg-primary text-white text-xl py-5 px-6 flex items-center gap-3"
+           @click="showInvoicesModal = true"
         >
           <img src="/images/receipt.svg" alt="icon" width="28" />
           <div class="uppercase w-full tracking-wide font-medium">Racuni</div>
-        </router-link>
+        </div>
       </div>
       <div class="flex flex-col text-lg font-bold text-white text-center w-72">
         <div>Radni dan</div>
         <div>{{ timestamp }}</div>
       </div>
     </div>
+    <InvoicesModal v-if="showInvoicesModal" @close="showInvoicesModal = false" />
     <TransactionsModal v-if="showTransactionsModal" @close="showTransactionsModal = false" />
   </div>
 </template>
 
 <script>
   import TransactionsModal from './Modals/TransactionsModal.vue'
+  import InvoicesModal from './Modals/InvoicesModal.vue'
 
   export default {
-  components: { TransactionsModal },
+  components: { TransactionsModal, InvoicesModal },
     data: () => ({
       timestamp: null,
       showTransactionsModal: false,
+      showInvoicesModal: false,
       tabs: [
         {id: 0, name: 'Promet', url: '/transactions', icon: '/images/coins.svg'},
         {id: 1, name: 'Racuni', url: '/invoices', icon: '/images/receipt.svg'},
