@@ -10,8 +10,16 @@
       >
         {{ parent.name }}
       </div>
+      <div
+        v-if="canDivideInHalf"
+        class="bg-gray-500 flex items-center justify-center text-lg uppercase font-medium OneHalf ml-auto"
+        @click="halfPortion"
+      >
+        <img src="/images/onehalf.svg" alt="half" width="35"/>
+      </div>
       <router-link to="/"
-        class="w-32 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium ml-auto"
+        class="w-32 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium"
+        :class="{'ml-auto': !canDivideInHalf}"
       >
         Nazad
       </router-link>
@@ -40,13 +48,18 @@
         </div>
       </div>
     </div>
+    <!-- <QuantityModal /> -->
   </div>
 </template>
 
 <script>
+  import QuantityModal from '../Modals/QuantityModal.vue'
+
   export default {
+  components: { QuantityModal },
     data: () => ({
       showCategories: true,
+      customQty: null,
     }),
     computed: {
       activeParentCategoryId() {
@@ -61,6 +74,9 @@
       inventory() {
         return this.$store.getters.inventoryForCategory
       },
+      canDivideInHalf() {
+        return this.$store.getters.lastItemInOrder && this.$store.getters.lastItemInOrder.sold_by === 1
+      }
     },
     mounted() {
 
@@ -73,6 +89,9 @@
       setActiveCategory(id) {
         this.$store.commit('setActiveCategory', id)
         this.showCategories = false
+      },
+      halfPortion() {
+        this.$store.commit('lastOrderHalfPortion')
       },
       addToOrder(item) {
         this.$store.commit('setOrder', {...item, table_id: this.$route.params.id})
@@ -92,5 +111,10 @@
 
   .InventoryBox:active {
     background: #777;
+  }
+
+  .OneHalf {
+    height: 52px;
+    width: 72px;
   }
 </style>

@@ -25,7 +25,7 @@ class InvoiceController extends Controller
 
     public function allForToday()
     {
-      return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->get());
+      return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
     }
 
     /**
@@ -64,7 +64,7 @@ class InvoiceController extends Controller
       $invoice = Invoice::find($id);
       if($invoice)
         $invoice->update(['status' => Invoice::STATUS_REFUNDED]);
-      return InvoiceResource::collection(Invoice::all());;
+      return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
     }
 
     public function todayTransactions()

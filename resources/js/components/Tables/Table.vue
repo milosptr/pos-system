@@ -1,8 +1,13 @@
 <template>
   <div class="h-screen flex flex-col justify-between">
-    <div class="p-4">
-      <div class="text-2xl font-bold border-b border-gray-200 pb-1 uppercase">
-        Račun za sto #{{ tableNo }}
+    <div class="p-4 pb-0">
+      <div class="flex items-center justify-between">
+        <div class="text-2xl font-bold  pb-1 uppercase">
+          Račun #{{ tableNo }}
+        </div>
+        <div>
+          <img src="/images/dot-menu.svg" alt="submenu" width="32">
+        </div>
       </div>
       <div class="OrderSidebar">
         <SingleOrder :order="order" :index="orders.length + 1" :saved="false" />
@@ -74,7 +79,7 @@
 
 <style scoped>
   .OrderSidebar {
-    max-height: 80vh;
+    max-height: 83vh;
     overflow-y: scroll;
   }
 </style>

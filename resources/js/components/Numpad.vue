@@ -1,12 +1,15 @@
 <template>
   <div class="">
-    <div class="text-center text-4xl font-semibold mb-6">Unesite Pin</div>
-    <div class="grid grid-cols-4 gap-3 NumpadWidth mx-auto">
+    <div class="text-center text-3xl font-semibold mb-6 uppercase">Unesite Kolicinu</div>
+    <div class="NumpadWidth mx-auto relative w-full">
       <div
-        class="border border-gray-300 bg-gray-50 rounded-sm flex items-center justify-center w-full aspect-w-1 aspect-h-1"
+        class="col-span-2 border border-gray-300 bg-gray-50 rounded-sm flex items-center justify-center w-full py-5"
         :class="{'border-red-500 error' : status === false}"
       >
-        <div class="text-5xl font-semibold text-center leading-none pt-10">{{ value }}</div>
+        <div class="w-full pl-5 text-5xl font-semibold leading-none MinValueHeight">{{ value.join('') }}</div>
+        <div class="absolute top-0 right-0 flex items-center justify-center BackspaceHeight pr-3" @click="clear">
+          <img src="/images/backspace.svg" alt="obrisi" width="64" />
+        </div>
       </div>
     </div>
     <div class="grid grid-cols-3 gap-3 NumpadWidth mx-auto mt-10">
@@ -28,9 +31,9 @@
 <script>
   export default {
     data: () => ({
-      value: '',
+      value: [''],
+      valueIndex: 0,
       status: null,
-      pinIndex: 0,
       keys: [
         { key: 1, background: 'bg-gray-300', color: 'text-gray-900' },
         { key: 2, background: 'bg-gray-300', color: 'text-gray-900' },
@@ -47,27 +50,18 @@
       ]
     }),
     methods: {
+      clear() {
+        this.value = ['']
+      },
       enterKey(key) {
         this.status = null
         if(key === 'Enter') {
-          if(!this.pin.some((p) => p === '')) {
-            axios.post('/api/validate-pin', { pin: parseInt(this.pin.join(''))})
-              .then((res) => {
-                this.status = res.data.status
-                if(this.status) this.$emit('success')
-              })
-          }
-          return
-        }
-        if(key === 'Obriši' && this.pinIndex > 0) {
-          this.pinIndex--
-          this.pin[this.pinIndex] = ''
-          return
+
         }
 
-        if(this.pinIndex < 4 && key !== 'Enter' && key !== 'Obriši') {
-          this.pin[this.pinIndex] = key
-          this.pinIndex++
+        if(key !== 'Enter') {
+          this.value[this.valueIndex] = key
+          this.valueIndex++
         }
       }
     }
@@ -81,6 +75,14 @@
 
   .NumpadWidth {
     width: 90%;
+  }
+
+  .BackspaceHeight {
+    height: 90px;
+  }
+
+  .MinValueHeight {
+    min-height: 48px;
   }
 
   @keyframes ErrorShake {

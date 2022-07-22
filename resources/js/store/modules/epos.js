@@ -130,17 +130,17 @@ const general = {
     setOrders( state, orders ) {
       state.orders = [ ...state.orders, ...orders]
     },
+    lastOrderHalfPortion( state ) {
+      const lastItem = state.order.at(-1)
+      lastItem.qty = lastItem.qty === 0.5 ? lastItem.qty : (lastItem.qty - 0.5)
+    },
     setOrder( state, order ) {
-      let shouldAdd = true
-      state.order = state.order.map((o) => {
-        if(o.id === order.id) {
-          o.qty += 1
-          shouldAdd = false
-        }
-        return o
-      })
+      let hasOrder = state.order.find((o) => o.id === order.id)
+      if(hasOrder) hasOrder.qty += order.qty
+      if(!hasOrder) hasOrder = order
+      state.order = state.order.filter((o) => o.id !== order.id)
 
-      if(shouldAdd) state.order = [ ...state.order, order]
+      state.order = [ ...state.order, hasOrder]
     },
     clearOrder( state ) {
       state.order = []
@@ -187,6 +187,9 @@ const general = {
     },
     order( state ) {
       return state.order
+    },
+    lastItemInOrder( state ) {
+      return state.order.at(-1)
     },
     waiters( state ) {
       return state.waiters
