@@ -31,7 +31,7 @@
         const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, { 'cluster' : import.meta.env.VITE_PUSHER_APP_CLUSTER })
         pusher.subscribe('broadcasting')
         pusher.bind('tables-update', (data) => {
-            console.log('add adequate logic for getting updated tables')
+            this.$store.dispatch('getTables')
         })
       }
     }
