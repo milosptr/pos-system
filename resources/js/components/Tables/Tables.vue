@@ -12,7 +12,7 @@
       <div class="relative flex items-center justify-center h-full text-3xl font-bold">
         {{ tableNumber(table.table_number) }}
         <div v-if="table.total" class="absolute bottom-0 left-0 w-full text-center text-xl font-semibold" style="line-height: 1">
-          {{ formatPrice(table.total) }} RSD
+          {{ $filters.formatPrice(table.total) }} RSD
         </div>
       </div>
     </router-link>
@@ -56,9 +56,6 @@
           return 'N'
         return n
       },
-      formatPrice(price) {
-        return parseInt(price).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
-      }
     }
   }
 </script>

@@ -4,22 +4,22 @@
       <canvas width="700" height="276" id="transactionsGraph"></canvas>
       <div class="absolute left-0 top-0 text-center w-full font-bold text-4xl flex items-center justify-center" style="height: 276px">
         <div class="">
-          {{ formatPrice(transactions.neto) }}
+          {{ $filters.formatPrice(transactions.neto) }}
         </div>
       </div>
     </div>
     <div class="mt-10 text-2xl">
       <div class="flex justify-between items-center py-2 font-medium">
         <div>Gotovina</div>
-        <div>{{ formatPrice(transactions.total) }} RSD</div>
+        <div>{{ $filters.formatPrice(transactions.total) }} RSD</div>
       </div>
       <div class="flex justify-between items-center py-2 pb-3 border-b border-gray-300 font-medium">
         <div>Storno</div>
-        <div>{{ formatPrice(transactions.storno) }} RSD</div>
+        <div>{{ $filters.formatPrice(transactions.storno) }} RSD</div>
       </div>
       <div class="flex justify-between items-center py-2 pt-3 font-bold">
         <div>Ukupno</div>
-        <div>{{ formatPrice(transactions.neto) }} RSD</div>
+        <div>{{ $filters.formatPrice(transactions.neto) }} RSD</div>
       </div>
     </div>
     <div class="flex justify-center mt-10" @click="$emit('close')">
@@ -71,10 +71,5 @@
           }, 700);
         })
     },
-    methods: {
-      formatPrice(price) {
-        return parseInt(price).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
-      }
-    }
   }
 </script>
