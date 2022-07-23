@@ -40,11 +40,11 @@
         let innerHeight = window.innerHeight - 108
         let colWidth = innerWidth / 6
         let colHeight = innerHeight / 6
-        let boxWidth = table.size ? 205 : 135
-        let boxHeight = table.size ? 115 : 135
+        let boxWidth = table.size ? 180 : 120
+        let boxHeight = table.size ? 100 : 120
         if(table.rotate) {
-          boxWidth = 135
-          boxHeight = 205
+          boxWidth = 120
+          boxHeight = 180
         }
         let marginTop = 0
         let marginLeft = (colWidth - boxWidth) / 2
@@ -95,16 +95,16 @@
   }
 
   .SingleTable {
-    width: 205px;
-    height: 115px;
+    width: 180px;
+    height: 100px;
   }
   .SingleTable.Small {
-    width: 135px;
-    height: 135px;
+    width: 120px;
+    height: 120px;
   }
   .SingleTable.Rotate {
-    height: 205px;
-    width: 135px!important;
+    height: 180px;
+    width: 120px!important;
   }
 
   .SingleTable.HasOrders {
@@ -113,13 +113,13 @@
 
   @media(max-width: 1400px) {
     .SingleTable {
-      width: 205px;
+      width: 180px;
     }
     .SingleTable.Small {
       width: 130px;
     }
     .SingleTable.Rotate {
-      width: 205px;
+      width: 180px;
     }
   }
 
