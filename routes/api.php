@@ -1,15 +1,17 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\TableController;
-use App\Http\Controllers\UsersController;
-use App\Http\Controllers\ValidatePinController;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\TableController;
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ValidatePinController;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,3 +60,7 @@ Route::get('waiters', [UsersController::class, 'waiters']);
 
 // Pin
 Route::post('validate-pin', [ValidatePinController::class, 'validatePin']);
+
+//Dashboard
+Route::get('revenue', [DashboardController::class, 'revenue']);
+Route::get('active-orders', [DashboardController::class, 'activeOrders']);
