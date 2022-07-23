@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Table;
 use Illuminate\Http\Request;
 use App\Http\Resources\TableResource;
@@ -69,12 +70,12 @@ class TableController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Table  $table
      * @return \Illuminate\Http\Response
      */
-    public function edit(Table $table)
+    public function available()
     {
-        //
+        $takenIds = array_unique(Order::all()->pluck('table_id')->toArray());
+        return TableResource::collection(Table::whereNotIn('id', $takenIds)->get());
     }
 
     /**

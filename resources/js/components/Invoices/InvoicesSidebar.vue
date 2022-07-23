@@ -8,12 +8,14 @@
         <img v-if="invoice.status" src="/images/refund.svg" class="ml-auto mr-2" alt="print" width="32" @click="refund" />
         <img src="/images/printer.svg" alt="print" width="32" />
       </div>
-      <SingleOrder
-        :order="invoice"
-        :showOrderLine="false"
-        :boxBackground="false"
-        :class="{'text-red-500': invoice.status === 0}"
-      />
+      <div class="OrderSidebar overflow-x-hidden">
+        <SingleOrder
+          :order="invoice"
+          :showOrderLine="false"
+          :boxBackground="false"
+          :class="{'text-red-500': invoice.status === 0}"
+        />
+      </div>
     </div>
     <div
       class="p-4 flex items-center justify-between border-t border-gray-200 pt-4"
@@ -51,3 +53,10 @@ import SingleOrder from "../Tables/SingleOrder.vue"
     }
   }
 </script>
+
+<style scoped>
+  .OrderSidebar {
+      max-height: 83vh;
+      overflow-y: scroll;
+    }
+</style>

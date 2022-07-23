@@ -24,6 +24,8 @@
     },
     "dependencies": {
         "@vitejs/plugin-vue": "^2.3.3",
+        "click-outside-vue3": "^4.0.1",
+        "interactjs": "^1.10.17",
         "pusher-js": "^7.2.0",
         "vue": "^3.2.36",
         "vue-loader": "^17.0.0",

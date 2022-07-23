@@ -10,19 +10,20 @@
       >
         {{ parent.name }}
       </div>
-      <div
-        v-if="canDivideInHalf"
-        class="bg-gray-500 flex items-center justify-center text-lg uppercase font-medium OneHalf ml-auto"
-        @click="halfPortion"
-      >
-        <img src="/images/onehalf.svg" alt="half" width="35"/>
+      <div class="flex ml-auto gap-2">
+        <div
+          v-if="canDivideInHalf"
+          class="bg-gray-500 flex items-center justify-center text-lg uppercase font-medium OneHalf ml-auto"
+          @click="halfPortion"
+        >
+          <img src="/images/onehalf.svg" alt="half" width="35"/>
+        </div>
+        <router-link to="/"
+          class="w-32 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium"
+        >
+          Nazad
+        </router-link>
       </div>
-      <router-link to="/"
-        class="w-32 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium"
-        :class="{'ml-auto': !canDivideInHalf}"
-      >
-        Nazad
-      </router-link>
     </div>
     <div v-if="showCategories" class="grid grid-cols-4 gap-2 mt-4">
       <div
@@ -48,7 +49,7 @@
         </div>
       </div>
     </div>
-    <!-- <QuantityModal /> -->
+    <QuantityModal v-if="showQuantityModal" @close="showQuantityModal = false" />
   </div>
 </template>
 
@@ -59,6 +60,7 @@
   components: { QuantityModal },
     data: () => ({
       showCategories: true,
+      showQuantityModal: false,
       customQty: null,
     }),
     computed: {
@@ -76,7 +78,10 @@
       },
       canDivideInHalf() {
         return this.$store.getters.lastItemInOrder && this.$store.getters.lastItemInOrder.sold_by === 1
-      }
+      },
+      canSelectGrams() {
+        return this.$store.getters.lastItemInOrder && this.$store.getters.lastItemInOrder.sold_by === 2
+      },
     },
     mounted() {
 
@@ -95,6 +100,8 @@
       },
       addToOrder(item) {
         this.$store.commit('setOrder', {...item, table_id: this.$route.params.id})
+        if(item.sold_by === 2)
+          this.showQuantityModal = true
       }
     }
   }

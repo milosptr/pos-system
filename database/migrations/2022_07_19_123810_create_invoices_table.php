@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('total');
             $table->integer('payment_type')->nullable();
             $table->text('note')->nullable();
+            $table->unsignedBigInteger('refund_reason_id')->references('id')->on('refund_reasons')->nullable();
             $table->timestamps();
         });
     }

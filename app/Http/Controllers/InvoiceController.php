@@ -44,11 +44,12 @@ class InvoiceController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(InvoiceStoreRequest $request)
+    public function store(InvoiceStoreRequest $request, $orderID = null)
     {
       $invoice = Invoice::create($request->all());
       if ($invoice) {
-        Order::where('table_id', $request->get('table_id'))->delete();
+        if($orderID) Order::where('id', $orderID)->delete();
+        if(!$orderID) Order::where('table_id', $request->get('table_id'))->delete();
         app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
       }
       return $invoice;

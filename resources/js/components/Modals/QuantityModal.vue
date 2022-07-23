@@ -1,6 +1,6 @@
 <template>
   <Modal :numpad="true">
-      <Numpad />
+      <Numpad @input="handleValue" :subtitle="lastItemInOrder.name" />
   </Modal>
 </template>
 
@@ -9,7 +9,22 @@
   import Numpad from '../Numpad.vue'
 
   export default {
-  components: { Modal, Numpad },
-
+    components: { Modal, Numpad },
+    data: () => ({
+    }),
+    computed: {
+      lastItemInOrder() {
+        return this.$store.getters.lastItemInOrder
+      },
+    },
+    methods: {
+      handleValue(v) {
+        let qty = parseFloat(v)
+        if(qty) {
+          this.$store.commit('setLastOrderCustomQty', qty)
+          this.$emit('close')
+        }
+      }
+    }
   }
 </script>

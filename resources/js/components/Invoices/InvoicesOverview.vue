@@ -48,7 +48,8 @@
         {{ invoice?.table?.name }}
       </div>
       <div class="text-center">
-        {{ invoice.status ? 'Naplacen' : 'Storniran' }}
+        <div>{{ invoice.status ? 'Naplacen' : 'Storniran' }}</div>
+        <div class="text-sm">{{ invoice.refund_reason }}</div>
       </div>
       <div class="text-center">
         {{ invoice.user.name }}

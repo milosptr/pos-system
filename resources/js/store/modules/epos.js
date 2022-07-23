@@ -28,6 +28,12 @@ const general = {
       dispatch('getInventory')
       dispatch('getWaiters')
     },
+    moveOrdersToTable( {dispatch}, data) {
+      axios.post(`/api/orders/move/${data.from}/${data.to}`)
+        .then(() => {
+          dispatch('getTables')
+        })
+    },
     getWaiters( { commit }) {
       axios.get('/api/waiters')
         .then((res) => {
@@ -74,21 +80,27 @@ const general = {
           commit('setInventory', res.data.data)
         })
     },
+    storeRefundItem( {}, order) {
+      let total = order.order.reduce((a, val) => a + (val.refund ? 0 : (val.qty * val.price)), 0)
+      console.log({...order, total});
+      axios.post(`/api/orders/${order.id}/refund-item`, {...order, total})
+    },
     storeOrder( {commit, dispatch, state }, table_id) {
       let total = state.order.reduce((a, b) => a + b.price * b.qty, 0)
       axios.post('/api/orders', { table_id, order: state.order, total})
         .then(() => {
           dispatch('getTables')
+          dispatch('getTableOrders')
         })
     },
-    cashOut( {commit, dispatch, state }, table_id) {
+    cashOut( {commit, dispatch, state }, data) {
       let orders = []
       state.orders.forEach((o) => { orders = [...orders, ...o.order]})
       axios.post('/api/invoices', {
         user_id: state.selectedWaiterId,
-        table_id,
         order: orders,
-        total: orders.reduce((a, b) => a + b.price * b.qty, 0)
+        total: orders.reduce((a, b) => a + (b.refund ? 0 : (b.price * b.qty)), 0),
+        ...data
       })
         .then((res) => {
           dispatch('getTables')
@@ -133,6 +145,15 @@ const general = {
     lastOrderHalfPortion( state ) {
       const lastItem = state.order.at(-1)
       lastItem.qty = lastItem.qty === 0.5 ? lastItem.qty : (lastItem.qty - 0.5)
+    },
+    setLastOrderCustomQty( state, qty ) {
+      const lastItem = state.order.at(-1)
+      lastItem.qty = qty > 0 ? qty : 1
+    },
+    refundItem( state, data) {
+      const order = state.orders.find((o) => o.id === data.order.id)
+      const item = order.order.find((i) => i.id === data.item.id)
+      item.refund = !item.refund
     },
     setOrder( state, order ) {
       let hasOrder = state.order.find((o) => o.id === order.id)

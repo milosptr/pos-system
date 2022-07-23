@@ -86,9 +86,24 @@ class OrderController extends Controller
      * @param  \App\Models\Order  $order
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Order $order)
+    public function update(Request $request, $id)
     {
-        //
+      $order = Order::find($id);
+      $order->update($request->only(['order', 'total', 'table_id']));
+      app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+      return $order;
+    }
+
+    public function move($fromId, $toId)
+    {
+      $orders = Order::where('table_id', $fromId)->get();
+      // foreach order move from table to table
+      foreach($orders as $order) {
+        $order->table_id = $toId;
+        $order->save();
+      }
+      app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+      return response('Order moved!', 200);
     }
 
     /**

@@ -1,6 +1,9 @@
 <template>
   <div class="">
-    <div class="text-center text-3xl font-semibold mb-6 uppercase">Unesite Kolicinu</div>
+    <div class="text-center text-3xl font-semibold mb-6 uppercase">
+      Unesite Kolicinu
+      <div v-if="subtitle.length">za {{ subtitle }}</div>
+    </div>
     <div class="NumpadWidth mx-auto relative w-full">
       <div
         class="col-span-2 border border-gray-300 bg-gray-50 rounded-sm flex items-center justify-center w-full py-5"
@@ -30,6 +33,12 @@
 
 <script>
   export default {
+    props: {
+      subtitle: {
+        type: String,
+        default: () => ''
+      }
+    },
     data: () => ({
       value: [''],
       valueIndex: 0,
@@ -44,7 +53,7 @@
         { key: 7, background: 'bg-gray-300', color: 'text-gray-900' },
         { key: 8, background: 'bg-gray-300', color: 'text-gray-900' },
         { key: 9, background: 'bg-gray-300', color: 'text-gray-900' },
-        { key: ',', background: 'bg-gray-300', color: 'text-gray-900' },
+        { key: '.', background: 'bg-gray-300', color: 'text-gray-900' },
         { key: 0, background: 'bg-gray-300', color: 'text-gray-900' },
         { key: 'Enter', background: 'bg-green-600', color: 'text-white'},
       ]
@@ -52,11 +61,12 @@
     methods: {
       clear() {
         this.value = ['']
+        this.$emit('input', this.value)
       },
       enterKey(key) {
         this.status = null
         if(key === 'Enter') {
-
+          this.$emit('input', this.value.join(''))
         }
 
         if(key !== 'Enter') {

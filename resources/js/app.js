@@ -2,6 +2,7 @@ import './bootstrap'
 import '../css/app.css'
 import { createApp } from 'vue'
 import Portal from 'vue3-portal'
+import vClickOutside from "click-outside-vue3"
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -10,6 +11,8 @@ const app = createApp(App)
   .use(router)
   .use(store)
   .use(Portal)
+  .use(vClickOutside)
+
 
 const backoffice = createApp(App)
   .use(Portal)

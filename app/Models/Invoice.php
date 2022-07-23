@@ -14,7 +14,7 @@ class Invoice extends Model
     CONST STATUS_REFUNDED = 0;
     CONST STATUS_PAYED = 1;
 
-    protected $fillable = ['user_id', 'table_id', 'status', 'order', 'total', 'payment_type', 'note'];
+    protected $fillable = ['user_id', 'table_id', 'status', 'order', 'total', 'payment_type', 'note', 'refund_reason_id',];
     protected $casts = ['order' => 'array'];
     public $timestamps = true;
 
@@ -29,5 +29,10 @@ class Invoice extends Model
     public function user()
     {
       return $this->belongsTo(User::class);
+    }
+
+    public function refundReason()
+    {
+      return $this->belongsTo(RefundReason::class);
     }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full TablesWrapper grid grid-cols-6 grid-rows-6">
+  <div class="relative w-full TablesWrapper grid grid-cols-6 grid-rows-6 pt-1 pb-3">
     <router-link
       v-for="table in tables"
       :key="table.id"
@@ -11,8 +11,8 @@
     >
       <div class="relative flex items-center justify-center h-full text-3xl font-bold">
         {{ tableNumber(table.table_number) }}
-        <div v-if="table.total" class="absolute bottom-0 left-0 w-full text-center text-xl font-semibold" style="line-height: 1">
-          {{ $filters.formatPrice(table.total) }} RSD
+        <div v-if="table.total" class="absolute bottom-0 left-0 w-full text-center text-xl font-semibold mb-1" style="line-height: 1">
+          {{ $filters.formatPrice(table.total) }},00
         </div>
       </div>
     </router-link>
@@ -36,13 +36,30 @@
         this.$store.commit('setActiveTable', table)
       },
       tablePosition(table) {
+        let innerWidth = window.innerWidth
+        let innerHeight = window.innerHeight - 108
+        let colWidth = innerWidth / 6
+        let colHeight = innerHeight / 6
+        let boxWidth = table.size ? 205 : 135
+        let boxHeight = table.size ? 115 : 135
+        if(table.rotate) {
+          boxWidth = 135
+          boxHeight = 205
+        }
+        let marginTop = 0
+        let marginLeft = (colWidth - boxWidth) / 2
         const gridArea = `grid-area: ${table.position_y}/${table.position_x};`
-        const defaultMargin = table.size ? 'margin: 0 7px;' : 'margin: 6px 45px;'
-        const middleYPosition = table.position_y_middle ? (table.size ? 'margin: 60px 0 0 8px;' : `margin: 50px 0 0 46px;`) : defaultMargin
-        const middleXPosition = table.position_x_middle ? (table.size ? 'margin: 0px 0 0 120px;' : `margin: 6px 158px;`) : defaultMargin
-        const middleXYPosition = table.position_x_middle && table.position_y_middle ? (table.size ? 'margin: 60px 0 0 120px;' : `margin: 50px 158px;`) : defaultMargin
-        const middlePosition = table.position_x_middle && table.position_y_middle ? middleXYPosition : (table.position_x_middle ? middleXPosition : middleYPosition)
-        return [gridArea, middlePosition];
+
+        if(table.position_x_middle) {
+          marginLeft = colWidth - boxWidth / 2
+        }
+
+        if(table.position_y_middle) {
+          marginTop = colHeight - boxHeight / 2
+        }
+
+        const margin = `margin: ${marginTop}px 0 0 ${marginLeft}px;`
+        return [gridArea, margin];
       },
       tableClasses(table) {
         let classes = []
@@ -68,30 +85,30 @@
   }
   .SingleTable {
     box-sizing: border-box;
-    aspect-ratio: 16/9;
-    /* height: 13%; */
-    width: 9%;
+    /* aspect-ratio: 16/9; */
     border: 8px solid #56b44f;
     background: #fff;
     margin: 1%;
     position: absolute;
+    transition: all .3s ease-in-out;
+    animation: scaleTable .3s ease-in-out forwards;
+  }
+
+  .SingleTable {
+    width: 205px;
+    height: 115px;
+  }
+  .SingleTable.Small {
+    width: 135px;
+    height: 135px;
+  }
+  .SingleTable.Rotate {
+    height: 205px;
+    width: 135px!important;
   }
 
   .SingleTable.HasOrders {
     border: 8px solid rgb(220, 38, 38);
-  }
-
-  .SingleTable.Rotate {
-    transform: rotate(90deg);
-    aspect-ratio: 13/9;
-  }
-
-  .SingleTable.Rotate > div{
-    transform: rotate(-90deg)
-  }
-
-  .SingleTable.Small {
-    aspect-ratio: 1/1;
   }
 
   @media(max-width: 1400px) {
@@ -105,9 +122,20 @@
       width: 205px;
     }
   }
+
   @media(max-width: 1024px) {
     .SingleTable {
-      width: 18%;
+      transform: scale(0.8)!important;
     }
   }
+
+  @keyframes scaleTable {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
 </style>

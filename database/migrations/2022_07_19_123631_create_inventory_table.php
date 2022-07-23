@@ -22,7 +22,7 @@ return new class extends Migration
             $table->smallInteger('sold_by')->default(1);
             $table->integer('price');
             $table->string('sku')->nullable();
-            $table->integer('qty')->nullable();
+            $table->float('qty')->nullable();
             $table->string('color')->nullable();
             $table->unsignedInteger('order')->default(0);
             $table->timestamps();

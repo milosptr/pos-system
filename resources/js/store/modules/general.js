@@ -2,6 +2,7 @@ const general = {
   state: () => ({
     invoices: [],
     activeInvoice: null,
+    openedDeleteButton: null
   }),
 
   actions: {
@@ -27,6 +28,9 @@ const general = {
     setActiveInvoice( state, id ) {
       state.activeInvoice = state.invoices.find((i) => i.id === id)
     },
+    setOpenedDeleteButton( state, btn ) {
+      state.openedDeleteButton = btn
+    },
   },
 
   getters: {
@@ -36,6 +40,9 @@ const general = {
     activeInvoice(state) {
       return state.activeInvoice
     },
+    openedDeleteButton(state) {
+      return state.openedDeleteButton
+    }
   }
 }
 
