@@ -20,14 +20,14 @@
           class="rounded-md bg-primary text-white text-xl py-5 px-6 flex items-center gap-3"
           @click="showTransactionsModal = true"
         >
-          <img src="/images/coins.svg" alt="icon" width="28" />
+          <img :src="$filters.imgUrl('coins.svg')" alt="icon" width="28" />
           <div class="uppercase w-full tracking-wide font-medium">Promet</div>
         </div>
         <div
           class="rounded-md bg-primary text-white text-xl py-5 px-6 flex items-center gap-3"
            @click="showInvoicesModal = true"
         >
-          <img src="/images/receipt.svg" alt="icon" width="28" />
+          <img :src="$filters.imgUrl('receipt.svg')" alt="icon" width="28" />
           <div class="uppercase w-full tracking-wide font-medium">Racuni</div>
         </div>
       </div>

@@ -22,6 +22,9 @@ app.config.globalProperties.$filters = {
     if(!value)
       return 0
     return parseInt(value).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
+  },
+  imgUrl(url) {
+    return new URL('/images/' + url, import.meta.env.VITE_APP_URL).href
   }
 }
 

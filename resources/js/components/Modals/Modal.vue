@@ -7,7 +7,7 @@
         :class="[ numpad ? 'NumpadWidth' : 'w-1/2' ]"
       >
         <div class="absolute right-0 top-0 p-3">
-          <img src="/images/close.svg" alt="close" width="36" @click="$emit('close')" />
+          <img :src="$filters.imgUrl('close.svg')" alt="close" width="36" @click="$emit('close')" />
         </div>
         <div class="pt-5 h-full">
           <slot></slot>

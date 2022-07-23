@@ -16,7 +16,7 @@
           class="bg-gray-500 flex items-center justify-center text-lg uppercase font-medium OneHalf ml-auto"
           @click="halfPortion"
         >
-          <img src="/images/onehalf.svg" alt="half" width="35"/>
+          <img :src="$filters.imgUrl('onehalf.svg')" alt="half" width="35"/>
         </div>
         <router-link to="/"
           class="w-32 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium"

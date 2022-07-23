@@ -17,7 +17,7 @@
       :class="{'ShowButton': !order.refund}"
       @click="refundItem"
     >
-      <img src="/images/trash.svg" alt="remove" width="32">
+      <img :src="$filters.imgUrl('trash.svg')" alt="remove" width="32">
     </div>
     <div
       v-show="order.refund"
@@ -25,7 +25,7 @@
       :class="{'ShowButton': order.refund}"
       @click="refundItem"
     >
-      <img src="/images/rotate-back.svg" alt="remove" width="32">
+      <img :src="$filters.imgUrl('rotate-back.svg')" alt="remove" width="32">
     </div>
   </div>
 </template>

@@ -6,7 +6,8 @@
           Račun #{{ tableNo }}
         </div>
         <div @click="showTableMenu = true">
-          <img src="/images/dot-menu.svg" alt="submenu" width="32">
+          <img :src="$filters.imgUrl('dot-menu.svg')" alt="submenu" width="32">
+          <DotMenu />
         </div>
         <TableMenu v-if="showTableMenu" @selected="handleTableMenu" @close="showTableMenu = false" />
       </div>

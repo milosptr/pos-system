@@ -5,8 +5,8 @@
         <div class="text-2xl font-bold uppercase">
           Račun broj #{{ invoice?.id }}
         </div>
-        <img v-if="invoice.status" src="/images/refund.svg" class="ml-auto mr-2" alt="print" width="32" @click="refund" />
-        <img src="/images/printer.svg" alt="print" width="32" />
+        <img v-if="invoice.status" :src="$filters.imgUrl('refund.svg')" class="ml-auto mr-2" alt="print" width="32" @click="refund" />
+        <img :src="$filters.imgUrl('printer.svg')" alt="print" width="32" />
       </div>
       <div class="OrderSidebar overflow-x-hidden">
         <SingleOrder

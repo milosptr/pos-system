@@ -11,7 +11,7 @@
       >
         <div class="w-full pl-5 text-5xl font-semibold leading-none MinValueHeight">{{ value.join('') }}</div>
         <div class="absolute top-0 right-0 flex items-center justify-center BackspaceHeight pr-3" @click="clear">
-          <img src="/images/backspace.svg" alt="obrisi" width="64" />
+          <img :src="$filters.imgUrl('backspace.svg')" alt="obrisi" width="64" />
         </div>
       </div>
     </div>
