@@ -13,8 +13,6 @@ const app = createApp(App)
   .use(Portal)
   .use(vClickOutside)
 
-alert(window.innerWidth + 'x' + window.innerHeight)
-
 const backoffice = createApp(App)
   .use(Portal)
 

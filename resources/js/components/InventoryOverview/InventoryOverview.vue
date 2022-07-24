@@ -41,7 +41,7 @@
       <div
         v-for="item in inventory"
         :key="item.id"
-        class="InventoryBox flex items-center justify-center rounded-sm"
+        class="InventoryBox InventoryItem flex items-center justify-center rounded-sm"
         @click="addToOrder(item)"
         >
         <div class="text-center font-bold">
@@ -114,10 +114,15 @@
     background: #d5d5d5;
     font-size: 23px;
     font-weight: 500;
+    line-height: 1.2em;
   }
 
   .InventoryBox:active {
     background: #777;
+  }
+
+  .InventoryBox.InventoryItem {
+    font-size: 20px;
   }
 
   .OneHalf {
