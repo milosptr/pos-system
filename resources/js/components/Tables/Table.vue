@@ -49,7 +49,7 @@
 </template>
 
 <script>
-  import { connectToPrinter } from '../../printing'
+  import { connectToPrinter, printAgain } from '../../printing'
   import CacheOutModal from '../Modals/CacheOutModal.vue'
   import MoveTableModal from '../Modals/MoveTableModal.vue'
   import RefundReasonModal from '../Modals/RefundReasonModal.vue'
@@ -90,6 +90,7 @@
     },
     methods: {
       storeOrder() {
+        printAgain()
         if(this.order.order.length) {
           this.$store.dispatch('storeOrder', this.$route.params.id)
         }
@@ -108,7 +109,7 @@
       },
       charge() {
         this.$store.dispatch('cashOut', { table_id: this.$route.params.id, status: 1 })
-        this.$router.push('/')
+        // this.$router.push('/')
         connectToPrinter()
       },
       handleTableMenu(item) {
