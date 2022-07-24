@@ -90,7 +90,6 @@
     },
     methods: {
       storeOrder() {
-        printAgain()
         if(this.order.order.length) {
           this.$store.dispatch('storeOrder', this.$route.params.id)
         }
@@ -109,8 +108,7 @@
       },
       charge() {
         this.$store.dispatch('cashOut', { table_id: this.$route.params.id, status: 1 })
-        // this.$router.push('/')
-        connectToPrinter()
+        this.$router.push('/')
       },
       handleTableMenu(item) {
         if(item === 'move') {
