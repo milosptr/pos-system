@@ -40,6 +40,7 @@ Route::post('inventory', [InventoryController::class, 'store']);
 
 //Categories
 Route::get('categories', [CategoryController::class, 'index']);
+Route::get('categories/printing', [CategoryController::class, 'indexPrinting']);
 Route::post('categories', [CategoryController::class, 'store']);
 
 // Orders

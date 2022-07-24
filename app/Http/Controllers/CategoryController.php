@@ -20,6 +20,11 @@ class CategoryController extends Controller
         return new CategoryCollection(Category::all());
     }
 
+    public function indexPrinting()
+    {
+        return new CategoryCollection(Category::where('print', 1)->get());
+    }
+
     /**
      * Show the form for creating a new resource.
      *

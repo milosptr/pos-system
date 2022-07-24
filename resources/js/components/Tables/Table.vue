@@ -85,13 +85,16 @@
       },
     },
     mounted() {
+      this.$store.dispatch('getPrintingCategories')
       this.$store.dispatch('getCurrentTable', this.$route.params.id)
-      axios.get('/api/tables/available')
+      this.$store.commit('setEpsonDevice')
+      // axios.get('/api/tables/available')
     },
     methods: {
       storeOrder() {
         if(this.order.order.length) {
           this.$store.dispatch('storeOrder', this.$route.params.id)
+          this.$store.commit('setPrinterOrder')
         }
         this.$router.push('/')
       },
