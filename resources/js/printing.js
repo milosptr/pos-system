@@ -41,19 +41,14 @@ function callback_createDevice(deviceObj, retcode) {
         printer.addTextAlign(printer.ALIGN_LEFT);
         printer.addTextSize(1, 1);
         printer.addText(' Vreme: 22:34\n');
-        printer.addTextStyle(false, true, true, printer.COLOR_1);
-        printer.addTextSize(1, 1);
-        printer.addTextPosition(20);
-        printer.addTextLineSpace(30);
-        printer.addText(' \n\n');
         printer.addTextStyle(false, false, true, printer.COLOR_1);
+        printer.addTextSize(1, 2);
+        printer.addText(' —————————————————————————————————————————————\n');
         printer.addText(' 2 x Lepinja sa lukom\n');
         printer.addText(' 1 x Šopska salata\n');
         printer.addText(' 2 x Pogača\n');
         printer.addText(' 0,5 x Teleći ražnjić od bifteka\n');
-        printer.addTextStyle(false, true, true, printer.COLOR_1);
-        printer.addTextPosition(20);
-        printer.addText(' \n');
+        printer.addText(' —————————————————————————————————————————————\n');
         printer.addFeedLine(1);
         printer.addCut(printer.CUT_FEED);
 
