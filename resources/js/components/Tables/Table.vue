@@ -137,7 +137,7 @@
 
   @media (max-width: 1024px) {
     .OrderSidebar {
-      max-height: 70vh;
+      max-height: 72vh;
       overflow-y: scroll;
     }
     img {
