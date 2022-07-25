@@ -18,7 +18,7 @@ class WaitersResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'created_at' => Carbon::parse($this->created_at)->format('d.m.Y. H:s:i')
+            'created_at' => Carbon::parse($this->created_at)->format('d.m.Y. HH:mm')
         ];
     }
 }
