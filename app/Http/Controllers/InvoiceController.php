@@ -20,7 +20,7 @@ class InvoiceController extends Controller
      */
     public function all()
     {
-        return InvoiceResource::collection(Invoice::all());
+        return InvoiceResource::collection(Invoice::orderBy('id', 'DESC')->get());
     }
 
     public function allForToday()
@@ -71,8 +71,8 @@ class InvoiceController extends Controller
     public function todayTransactions()
     {
       return Invoice::selectRaw('sum(total) AS total')
-        ->selectRaw('sum(case when status = 0 then total else 0 end) as storno')
-        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as neto')
+        ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
+        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as income')
         ->selectRaw('70000 as maximum')
         ->whereBetween('created_at', WorkingDay::getWorkingDay())
         ->get()

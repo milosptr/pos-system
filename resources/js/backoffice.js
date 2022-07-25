@@ -3,17 +3,17 @@ import '../css/app.css'
 import { createApp } from 'vue'
 import Portal from 'vue3-portal'
 import vClickOutside from "click-outside-vue3"
-import App from './App.vue'
-import router from './router'
-import store from './store'
+import backofficeRouter from './backofficeRouter'
+import backofficeStore from './backofficeStore'
+import Backoffice from './Backoffice.vue'
 
-const app = createApp(App)
-  .use(router)
-  .use(store)
-  .use(Portal)
-  .use(vClickOutside)
+const backoffice = createApp(Backoffice)
+    .use(backofficeRouter)
+    .use(backofficeStore)
+    .use(Portal)
+    .use(vClickOutside)
 
-app.config.globalProperties.$filters = {
+backoffice.config.globalProperties.$filters = {
   formatPrice(value) {
     if(!value)
       return 0
@@ -24,4 +24,4 @@ app.config.globalProperties.$filters = {
   }
 }
 
-app.mount('#app')
+backoffice.mount('#backoffice')

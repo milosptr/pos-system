@@ -26,6 +26,7 @@ class TableResource extends JsonResource
             'position_x_middle' => $this->position_x_middle,
             'rotate' => $this->rotate,
             'size' => $this->size,
+            'orders' => $this->orders
         ];
     }
 }

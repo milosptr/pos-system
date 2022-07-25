@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use App\Models\Table;
 use App\Models\User;
+use App\Models\Table;
+use App\Models\Traits\Revenue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Invoice extends Model
 {
-    use HasFactory;
+    use HasFactory, Revenue;
 
     CONST STATUS_REFUNDED = 0;
     CONST STATUS_PAYED = 1;

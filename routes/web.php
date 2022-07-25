@@ -18,13 +18,10 @@ Route::get('/', function () {
 });
 
 Route::group(['middleware' => ['administrator', 'auth']], function () {
-  Route::get('/dashboard', function () {
-      return view('dashboard');
-  })->name('dashboard');
+  Route::get('/backoffice/', function () {
+      return view('backoffice');
+  })->name('backoffice');
 });
 
-Route::get('/app', function () {
-  return view('app');
-})->name('app');
 
 require __DIR__.'/auth.php';

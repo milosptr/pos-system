@@ -8,7 +8,7 @@
           <canvas :width="canvasWidth" :height="canvasHeight" id="transactionsGraph"></canvas>
           <div class="absolute left-0 top-0 text-center w-full font-bold text-4xl flex items-center justify-center" :style="`height: ${canvasHeight}px`">
             <div class="">
-              {{ $filters.formatPrice(transactions.neto) }}
+              {{ $filters.formatPrice(transactions.income) }}
             </div>
           </div>
         </div>
@@ -19,11 +19,11 @@
           </div>
           <div class="flex justify-between items-center py-1 pb-3 border-b border-gray-300 font-medium">
             <div>Storno</div>
-            <div>{{ $filters.formatPrice(transactions.storno) }} RSD</div>
+            <div>{{ $filters.formatPrice(transactions.refund) }} RSD</div>
           </div>
           <div class="flex justify-between items-center py-1 pt-3 font-bold">
             <div>Ukupno</div>
-            <div>{{ $filters.formatPrice(transactions.neto) }} RSD</div>
+            <div>{{ $filters.formatPrice(transactions.income) }} RSD</div>
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@
               gauge.maxValue = parseInt(this.transactions.maximum); // set max gauge value
               gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
               gauge.animationSpeed = 32; // set animation speed (32 is default value)
-              gauge.set(parseInt(this.transactions.neto)); // set actual value
+              gauge.set(parseInt(this.transactions.income)); // set actual value
             }, 500);
           })
       }

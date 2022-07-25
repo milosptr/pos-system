@@ -1,16 +1,18 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\InvoiceController;
+use App\Models\Invoice;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RefundReasonController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ValidatePinController;
-use App\Models\Invoice;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +46,7 @@ Route::get('categories/printing', [CategoryController::class, 'indexPrinting']);
 Route::post('categories', [CategoryController::class, 'store']);
 
 // Orders
-Route::get('orders', [OrderController::class, 'all']);
+Route::get('orders', [OrderController::class, 'index']);
 Route::get('orders/table/{id}', [OrderController::class, 'indexForTable']);
 Route::get('orders/{id}', [OrderController::class, 'index']);
 Route::post('orders', [OrderController::class, 'store']);
@@ -67,3 +69,9 @@ Route::get('refund-reasons', [RefundReasonController::class, 'index']);
 
 // Pin
 Route::post('validate-pin', [ValidatePinController::class, 'validatePin']);
+
+//Dashboard
+Route::get('revenue', [DashboardController::class, 'revenue']);
+Route::get('stats', [DashboardController::class, 'stats']);
+Route::get('active-orders', [DashboardController::class, 'activeOrders']);
+Route::get('users', [UsersController::class, 'index']);
