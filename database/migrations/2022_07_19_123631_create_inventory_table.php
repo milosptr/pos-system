@@ -25,6 +25,7 @@ return new class extends Migration
             $table->float('qty')->nullable();
             $table->string('color')->nullable();
             $table->unsignedInteger('order')->default(0);
+            $table->string('unit')->default('KOM');
             $table->timestamps();
         });
     }

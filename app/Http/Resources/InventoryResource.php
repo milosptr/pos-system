@@ -27,6 +27,7 @@ class InventoryResource extends JsonResource
             'qty' => $this->qty,
             'color' => $this->color,
             'order' => $this->order,
+            'unit' => $this->unit,
             'should_print' => $this->category->print
         ];
     }
