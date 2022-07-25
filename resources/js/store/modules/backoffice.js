@@ -7,6 +7,9 @@ const backoffice = {
         categories: [],
         inventory: [],
         users: [],
+        tables: [],
+        orders: [],
+        invoices: [],
         ordersFilters: {
             date: null
         }
