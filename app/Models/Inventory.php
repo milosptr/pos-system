@@ -17,4 +17,11 @@ class Inventory extends Model
     protected $fillable = ['category_id', 'name', 'description', 'active', 'sold_by', 'price', 'sku', 'qty', 'color', 'order'];
     protected $casts = ['order' => 'array'];
     public $timestamps = true;
+
+    // RELATIONSHIPS
+
+    public function category()
+    {
+      return $this->belongsTo(Category::class);
+    }
 }

@@ -35,4 +35,12 @@
   .NumpadWidth {
     width: 42%;
   }
+  @media (min-width: 1600px) {
+    .ModalHeight {
+      height: 85%;
+    }
+    .NumpadWidth {
+      width: 32%;
+    }
+  }
 </style>

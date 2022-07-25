@@ -59,4 +59,12 @@ import SingleOrder from "../Tables/SingleOrder.vue"
       max-height: 83vh;
       overflow-y: scroll;
     }
+  @media (max-width: 1024px) {
+    img {
+      width: 28px;
+    }
+    .text-2xl {
+      font-size: 16px;
+    }
+  }
 </style>

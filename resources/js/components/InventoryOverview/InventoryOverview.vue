@@ -30,7 +30,7 @@
         v-for="category in categories"
         :key="category.id"
         @click="setActiveCategory(category.id)"
-        class="InventoryBox flex items-center justify-center rounded-sm"
+        class="InventoryBox InventoryItem flex items-center justify-center rounded-sm"
         >
         <div class="text-center font-bold uppercase">
           {{ category.name }}
@@ -123,6 +123,12 @@
 
   .InventoryBox.InventoryItem {
     font-size: 20px;
+  }
+
+  @media (max-width: 1024px) {
+    .InventoryBox.InventoryItem {
+      font-size: 18px;
+    }
   }
 
   .OneHalf {

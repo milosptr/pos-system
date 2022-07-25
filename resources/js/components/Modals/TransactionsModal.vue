@@ -3,31 +3,31 @@
     <EnterPin v-show="!validPin" @success="success" />
     <div class="flex flex-col justify-between h-full" v-show="validPin">
       <div class="">
-        <div class="text-center text-3xl font-semibold mb-6 uppercase">Pregled prometa</div>
+        <div class="text-center text-2xl font-semibold mb-6 uppercase">Pregled prometa</div>
         <div class="flex flex-col items-center justify-center mt-10 relative">
-          <canvas width="700" height="276" id="transactionsGraph"></canvas>
-          <div class="absolute left-0 top-0 text-center w-full font-bold text-4xl flex items-center justify-center" style="height: 276px">
+          <canvas :width="canvasWidth" :height="canvasHeight" id="transactionsGraph"></canvas>
+          <div class="absolute left-0 top-0 text-center w-full font-bold text-4xl flex items-center justify-center" :style="`height: ${canvasHeight}px`">
             <div class="">
               {{ $filters.formatPrice(transactions.neto) }}
             </div>
           </div>
         </div>
-        <div class="mt-10 text-2xl">
-          <div class="flex justify-between items-center py-2 font-medium">
+        <div class="mt-10 text-xl">
+          <div class="flex justify-between items-center py-1 font-medium">
             <div>Gotovina</div>
             <div>{{ $filters.formatPrice(transactions.total) }} RSD</div>
           </div>
-          <div class="flex justify-between items-center py-2 pb-3 border-b border-gray-300 font-medium">
+          <div class="flex justify-between items-center py-1 pb-3 border-b border-gray-300 font-medium">
             <div>Storno</div>
             <div>{{ $filters.formatPrice(transactions.storno) }} RSD</div>
           </div>
-          <div class="flex justify-between items-center py-2 pt-3 font-bold">
+          <div class="flex justify-between items-center py-1 pt-3 font-bold">
             <div>Ukupno</div>
             <div>{{ $filters.formatPrice(transactions.neto) }} RSD</div>
           </div>
         </div>
       </div>
-      <div class="flex justify-center mt-10" @click="$emit('close')">
+      <div class="flex justify-center mt-8" @click="$emit('close')">
         <div class="w-48 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium">
           NAZAD
         </div>
@@ -46,6 +46,8 @@
       EnterPin,
     },
     data: () => ({
+      canvasWidth: 700,
+      canvasHeight: 276,
       transactions: {
         maximum: 70000,
         total: 0,
@@ -73,7 +75,10 @@
       }
     }),
     mounted() {
-
+      if(window.innerWidth < 1100) {
+        this.canvasWidth = 500
+        this.canvasHeight = 197
+      }
     },
     methods: {
       success() {
@@ -97,3 +102,7 @@
     }
   }
 </script>
+
+<style scoped>
+
+</style>

@@ -25,7 +25,8 @@ class InventoryResource extends JsonResource
             'sku' => $this->sku,
             'qty' => $this->qty,
             'color' => $this->color,
-            'order' => $this->order
+            'order' => $this->order,
+            'should_print' => $this->category->print
         ];
     }
 }

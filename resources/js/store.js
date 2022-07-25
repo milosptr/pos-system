@@ -4,6 +4,7 @@ import epos from './store/modules/epos'
 import printing from './store/modules/printing'
 
 const store = createStore({
+  namespaced: true,
 	modules: {
     general,
     epos,

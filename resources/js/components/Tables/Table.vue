@@ -85,7 +85,6 @@
       },
     },
     mounted() {
-      this.$store.dispatch('getPrintingCategories')
       this.$store.dispatch('getCurrentTable', this.$route.params.id)
       this.$store.commit('setEpsonDevice')
       // axios.get('/api/tables/available')
@@ -94,7 +93,6 @@
       storeOrder() {
         if(this.order.order.length) {
           this.$store.dispatch('storeOrder', this.$route.params.id)
-          this.$store.commit('setPrinterOrder')
         }
         this.$router.push('/')
       },
@@ -135,5 +133,11 @@
   .OrderSidebar {
     max-height: 79vh;
     overflow-y: scroll;
+  }
+
+  @media (max-width: 1024px) {
+    img {
+      width: 28px;
+    }
   }
 </style>

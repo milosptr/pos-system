@@ -7,3 +7,9 @@
   font-family: 'Montserrat', sans-serif;
   user-select: none;
 }
+
+@media (max-width: 1024px) {
+  html, body {
+    font-size: 14px;
+  }
+}

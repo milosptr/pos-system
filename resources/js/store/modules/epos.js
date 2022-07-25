@@ -88,7 +88,8 @@ const general = {
     storeOrder( {commit, dispatch, state }, table_id) {
       let total = state.order.reduce((a, b) => a + b.price * b.qty, 0)
       axios.post('/api/orders', { table_id, order: state.order, total})
-        .then(() => {
+      .then((res) => {
+          commit('setPrintingOrder', res.data.data, { root: true })
           dispatch('getTables')
           dispatch('getTableOrders')
         })
@@ -103,6 +104,8 @@ const general = {
         ...data
       })
         .then((res) => {
+          if(res.data.status)
+            commit('setPrintingInvoice', res.data, { root: true })
           dispatch('getTables')
         })
     },

@@ -7,7 +7,7 @@
     @click="shouldShowDelete"
   >
     <div class="font-semibold truncate">{{ order.name }}</div>
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center tbfs-1">
       <div><span class="font-semibold fs-14rem">{{ order.qty}}</span> <span class="font-semibold"> x </span> {{ $filters.formatPrice(order.price) }},00</div>
       <div class="font-semibold">{{ $filters.formatPrice(order.qty * order.price) }} RSD</div>
     </div>
@@ -90,6 +90,16 @@
 
   .fs-14rem {
     font-size: 1.4rem;
+  }
+
+  @media(max-width: 1024px) {
+    .tbfs-1 {
+      font-size: 1rem;
+    }
+
+    .tbfs-1 .fs-14rem {
+      font-size: 1.2rem;
+    }
   }
 
   @keyframes ShowButton {

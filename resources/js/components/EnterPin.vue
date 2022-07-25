@@ -5,21 +5,21 @@
       <div
         v-for="(p,i) in pin"
         :key="i"
-        class="border border-gray-300 bg-gray-50 rounded-sm flex items-center justify-center w-full aspect-w-1 aspect-h-1"
+        class="border border-gray-300 bg-gray-50 rounded-sm flex items-center justify-center w-full SingleKey PinBoxes"
         :class="{'border-red-500 error' : status === false}"
       >
-        <div class="text-5xl font-semibold text-center leading-none pt-10">{{ p !== '' ? '*' : '' }}</div>
+        <div class="text-5xl font-semibold text-center leading-none">{{ p !== '' ? '＊' : '' }}</div>
       </div>
     </div>
     <div class="grid grid-cols-3 gap-3 NumpadWidth mx-auto mt-10">
       <div
         v-for="key in keys"
         :key="key.key"
-        class="border border-gray-300 rounded-sm flex items-center justify-center w-full aspect-w-3 aspect-h-2"
-        :class="[key.background, key.color]"
+        class="border border-gray-300 rounded-sm flex items-center justify-center w-full SingleKey"
+        :class="[key.background, key.color, {'KeyButton': key.isButton}]"
         @click="enterKey(key.key)"
        >
-        <div class="text-4xl font-semibold text-center leading-none pt-8">
+        <div class="text-4xl font-semibold text-center leading-none">
           {{ key.key }}
         </div>
        </div>
@@ -43,9 +43,9 @@
         { key: 7, background: 'bg-gray-300', color: 'text-gray-900' },
         { key: 8, background: 'bg-gray-300', color: 'text-gray-900' },
         { key: 9, background: 'bg-gray-300', color: 'text-gray-900' },
-        { key: 'Obriši', background: 'bg-red-500', color: 'text-white' },
+        { key: 'Obriši', background: 'bg-red-500', color: 'text-white', isButton: true, },
         { key: 0, background: 'bg-gray-300', color: 'text-gray-900' },
-        { key: 'Enter', background: 'bg-green-600', color: 'text-white'},
+        { key: 'Enter', background: 'bg-green-600', color: 'text-white', isButton: true,},
       ]
     }),
     methods: {
@@ -83,6 +83,14 @@
 
   .NumpadWidth {
     width: 90%;
+  }
+
+  .SingleKey {
+    height: 70px;
+  }
+
+  .KeyButton div {
+    font-size: 26px;
   }
 
   @keyframes ErrorShake {

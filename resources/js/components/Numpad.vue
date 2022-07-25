@@ -1,12 +1,12 @@
 <template>
   <div class="">
-    <div class="text-center text-3xl font-semibold mb-6 uppercase">
+    <div class="text-center text-2xl font-semibold mb-6 uppercase">
       Unesite Kolicinu
       <div v-if="subtitle.length">za {{ subtitle }}</div>
     </div>
     <div class="NumpadWidth mx-auto relative w-full">
       <div
-        class="col-span-2 border border-gray-300 bg-gray-50 rounded-sm flex items-center justify-center w-full py-5"
+        class="col-span-2 border border-gray-300 bg-gray-50 rounded-sm flex items-center justify-center w-full py-2"
         :class="{'border-red-500 error' : status === false}"
       >
         <div class="w-full pl-5 text-5xl font-semibold leading-none MinValueHeight">{{ value.join('') }}</div>
@@ -19,11 +19,11 @@
       <div
         v-for="key in keys"
         :key="key.key"
-        class="border border-gray-300 rounded-sm flex items-center justify-center w-full aspect-w-3 aspect-h-2"
-        :class="[key.background, key.color]"
+        class="border border-gray-300 rounded-sm flex items-center justify-center w-full SingleKey"
+        :class="[key.background, key.color, {'KeyButton': key.isButton}]"
         @click="enterKey(key.key)"
        >
-        <div class="text-4xl font-semibold text-center leading-none pt-8">
+        <div class="text-4xl font-semibold text-center leading-none">
           {{ key.key }}
         </div>
        </div>
@@ -55,7 +55,7 @@
         { key: 9, background: 'bg-gray-300', color: 'text-gray-900' },
         { key: '.', background: 'bg-gray-300', color: 'text-gray-900' },
         { key: 0, background: 'bg-gray-300', color: 'text-gray-900' },
-        { key: 'Enter', background: 'bg-green-600', color: 'text-white'},
+        { key: 'Enter', background: 'bg-green-600', color: 'text-white', isButton: true},
       ]
     }),
     methods: {
@@ -88,11 +88,19 @@
   }
 
   .BackspaceHeight {
-    height: 90px;
+    height: 66px;
   }
 
   .MinValueHeight {
     min-height: 48px;
+  }
+
+  .SingleKey {
+    height: 70px;
+  }
+
+  .KeyButton div {
+    font-size: 26px;
   }
 
   @keyframes ErrorShake {

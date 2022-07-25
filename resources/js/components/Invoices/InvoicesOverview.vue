@@ -81,3 +81,12 @@
     }
   }
 </script>
+
+<style scoped>
+  @media (max-width: 1024px) {
+    .text-xl,
+    .text-xl * {
+      font-size: 14px;
+    }
+  }
+</style>

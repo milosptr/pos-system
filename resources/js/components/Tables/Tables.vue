@@ -9,7 +9,10 @@
       :class="tableClasses(table)"
       @click="setActiveTable(table)"
     >
-      <div class="relative flex items-center justify-center h-full text-3xl font-bold">
+      <div
+        class="relative flex items-center justify-center h-full font-bold"
+        :class="[table.table_number === 30 ? 'text-2xl' : 'text-3xl']"
+      >
         {{ tableNumber(table.table_number) }}
         <div v-if="table.total" class="absolute bottom-0 left-0 w-full text-center text-xl font-semibold mb-1" style="line-height: 1">
           {{ $filters.formatPrice(table.total) }},00
@@ -30,6 +33,7 @@
     },
     mounted() {
       this.$store.commit('clearOrder')
+      this.$store.commit('setEpsonDevice')
     },
     methods: {
       setActiveTable(table) {
