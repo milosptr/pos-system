@@ -11,9 +11,6 @@ const app = createApp(App)
   .use(store)
   .use(Portal)
 
-const backoffice = createApp(App)
-  .use(Portal)
-
 app.config.globalProperties.$filters = {
   formatPrice(value) {
     if(!value)
@@ -23,4 +20,3 @@ app.config.globalProperties.$filters = {
 }
 
 app.mount('#app')
-backoffice.mount('#backoffice')

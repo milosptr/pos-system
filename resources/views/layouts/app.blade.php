@@ -14,7 +14,12 @@
 
         <!-- Scripts -->
         <script src="/js/gauge.min.js"></script>
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        @if(Route::current()->uri != 'dashboard')
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @else
+            @vite(['resources/css/app.css', 'resources/js/backoffice.js'])
+        @endif
         {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
     </head>
     <body class="font-sans antialiased">

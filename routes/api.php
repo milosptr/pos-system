@@ -43,7 +43,7 @@ Route::get('categories', [CategoryController::class, 'index']);
 Route::post('categories', [CategoryController::class, 'store']);
 
 // Orders
-Route::get('orders', [OrderController::class, 'all']);
+Route::get('orders', [OrderController::class, 'index']);
 Route::get('orders/table/{id}', [OrderController::class, 'indexForTable']);
 Route::get('orders/{id}', [OrderController::class, 'index']);
 Route::post('orders', [OrderController::class, 'store']);
@@ -64,3 +64,4 @@ Route::post('validate-pin', [ValidatePinController::class, 'validatePin']);
 //Dashboard
 Route::get('revenue', [DashboardController::class, 'revenue']);
 Route::get('active-orders', [DashboardController::class, 'activeOrders']);
+Route::get('users', [UsersController::class, 'index']);

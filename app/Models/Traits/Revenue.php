@@ -16,7 +16,7 @@ trait Revenue
     {
         $builder->selectRaw('sum(invoices.total) as total')
             ->selectRaw('sum(case when invoices.status = 0 then invoices.total else 0 end) as refund')
-            ->selectRaw('sum(total) - sum(case when invoices.status = 0 then invoices.total else 0 end) as total_refund');
+            ->selectRaw('sum(total) - sum(case when invoices.status = 0 then invoices.total else 0 end) as income');
 
         foreach($request->all() as $filter => $value)
         {
