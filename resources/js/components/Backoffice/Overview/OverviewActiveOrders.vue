@@ -5,7 +5,7 @@
     <div v-for="(table, idx) in $store.getters.activeTableOrders" :key="idx" class="bg-white shadow px-4 py-5 sm:p-6 hover:bg-orange-50 cursor-pointer">
       <div class="flex flex-col sm:flex-row justify-between items-center font-semibold">
         <div>{{ table.name }}</div>
-        <div>{{ table.total }} RSD</div>
+        <div>{{ $filters.formatPrice(table.total) }} RSD</div>
       </div>
     </div>
   </div>
