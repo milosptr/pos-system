@@ -19,6 +19,11 @@ class InventoryController extends Controller
         return new InventoryCollection(Inventory::all());
     }
 
+    public function sorted()
+    {
+        return new InventoryCollection(Inventory::orderBy('category_id', 'ASC')->get());
+    }
+
     /**
      * Show the form for creating a new resource.
      *
