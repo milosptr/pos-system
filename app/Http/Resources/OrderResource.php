@@ -21,8 +21,8 @@ class OrderResource extends JsonResource
             'table_name' => $this->table->name,
             'total' => $this->total,
             'order' => $this->order,
-            'created_at' => Carbon::parse($this->created_at)->format('HH:mm'),
-            'time' => Carbon::parse($this->created_at)->format('HH:mm'),
+            'created_at' => Carbon::parse($this->created_at)->format('H:i'),
+            'time' => Carbon::parse($this->created_at)->format('H:i'),
         ];
     }
 }
