@@ -37,6 +37,7 @@
     methods: {
       setActiveTable(table) {
         this.$store.commit('setActiveTable', table)
+        this.$store.commit('resetPrinting')
       },
       tablePosition(table) {
         let innerWidth = window.innerWidth

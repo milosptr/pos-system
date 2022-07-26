@@ -14,6 +14,11 @@ const general = {
   actions: {},
 
   mutations: {
+    resetPrinting( state ) {
+      state.printingAttempts = 0
+      state.printingNotification = false
+      state.printing = null
+    },
     setEpsonDevice( state, reprint ) {
       if(reprint) state.printingAttempts++
       state.ePosDev = new epson.ePOSDevice()
@@ -30,9 +35,7 @@ const general = {
               state.printer.timeout = 60000;
               state.printer.onreceive = function (res) {
                 if(res.success) { // successfull printing
-                  state.printingAttempts = 0
-                  state.printingNotification = false
-                  state.printing = null
+                  this.commit('resetPrinting')
                 } else { // printing error
                   console.log('REPRINTING_ONRECEIVE')
                   state.printingNotification = true
