@@ -8,9 +8,9 @@
           <div class="p-4">
             <div class="flex items-center">
               <div class="w-0 flex-1 flex justify-between items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="RotateAnimation" width="24" height="24" fill="#000000" viewBox="0 0 256 256"><rect width="256" height="256" fill="none"></rect><path d="M168,40.7a96,96,0,1,1-80,0" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="12"></path></svg>
-                <p v-if="$store.getters.printingAttempts <= 1" class="w-0 flex-1 text-sm font-medium text-gray-900 ml-3">Štampanje računa</p>
-                <p v-else class="w-0 flex-1 text-sm font-medium text-gray-900 ml-3">Problem sa štampanjem</p>
+                <svg  v-if="$store.getters.printingAttempts <= 1 && !timeoutExceeded" xmlns="http://www.w3.org/2000/svg" class="RotateAnimation" width="24" height="24" fill="#000000" viewBox="0 0 256 256"><rect width="256" height="256" fill="none"></rect><path d="M168,40.7a96,96,0,1,1-80,0" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="12"></path></svg>
+                <p v-if="$store.getters.printingAttempts <= 1 && !timeoutExceeded" class="w-0 flex-1 text-sm font-medium text-gray-900 ml-3">Štampanje {{ printingTypeText }}</p>
+                <p v-else class="w-0 flex-1 text-sm text-red-500 font-semibold ml-3">Problem sa štampanjem</p>
               </div>
               <div class="ml-4 flex-shrink-0 flex">
                 <button type="button" @click="$store.commit('setPrintingNotification', false)" class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -33,7 +33,20 @@
     components: {
       XIcon,
     },
+    data: () => ({
+      timeoutExceeded: false,
+    }),
+    computed: {
+      printingTypeText() {
+        if(this.$store.getters.printingType === 'invoice')
+          return ' računa'
+        return ' porudžbine'
+      }
+    },
     mounted() {
+      setTimeout(() => {
+        this.timeoutExceeded = true
+      }, 30000)
     }
   }
 </script>

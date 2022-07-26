@@ -141,6 +141,7 @@ const general = {
   getters: {
     printingNotification: (state) => state.printingNotification,
     printingAttempts: (state) => state.printingAttempts,
+    printingType: (state) => state.printing?.type,
   }
 }
 
