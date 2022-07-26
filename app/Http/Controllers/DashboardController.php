@@ -32,7 +32,7 @@ class DashboardController extends Controller
     public function stats()
     {
       $today = ReportsService::getRevenueForDate(WorkingDay::getWorkingDay());
-      $yesterday = ReportsService::getRevenueForDate(WorkingDay::getWorkingDay(Carbon::yesterday()));
+      $yesterday = ReportsService::getRevenueForDate(WorkingDay::getWorkingDay(Carbon::now(), 'yesterday'));
 
       return [
         ReportsService::parseStats($today, $yesterday, 'Total', 'total'),

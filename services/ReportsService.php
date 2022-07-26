@@ -15,9 +15,10 @@ class ReportsService {
     */
     public static function getPercentageChange($oldNumber, $newNumber)
     {
+      if(!$oldNumber) $oldNumber = 1;
       $decreaseValue = $oldNumber - $newNumber;
       $result = ($decreaseValue / $oldNumber) * 100;
-      return number_format((float) $result, 2, '.', '');
+      return number_format((float) $result, 1, '.', '');
     }
 
     public static function getRevenueForDate($date)
