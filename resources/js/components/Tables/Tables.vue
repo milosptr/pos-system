@@ -138,7 +138,7 @@
       transform: scale(0);
     }
     100% {
-      transform: scale(1);
+      transform: scale(0.8);
     }
   }
 
