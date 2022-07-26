@@ -3,7 +3,7 @@
     <div class="p-4 pb-0">
       <div class="flex items-center justify-between relative">
         <div class="text-2xl font-bold  pb-1 uppercase">
-          Račun #{{ tableNo }}
+          {{ tableName }}
         </div>
         <div @click="showTableMenu = true">
           <img :src="$filters.imgUrl('dot-menu.svg')" alt="submenu" width="32">
@@ -12,7 +12,11 @@
         <TableMenu v-if="showTableMenu" @selected="handleTableMenu" @close="showTableMenu = false" />
       </div>
       <div class="OrderSidebar overflow-x-hidden">
-        <SingleOrder :order="order" :index="orders.length + 1" :saved="false" />
+        <SingleOrder
+          :order="order"
+          :index="orders.length + 1"
+          :saved="false"
+        />
         <SingleOrder
           v-for="(o, i) in orders"
           :order="o"
@@ -65,8 +69,8 @@
      showTableMenu: false,
     }),
     computed: {
-      tableNo() {
-        return this.$store.getters.activeTable?.table_number
+      tableName() {
+        return this.$store.getters.activeTable?.name
       },
       orders() {
         return this.$store.getters.orders

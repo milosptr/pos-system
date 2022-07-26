@@ -3,7 +3,7 @@
     <EnterPin v-show="!validPin" @success="success" />
     <div class="flex flex-col justify-between h-full" v-show="validPin">
       <div class="">
-        <div class="text-center text-2xl font-semibold mb-6 uppercase">Pregled prometa</div>
+        <div class="text-center text-2xl font-semibold mb-6 uppercase">Pregled prometa {{ today }}</div>
         <div class="flex flex-col items-center justify-center mt-10 relative">
           <canvas :width="canvasWidth" :height="canvasHeight" id="transactionsGraph"></canvas>
           <div class="absolute left-0 top-0 text-center w-full font-bold text-4xl flex items-center justify-center" :style="`height: ${canvasHeight}px`">
@@ -74,6 +74,12 @@
         highDpiSupport: true,
       }
     }),
+    computed: {
+      today() {
+        const now = new Date()
+        return now.getDate() + '.' + (now.getMonth() + 1) + '.' + now.getFullYear()
+      }
+    },
     mounted() {
       if(window.innerWidth < 1100) {
         this.canvasWidth = 500

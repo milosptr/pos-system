@@ -67,7 +67,7 @@
       },
       tableClasses(table) {
         let classes = []
-        if(table.total) classes.push('HasOrders')
+        if(table.orders.length) classes.push('HasOrders')
         if(table.rotate) classes.push('Rotate')
         classes.push(table.size ? 'Big' : 'Small')
         return classes

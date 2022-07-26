@@ -1,6 +1,9 @@
 <template>
   <div class="p-4 bg-gray-100">
     <div class="flex items-center gap-2 justify-end">
+      <div class="text-2xl font-semibold uppercase">
+        Pregled računa za {{ today }}
+      </div>
       <router-link to="/"
         class="w-32 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium ml-auto"
       >
@@ -69,6 +72,10 @@
       },
       activeInvoice() {
         return this.$store.getters.activeInvoice
+      },
+      today() {
+        const now = new Date()
+        return now.getDate() + '.' + (now.getMonth() + 1) + '.' + now.getFullYear()
       }
     },
     mounted() {

@@ -63,8 +63,8 @@
     },
     methods: {
       shouldShowDelete() {
-        if(!this.disableRefund)
-          this.showDelete = !this.showDelete
+        if(this.$route.path.includes('table'))
+         this.showDelete = !this.showDelete
       },
       refundItem() {
         this.$emit('refund')

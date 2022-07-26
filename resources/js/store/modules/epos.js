@@ -158,6 +158,9 @@ const general = {
       const item = order.order.find((i) => i.id === data.item.id)
       item.refund = !item.refund
     },
+    removeItemFromOrder( state, id ) {
+      state.order = state.order.filter((i) => i.id !== id)
+    },
     setOrder( state, order ) {
       let hasOrder = state.order.find((o) => o.id === order.id)
       if(hasOrder) hasOrder.qty += order.qty

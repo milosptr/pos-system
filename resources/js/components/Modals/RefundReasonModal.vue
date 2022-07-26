@@ -2,24 +2,24 @@
   <Modal>
      <div class="flex flex-col justify-between h-full">
       <div class="">
-        <div class="text-center text-3xl font-semibold mb-6 uppercase">Izaberite konobara</div>
+        <div class="text-center text-2xl font-semibold mb-6 uppercase">Izaberite konobara</div>
         <div class="grid grid-cols-3 gap-3">
           <div
             v-for="waiter in waiters"
             :key="waiter.id"
-            class="py-10 px-2 text-2xl my-1 text-center font-semibold border-2"
+            class="py-5 xl:py-10 px-2 text-2xl my-1 text-center font-semibold border-2"
             :class="[waiter.id === selectedWaiterId ? 'border-primary bg-primary text-white' : 'bg-gray-200 border-transparent']"
             @click="selectedWaiter(waiter.id)"
           >
             {{ waiter.name }}
           </div>
         </div>
-        <div class="text-center text-3xl font-semibold mb-6 uppercase mt-10">Izaberite razlog storniranja</div>
+        <div class="text-center text-2xl font-semibold mb-6 uppercase mt-10">Izaberite razlog storniranja</div>
         <div class="TablesListHeight grid grid-cols-2 gap-3">
           <div
             v-for="reason in reasons"
             :key="reason.id"
-            class="py-6 px-2 text-xl text-center font-semibold border-2"
+            class="py-5 xl:py-6 px-2 text-xl text-center font-semibold border-2"
             :class="[reason.id === selectedReasonId ? 'border-primary bg-primary text-white' : 'bg-gray-200 border-transparent']"
             @click="selectReason(reason.id)"
           >

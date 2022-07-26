@@ -14,6 +14,7 @@
       :order="o"
       :disableRefund="order.disableRefund"
       :class="{'bg-gray-100': boxBackground}"
+      :saved="saved"
       class="py-1 px-2 text-xl my-1"
       @refund="refundItem(o)"
     />
@@ -65,8 +66,12 @@
     },
     methods: {
       refundItem(item) {
-        this.$store.commit('refundItem', { order: this.order, item})
-        this.$store.dispatch('storeRefundItem', this.order)
+        if(this.saved) {
+          this.$store.commit('refundItem', { order: this.order, item})
+          this.$store.dispatch('storeRefundItem', this.order)
+          return
+        }
+        this.$store.commit('removeItemFromOrder', item.id)
       },
       charge() {
         let total = this.order.order.reduce((a, val) => a + (val.refund ? 0 : (val.qty * val.price)), 0)

@@ -1,12 +1,16 @@
 <template>
   <div v-if="invoice" class="h-screen flex flex-col justify-between">
     <div class="p-4">
-      <div class="flex justify-between items-center border-b border-gray-200 pb-1">
+      <div class="flex justify-between items-center border-b border-gray-200 pb-1 relative">
+
         <div class="text-2xl font-bold uppercase">
           Račun broj #{{ invoice?.id }}
         </div>
-        <img v-if="invoice.status" :src="$filters.imgUrl('refund.svg')" class="ml-auto mr-2" alt="print" width="32" @click="refund" />
-        <img :src="$filters.imgUrl('printer.svg')" alt="print" width="32" />
+        <div @click="showTableMenu = true">
+          <img :src="$filters.imgUrl('dot-menu.svg')" alt="submenu" width="32">
+          <DotMenu />
+        </div>
+        <InvoiceMenu v-if="showTableMenu" :showRefund="!!invoice.status" @selected="handleInvoiceMenu" @close="showTableMenu = false" />
       </div>
       <div class="OrderSidebar overflow-x-hidden">
         <SingleOrder
@@ -32,12 +36,17 @@
 </template>
 
 <script>
-import SingleOrder from "../Tables/SingleOrder.vue"
+  import SingleOrder from "../Tables/SingleOrder.vue"
+  import InvoiceMenu from "../Invoices/InvoiceMenu.vue"
 
   export default {
     components: {
-      SingleOrder
+      SingleOrder,
+      InvoiceMenu,
     },
+    data: () => ({
+      showTableMenu: false,
+    }),
     computed: {
       invoice() {
         return this.$store.getters.activeInvoice
@@ -49,6 +58,12 @@ import SingleOrder from "../Tables/SingleOrder.vue"
     methods: {
       refund() {
         this.$store.dispatch('refundInvoice')
+      },
+      handleInvoiceMenu(val) {
+        if(val === 'reprint')
+          return
+        if(val === 'refund')
+          this.refund()
       }
     }
   }
