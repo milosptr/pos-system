@@ -104,7 +104,7 @@ const general = {
         ...data
       })
         .then((res) => {
-          if(res.data.status)
+          if(res.data.data.status)
             commit('setPrintingInvoice', res.data, { root: true })
           dispatch('getTables')
         })

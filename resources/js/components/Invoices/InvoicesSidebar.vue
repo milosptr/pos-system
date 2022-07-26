@@ -8,7 +8,6 @@
         </div>
         <div @click="showTableMenu = true">
           <img :src="$filters.imgUrl('dot-menu.svg')" alt="submenu" width="32">
-          <DotMenu />
         </div>
         <InvoiceMenu v-if="showTableMenu" :showRefund="!!invoice.status" @selected="handleInvoiceMenu" @close="showTableMenu = false" />
       </div>

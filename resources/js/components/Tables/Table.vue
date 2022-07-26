@@ -7,7 +7,6 @@
         </div>
         <div @click="showTableMenu = true">
           <img :src="$filters.imgUrl('dot-menu.svg')" alt="submenu" width="32">
-          <DotMenu />
         </div>
         <TableMenu v-if="showTableMenu" @selected="handleTableMenu" @close="showTableMenu = false" />
       </div>
@@ -53,7 +52,6 @@
 </template>
 
 <script>
-  import { connectToPrinter, printAgain } from '../../printing'
   import CacheOutModal from '../Modals/CacheOutModal.vue'
   import MoveTableModal from '../Modals/MoveTableModal.vue'
   import RefundReasonModal from '../Modals/RefundReasonModal.vue'
@@ -90,8 +88,6 @@
     },
     mounted() {
       this.$store.dispatch('getCurrentTable', this.$route.params.id)
-      this.$store.commit('setEpsonDevice')
-      // axios.get('/api/tables/available')
     },
     methods: {
       storeOrder() {

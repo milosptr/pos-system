@@ -6,12 +6,16 @@ const general = {
     order: [],
     invoice: null,
     tries: 0,
+    printing: null,
+    printingNotification: false,
+    printingAttempts: 0,
   }),
 
   actions: {},
 
   mutations: {
-    setEpsonDevice( state ) {
+    setEpsonDevice( state, reprint ) {
+      if(reprint) state.printingAttempts++
       state.ePosDev = new epson.ePOSDevice()
       state.ePosDev.connect('192.168.1.141', 8008, (data) => {
         console.log('PRINTER_CHECKING');
@@ -24,8 +28,25 @@ const general = {
               console.log('PRINTER_createDevice_OK');
               state.printer = devobj;
               state.printer.timeout = 60000;
-              state.printer.onreceive = function (res) { alert(res.success); }; // if printing fails success: false
+              state.printer.onreceive = function (res) {
+                if(res.success) { // successfull printing
+                  state.printingAttempts = 0
+                  state.printingNotification = false
+                  state.printing = null
+                } else { // printing error
+                  console.log('REPRINTING_ONRECEIVE')
+                  state.printingNotification = true
+                  this.commit('setEpsonDevice', true)
+                }
+              }; // if printing fails success: false
               state.printer.oncoveropen = function () { alert('coveropen'); };
+              if(reprint && printing) {
+                console.log('REPRINTING');
+                if(printing.type === 'invoice')
+                  this.commit('setPrintingInvoice', printing.item)
+                  else
+                  this.commit('setPrintingOrder', printing.item)
+              }
               console.log('PRINTER_IS_OK');
             } else {
             console.error(retcode);
@@ -37,7 +58,10 @@ const general = {
       })
     },
     setPrintingOrder(state, order) {
+      state.printingNotification = true
+      state.printing = { type: 'order', item: order}
       if(state.printer === null) {
+        this.commit('setEpsonDevice', true)
         console.error('PRINTER_NOT_SET');
         return
       }
@@ -68,82 +92,75 @@ const general = {
       }
     },
     setPrintingInvoice(state, invoice) {
+      state.printingNotification = true
+      state.printing = { type: 'invoice', item: invoice}
       if(state.printer === null) {
+        this.commit('setEpsonDevice', true)
         console.error('PRINTER_NOT_SET');
         return
       }
-      state.printer.addLayout(state.printer.LAYOUT_RECEIPT, 800, 0, 0, 0, 0, 0);
-      state.printer.addTextStyle(false, false, true, state.printer.COLOR_1);
-      state.printer.addTextVPosition(8);
-      state.printer.addTextPosition(20);
-      state.printer.addText('___\n');
-      state.printer.addTextVPosition(13);
-      state.printer.addTextPosition(20);
-      state.printer.addText('___');
-      state.printer.addTextPosition(260);
-      state.printer.addTextVPosition(22);
-      state.printer.addText('RAČUN');
-      state.printer.addTextVPosition(8);
-      state.printer.addText(' ___\n');
-      state.printer.addTextVPosition(13);
-      state.printer.addTextPosition(320);
-      state.printer.addText(' ___\n\n\n');
-      state.printer.addText(' Kasir: Srdjan\n');
-      state.printer.addText(' Reon: Basta\n');
-      state.printer.addText(' Sto broj: 11\n');
-      state.printer.addTextPosition(20);
-      state.printer.addText('—————————————— PROMET - PRODAJA —————————————\n');
-      state.printer.addTextPosition(246);
+
+      state.printer.addLayout(printer.LAYOUT_RECEIPT, 800, 0, -8, 0, 0, 0);
+      state.printer.addTextStyle(false, false, true, printer.COLOR_1);
+      state.printer.addText('   =================== RAČUN ===================\n\n\n');
+      state.printer.addText('   Kasir:                                Vlasnik\n');
+      state.printer.addText(printerTextBetween('Reon:', invoice.location));
+      state.printer.addText(printerTextBetween('Sto broj:', parseInt(invoice.table.table_number).toString()));
+      state.printer.addText('   —————————————— PROMET - PRODAJA —————————————\n');
+      state.printer.addTextPosition(262);
       state.printer.addText('Artikli\n');
-      state.printer.addTextPosition(20);
-      state.printer.addText('_\n\n');
-      state.printer.addText(' Naziv Cena Kol. Ukupno\n');
-      state.printer.addText(' Min. voda flašica (Ђ)/КОМ.\n ');
-      state.printer.addText(' 80,00 1 80,00\n');
-      state.printer.addText(' Lepinja sa lukom (Ђ)/КОМ.\n');
-      state.printer.addText(' 140,00 1 140,00\n');
-      state.printer.addText(' Lepinja sa lukom (Ђ)/КОМ.\n');
-      state.printer.addText(' 140,00 1 140,00\n');
-      state.printer.addText(' Min. voda flašica (Ђ)/КОМ.\n ');
-      state.printer.addText('—————————————————————————————————————\n');
-      state.printer.addTextLineSpace(30);
-      state.printer.addTextPosition(20);
-      state.printer.addText('_\n\n');
+      state.printer.addText('   —————————————————————————————————————————————\n');
+      state.printer.addText('   Naziv      Cena      Kol.              Ukupno\n');
+      invoice.order.forEach((item) => {
+        state.printer.addText('   ' + item.name +' (Ђ)/' + item.unit + '\n');
+        state.printer.addText(printerItemPriceText(formatPrice(item.price), parseInt(item.qty).toString(),formatPrice(item.price * item.qty)));
+      })
+      state.printer.addText('   =============================================\n');
       state.printer.addTextSize(1, 2);
-      state.printer.addText(' Ukupan iznos: 1.200,00\n');
+      state.printer.addText(printerTextBetween('Ukupan iznos:', formatPrice(invoice.total)));
       state.printer.addTextSize(1, 1);
-      state.printer.addTextLineSpace(20);
-      state.printer.addText(' Gotovina: 1.200,00\n');
-      state.printer.addTextLineSpace(5);
-      state.printer.addTextPosition(20);
-      state.printer.addText('_\n');
-      state.printer.addTextLineSpace(30);
-      state.printer.addTextPosition(20);
-      state.printer.addTextLineSpace(20);
-      state.printer.addText('_\n\n');
-      state.printer.addTextLineSpace(30);
-      state.printer.addText(' Oznaka Naziv Stopa Porez\n');
-      state.printer.addText(' Ђ О-ПДВ 20% 186,67\n');
-      state.printer.addTextLineSpace(20);
-      state.printer.addText(' Ukupan iznos poreza: 186,67\n');
-      state.printer.addTextPosition(20);
-      state.printer.addTextLineSpace(5);
-      state.printer.addText('_\n');
-      state.printer.addTextPosition(20);
-      state.printer.addTextLineSpace(20);
-      state.printer.addText('_\n\n');
-      state.printer.addTextLineSpace(30);
-      state.printer.addText(' Vreme: 18.07.2022 21:00:29\n');
-      state.printer.addText(' Brojač računa: 3323/3561\n');
-      state.printer.addFeedLine(1);
-      state.printer.addCut(state.printer.CUT_FEED);
+      state.printer.addText('   =============================================\n');
+      state.printer.addText('   Oznaka   Naziv       Stopa              Porez\n');
+      state.printer.addText(printerTextBetween('Ђ        О-ПДВ       20% ', invoice.tax));
+      state.printer.addText(printerTextBetween('Ukupan iznos poreza:', invoice.tax));
+      state.printer.addText('   =============================================\n');
+      state.printer.addText(printerTextBetween('Vreme:', invoice.created_at));
+
+      const counter = (3323 + invoice.id) + '/' + (3561 + invoice.id)
+      state.printer.addText(printerTextBetween('Brojač računa:', counter));
+      state.printer.addFeedLine(3);
+      state.printer.addCut(printer.CUT_FEED);
       state.printer.send();
+      console.log('PRINTING_DONE');
     },
+    setPrintingNotification(state, value) {
+      state.printingNotification = value
+    }
   },
 
   getters: {
-
+    printingNotification: (state) => state.printingNotification,
+    printingAttempts: (state) => state.printingAttempts,
   }
+}
+
+// Helper functions
+const printerTextBetween = (left, right) => {
+  const spaces = 45 - left.length - right.length
+  return '   ' + left + " ".repeat(spaces) + right + '\n'
+}
+
+const printerItemPriceText = (price, qty, total) => {
+  const startSpaces = 18 - price.length // -3 is for trailing zeros
+  const afterPriceSpaces = 6
+  const afterQtySpaces = 24 - qty.length - total.length // -3 is for trailing zeros
+  return " ".repeat(startSpaces) + price + " ".repeat(afterPriceSpaces) + qty + " ".repeat(afterQtySpaces) + total + '\n'
+}
+
+const formatPrice = (value) => {
+  if(!value)
+    return 0
+  return parseFloat(value).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.').toString() + ',00'
 }
 
 export default general

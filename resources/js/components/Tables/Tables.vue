@@ -33,7 +33,6 @@
     },
     mounted() {
       this.$store.commit('clearOrder')
-      this.$store.commit('setEpsonDevice')
     },
     methods: {
       setActiveTable(table) {

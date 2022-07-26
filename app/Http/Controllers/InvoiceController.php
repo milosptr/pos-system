@@ -52,7 +52,7 @@ class InvoiceController extends Controller
         if(!$orderID) Order::where('table_id', $request->get('table_id'))->delete();
         app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
       }
-      return $invoice;
+      return new InvoiceResource($invoice);
     }
 
     /**

@@ -32,6 +32,7 @@ const routes = [
     component: SidebarLayout,
     children: [
       {
+        name: "invoice",
         path: '',
         components: {
           main: InvoicesOverview,
