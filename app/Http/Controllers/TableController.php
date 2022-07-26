@@ -85,9 +85,11 @@ class TableController extends Controller
      * @param  \App\Models\Table  $table
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Table $table)
+    public function update($id, Request $request)
     {
-        //
+        $table = Table::find($id);
+        $table->update($request->all());
+        return TableResource::collection(Table::all());
     }
 
     /**

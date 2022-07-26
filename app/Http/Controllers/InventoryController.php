@@ -14,14 +14,10 @@ class InventoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new InventoryCollection(Inventory::all());
-    }
-
-    public function sorted()
-    {
-        return new InventoryCollection(Inventory::orderBy('category_id', 'ASC')->get());
+        $inventory = Inventory::filter($request)->get();
+        return new InventoryCollection($inventory);
     }
 
     /**
@@ -42,7 +38,7 @@ class InventoryController extends Controller
      */
     public function store(InventoryStoreRequest $request)
     {
-        return new ItemCollection(Inventory::create($request->all()));
+        return new InventoryCollection(Inventory::create($request->all()));
     }
 
     /**
@@ -74,9 +70,11 @@ class InventoryController extends Controller
      * @param  \App\Models\Inventory  $inventory
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Inventory $inventory)
+    public function update($id, Request $request)
     {
-        //
+        $item = Inventory::find($id);
+        $item->update($request->all());
+        return new InventoryCollection(Inventory::all());
     }
 
     /**
