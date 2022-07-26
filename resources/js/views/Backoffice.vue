@@ -153,6 +153,7 @@ export default {
         pusher.subscribe('broadcasting')
         pusher.bind('tables-update', (data) => {
             this.$store.dispatch('getStats')
+            this.$store.dispatch('getActiveTableOrders')
         })
       }
   }
