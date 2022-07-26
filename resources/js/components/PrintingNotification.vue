@@ -34,9 +34,6 @@
       XIcon,
     },
     mounted() {
-      setTimeout(() => {
-        this.$store.commit('setPrintingNotification', false)
-      },20000)
     }
   }
 </script>
