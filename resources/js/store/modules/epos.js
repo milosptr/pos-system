@@ -89,7 +89,8 @@ const general = {
       let total = state.order.reduce((a, b) => a + b.price * b.qty, 0)
       axios.post('/api/orders', { table_id, order: state.order, total})
       .then((res) => {
-          commit('setPrintingOrder', res.data.data, { root: true })
+          if(res.data.data.order.some((i) => i.should_print))
+            commit('setPrintingOrder', res.data.data, { root: true })
           dispatch('getTables')
           dispatch('getTableOrders')
         })
