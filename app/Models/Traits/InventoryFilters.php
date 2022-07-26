@@ -2,22 +2,25 @@
 
 namespace App\Models\Traits;
 
-use App\Models\Invoice;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
-use App\Http\Filters\Invoice\Date;
+use App\Http\Filters\Inventory\Search;
+use App\Http\Filters\Inventory\OrderBy;
+use App\Http\Filters\Inventory\Category;
 use Illuminate\Database\Eloquent\Builder;
 
-trait Revenue
-{
+trait InventoryFilters {
+
     protected $filters = [
-        'date' => Date::class
+        'q' => Search::class,
+        'category' => Category::class,
     ];
 
     public function scopeFilter(Builder $builder, Request $request)
     {
-        $builder->selectRaw('sum(invoices.total) as total')
-            ->selectRaw('sum(case when invoices.status = 0 then invoices.total else 0 end) as refund')
-            ->selectRaw('sum(total) - sum(case when invoices.status = 0 then invoices.total else 0 end) as income');
+        $builder->select([
+            'inventory.*'
+        ]);
 
         foreach($request->all() as $filter => $value)
         {
@@ -26,6 +29,8 @@ trait Revenue
 
             $this->resolve($filter)->apply($builder, $value);
         }
+
+        $builder = OrderBy::apply($builder, $request->get('order_by'));
 
         return $builder;
     }

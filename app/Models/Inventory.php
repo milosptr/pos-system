@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Traits\InventoryFilters;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Inventory extends Model
 {
-    use HasFactory;
+    use HasFactory, InventoryFilters;
 
     CONST SOLD_BY_PIECE = 0;
     CONST SOLD_BY_HALF_PORTION = 1;

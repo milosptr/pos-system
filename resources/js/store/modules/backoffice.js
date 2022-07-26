@@ -42,7 +42,7 @@ const backoffice = {
                 })
         },
         getInventory({ commit }) {
-            axios.get('/api/inventory/sorted')
+            axios.get('/api/inventory')
                 .then( (res) => {
                     commit('setInventory', res.data.data)
                 })

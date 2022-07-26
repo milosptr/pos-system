@@ -38,7 +38,6 @@ Route::post('tables', [TableController::class, 'store']);
 
 //Inventory
 Route::get('inventory', [InventoryController::class, 'index']);
-Route::get('inventory/sorted', [InventoryController::class, 'sorted']);
 Route::post('inventory', [InventoryController::class, 'store']);
 
 //Categories
@@ -76,3 +75,10 @@ Route::get('revenue', [DashboardController::class, 'revenue']);
 Route::get('stats', [DashboardController::class, 'stats']);
 Route::get('active-orders', [DashboardController::class, 'activeOrders']);
 Route::get('users', [UsersController::class, 'index']);
+
+//Backoffice
+Route::prefix('/backoffice')->group(function() {
+    Route::put('/inventory/{id}', [InventoryController::class, 'update']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::put('/tables/{id}', [TableController::class, 'update']);
+});
