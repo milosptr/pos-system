@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ValidatePinController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
+use Services\WorkingDay;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +76,11 @@ Route::get('revenue', [DashboardController::class, 'revenue']);
 Route::get('stats', [DashboardController::class, 'stats']);
 Route::get('active-orders', [DashboardController::class, 'activeOrders']);
 Route::get('users', [UsersController::class, 'index']);
+
+// Working day
+Route::get('working-day', function() {
+  return WorkingDay::getWorkingDay();
+});
 
 //Backoffice
 Route::prefix('/backoffice')->group(function() {

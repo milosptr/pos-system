@@ -72,15 +72,21 @@
         strokeColor: '#EEEEEE',  // to see which ones work best for you
         generateGradient: false,
         highDpiSupport: true,
-      }
+      },
+      workingDay: new Date(),
     }),
     computed: {
       today() {
-        const now = new Date()
+        const now = new Date(this.workingDay)
         return now.getDate() + '.' + (now.getMonth() + 1) + '.' + now.getFullYear()
       }
     },
     mounted() {
+      axios.get('/api/working-day')
+        .then((res) => {
+          this.workingDay = res.data[0]
+        })
+
       if(window.innerWidth < 1100) {
         this.canvasWidth = 500
         this.canvasHeight = 197

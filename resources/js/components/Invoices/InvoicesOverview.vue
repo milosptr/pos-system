@@ -66,6 +66,9 @@
 
 <script>
   export default {
+    data: () => ({
+      workingDay: new Date(),
+    }),
     computed: {
       invoices() {
         return this.$store.getters.invoices
@@ -74,11 +77,15 @@
         return this.$store.getters.activeInvoice
       },
       today() {
-        const now = new Date()
+        const now = new Date(this.workingDay)
         return now.getDate() + '.' + (now.getMonth() + 1) + '.' + now.getFullYear()
       }
     },
     mounted() {
+      axios.get('/api/working-day')
+        .then((res) => {
+          this.workingDay = res.data[0]
+        })
       this.$store.dispatch('getInvoices')
     },
     methods: {
