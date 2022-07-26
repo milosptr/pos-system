@@ -5,6 +5,7 @@ const backoffice = {
         revenue: [],
         stats: null,
         activeTableOrders: [],
+        activeOrder: null,
         categories: [],
         inventory: [],
         users: [],
@@ -83,6 +84,9 @@ const backoffice = {
         setActiveTableOrders(state, tableOrders) {
             state.activeTableOrders = tableOrders
         },
+        setActiveOrder(state, table) {
+          state.activeOrder = table
+        },
         setCategories(state, categories) {
             state.categories = categories
         },
@@ -105,6 +109,7 @@ const backoffice = {
 
     getters: {
         activeTableOrders: (state) => state.activeTableOrders,
+        activeOrder: (state) => state.activeOrder,
         revenue: (state) => state.revenue,
         categories: (state) => state.categories,
         inventory: (state) => state.inventory,
