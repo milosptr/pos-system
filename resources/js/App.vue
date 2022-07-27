@@ -8,7 +8,7 @@
     mounted() {
       this.$store.dispatch('setDefaultActiveArea')
       this.$store.dispatch('loadEPOS')
-      this.$store.commit('setEpsonDevice')
+      this.$store.dispatch('setEpsonDevice')
     }
   }
 </script>

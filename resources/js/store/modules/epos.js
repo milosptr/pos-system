@@ -90,14 +90,25 @@ const general = {
       axios.post('/api/orders', { table_id, order: state.order, total})
       .then((res) => {
           if(res.data.data.order.some((i) => i.should_print))
-            commit('setPrintingOrder', res.data.data, { root: true })
+          dispatch('setPrintingOrder', res.data.data, { root: true })
           dispatch('getTables')
           dispatch('getTableOrders')
         })
     },
     cashOut( {commit, dispatch, state }, data) {
+      let allItems = []
       let orders = []
-      state.orders.forEach((o) => { orders = [...orders, ...o.order]})
+      let refunded = []
+      state.orders.forEach((o) => { allItems = [...allItems, ...o.order]})
+      allItems.forEach((i) => {
+        if(!i.refund) {
+          let qty = allItems.filter((it) => it.id === i.id && !it.refund).reduce((a, val) => a + val.qty, 0)
+          if(!orders.some((o) => o.id === i.id))
+            orders.push({...i, qty })
+        }
+        if(i.refund) refunded.push(i)
+      })
+      orders = [...orders, ...refunded]
       axios.post('/api/invoices', {
         user_id: state.selectedWaiterId,
         order: orders,
@@ -106,7 +117,7 @@ const general = {
       })
         .then((res) => {
           if(res.data.data.status)
-            commit('setPrintingInvoice', res.data.data, { root: true })
+          dispatch('setPrintingInvoice', res.data.data, { root: true })
           dispatch('getTables')
         })
     },

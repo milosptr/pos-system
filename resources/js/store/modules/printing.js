@@ -11,57 +11,49 @@ const general = {
     printingAttempts: 0,
   }),
 
-  actions: {},
-
-  mutations: {
-    setEpsonDevice( state, reprint ) {
+  actions: {
+    setEpsonDevice({ dispatch, commit, state }, reprint) {
       if(reprint) state.printingAttempts++
       state.ePosDev = new epson.ePOSDevice()
       state.ePosDev.connect('192.168.1.141', 8008, (data) => {
         console.log('PRINTER_CHECKING');
         if(data == 'OK' || data == 'SSL_CONNECT_OK') {
           console.log('PRINTER_DATA_OK');
-          state.ePosDev.createDevice('local_printer', state.ePosDev.DEVICE_TYPE_PRINTER,
-          {'crypto':false, 'buffer':false}, (devobj, retcode) => {
+          state.ePosDev.createDevice('local_printer', state.ePosDev.DEVICE_TYPE_PRINTER, {'crypto':false, 'buffer':false}, (devobj, retcode) => {
             console.log('PRINTER_createDevice');
             if( retcode == 'OK' ) {
               console.log('PRINTER_createDevice_OK');
               state.printer = devobj;
               state.printer.timeout = 60000;
+              state.printer.oncoveropen = function () { console.log('coveropen') }
               state.printer.onreceive = function (res) {
                 if(res.success) { // successfull printing
-                  state.printingAttempts = 0
-                  state.printingNotification = false
-                  state.printing = null
+                  commit('resetPrinting')
                 } else { // printing error
-                  console.log('REPRINTING_ONRECEIVE')
+                  console.log('REPRINTING_ERROR_ONRECEIVE')
                   state.printingNotification = true
-                  setEpsonDevice(true)
+                  dispatch('setEpsonDevice', true)
                 }
-              }; // if printing fails success: false
-              state.printer.oncoveropen = function () { alert('coveropen'); };
-              if(reprint && printing) {
+              }
+              if(reprint && state.printing) {
                 console.log('REPRINTING');
-                if(printing.type === 'invoice')
-                  setPrintingInvoice(printing.item)
-                  else
-                  setPrintingOrder(printing.item)
+                state.printing.type === 'invoice' ? dispatch('setPrintingInvoice', state.printing.item) : dispatch('setPrintingOrder', state.printing.item)
               }
               console.log('PRINTER_IS_OK');
             } else {
-            console.error(retcode);
-            }
-          });
-        } else {
-          console.error(data);
-        }
-      })
+              console.error(retcode)
+              }
+            });
+          } else {
+            console.error(data)
+          }
+        })
     },
-    setPrintingOrder(state, order) {
+    setPrintingOrder({ dispatch, state }, order) {
       state.printingNotification = true
       state.printing = { type: 'order', item: order}
       if(state.printer === null) {
-        setEpsonDevice(true)
+        dispatch('setEpsonDevice', true)
         console.error('PRINTER_NOT_SET');
         return
       }
@@ -80,7 +72,7 @@ const general = {
         state.printer.addText(' —————————————————————————————————————————————\n');
         state.printer.addTextLineSpace(50);
         order.order.forEach((o) => {
-          if(o.should_print) {
+          if(o.should_print && !o.refund) {
             state.printer.addText(` ${o.qty} x ${o.name}\n`);
           }
         })
@@ -91,11 +83,11 @@ const general = {
         console.log('PRINTING_DONE');
       }
     },
-    setPrintingInvoice(state, invoice) {
+    setPrintingInvoice({ dispatch, state }, invoice) {
       state.printingNotification = true
       state.printing = { type: 'invoice', item: invoice}
       if(state.printer === null) {
-        setEpsonDevice(true)
+        dispatch('setEpsonDevice', true)
         console.error('PRINTER_NOT_SET');
         return
       }
@@ -112,8 +104,10 @@ const general = {
       state.printer.addText('   —————————————————————————————————————————————\n');
       state.printer.addText('   Naziv      Cena      Kol.              Ukupno\n');
       invoice.order.forEach((item) => {
-        state.printer.addText('   ' + item.name +' (Ђ)/' + item.unit + '\n');
-        state.printer.addText(printerItemPriceText(formatPrice(item.price).toString(), parseFloat(item.qty).toString(),formatPrice(item.price * item.qty).toString()));
+        if(!item.refund) {
+          state.printer.addText('   ' + item.name +' (Ђ)/' + item.unit + '\n');
+          state.printer.addText(printerItemPriceText(formatPrice(item.price).toString(), parseFloat(item.qty).toString(),formatPrice(item.price * item.qty).toString()));
+        }
       })
       state.printer.addText('   =============================================\n');
       state.printer.addTextSize(1, 2);
@@ -132,6 +126,14 @@ const general = {
       state.printer.addCut(state.printer.CUT_FEED);
       state.printer.send();
       console.log('PRINTING_DONE');
+    },
+  },
+
+  mutations: {
+    resetPrinting(state) {
+      state.printingAttempts = 0
+      state.printingNotification = false
+      state.printing = null
     },
     setPrintingNotification(state, value) {
       state.printingNotification = value
