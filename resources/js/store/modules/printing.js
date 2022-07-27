@@ -147,8 +147,10 @@ const general = {
 
 // Helper functions
 const printerTextBetween = (left, right) => {
-  const spaces = 45 - left.toString().length - right.toString().length
-  return '   ' + left + " ".repeat(spaces) + right + '\n'
+  let l = left ? left : ''
+  let r = right ? right : ''
+  const spaces = 45 - l.toString().length - r.toString().length
+  return '   ' + l + " ".repeat(spaces) + r + '\n'
 }
 
 const printerItemPriceText = (price, qty, total) => {
