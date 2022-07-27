@@ -15,7 +15,7 @@
                 </tr>
               </thead>
               <tbody class="bg-white">
-                <tr v-for="(item, idx) in invoices" :key="item.id" class="hover:bg-orange-50 cursor-pointer" :class="[{'bg-gray-50': idx % 2 === 1}]">
+                <tr v-for="(item, idx) in invoices" :key="item.id" class="hover:bg-orange-50 cursor-pointer" :class="[{'bg-gray-50': idx % 2 === 1}, {'bg-orange-100': activeOrder && activeOrder.id === item.id}]" @click="$store.commit('setActiveOrder', {...item, orders: [item] })">
                   <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8', {'text-red-500': item.status === 0 }]">{{ item.id }}</td>
                   <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500 hidden sm:table-cell', {'text-red-500': item.status === 0 }]">{{ $filters.formatPrice(item.total) }} RSD</td>
                   <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500 hidden lg:table-cell', {'text-red-500': item.status === 0 }]">{{ item.table.name }}</td>
@@ -28,15 +28,21 @@
           </div>
         </div>
       </div>
+      <OverviewSlideoverSidebar :isInvoice="true" />
     </div>
 </template>
 <script>
+import OverviewSlideoverSidebar from './Overview/OverviewSlideoverSidebar.vue'
 export default {
+  components: { OverviewSlideoverSidebar },
     name: "BackofficeInvoices",
     computed: {
       invoices() {
         return this.$store.getters.invoices
-      }
+      },
+      activeOrder() {
+        return this.$store.getters.activeOrder
+      },
     },
     mounted(){
         this.$store.dispatch('getInvoices')

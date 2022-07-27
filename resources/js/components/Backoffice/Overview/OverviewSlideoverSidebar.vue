@@ -27,9 +27,10 @@
                         :key="order.id"
                         :order="order"
                         :index="index + 1"
-                        :showOrderLine="true"
+                        :showOrderLine="!isInvoice"
                         :boxBackground="false"
                         class="fs-18"
+                        :class="{'text-red-500': isInvoice && order.status === 0}"
                       />
                     </div>
                   </div>
@@ -49,6 +50,12 @@
   import SingleOrder from '../../Tables/SingleOrder.vue'
 
   export default {
+    props: {
+      isInvoice: {
+        type: Boolean,
+        default: () => false,
+      }
+    },
     components: {
       Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, XIcon, SingleOrder
     },
@@ -56,7 +63,7 @@
     computed: {
       activeOrder() {
         return this.$store.getters.activeOrder
-      }
+      },
     },
     mounted() {},
   }
