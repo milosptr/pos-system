@@ -23,10 +23,11 @@
                   <div class="relative mt-6 flex-1 px-4 sm:px-6">
                     <div v-if="activeOrder" class="OrderSidebar overflow-x-hidden">
                       <SingleOrder
-                        v-for="order in activeOrder.orders"
+                        v-for="(order, index) in activeOrder.orders"
                         :key="order.id"
                         :order="order"
-                        :showOrderLine="false"
+                        :index="index + 1"
+                        :showOrderLine="true"
                         :boxBackground="false"
                         class="fs-18"
                       />
@@ -63,7 +64,7 @@
 
 <style >
   .SingleOrderItem {
-    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
   }
 
   .fs-18 * {

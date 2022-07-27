@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\OrderResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TableResource extends JsonResource
@@ -26,7 +27,7 @@ class TableResource extends JsonResource
             'position_x_middle' => $this->position_x_middle,
             'rotate' => $this->rotate,
             'size' => $this->size,
-            'orders' => $this->orders
+            'orders' => OrderResource::collection($this->orders)
         ];
     }
 }

@@ -51,6 +51,10 @@
         type: Boolean,
         default: () => true
       },
+      backoffice: {
+        type: Boolean,
+        default: () => false
+      },
     },
     data: () => ({
       showSingleOrderMenu: false,
