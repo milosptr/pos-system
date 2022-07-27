@@ -25,7 +25,7 @@
         </router-link>
       </div>
     </div>
-    <div v-if="showCategories" class="grid grid-cols-4 gap-2 mt-4">
+    <div v-if="showCategories" class="grid grid-cols-5 gap-2 mt-4">
       <div
         v-for="category in categories"
         :key="category.id"
