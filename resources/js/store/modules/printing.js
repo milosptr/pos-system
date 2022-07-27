@@ -35,20 +35,20 @@ const general = {
               state.printer.timeout = 60000;
               state.printer.onreceive = function (res) {
                 if(res.success) { // successfull printing
-                  this.commit('resetPrinting')
+                  resetPrinting()
                 } else { // printing error
                   console.log('REPRINTING_ONRECEIVE')
                   state.printingNotification = true
-                  this.commit('setEpsonDevice', true)
+                  setEpsonDevice(true)
                 }
               }; // if printing fails success: false
               state.printer.oncoveropen = function () { alert('coveropen'); };
               if(reprint && printing) {
                 console.log('REPRINTING');
                 if(printing.type === 'invoice')
-                  this.commit('setPrintingInvoice', printing.item)
+                  setPrintingInvoice(printing.item)
                   else
-                  this.commit('setPrintingOrder', printing.item)
+                  setPrintingOrder(printing.item)
               }
               console.log('PRINTER_IS_OK');
             } else {
@@ -64,7 +64,7 @@ const general = {
       state.printingNotification = true
       state.printing = { type: 'order', item: order}
       if(state.printer === null) {
-        this.commit('setEpsonDevice', true)
+        setEpsonDevice(true)
         console.error('PRINTER_NOT_SET');
         return
       }
@@ -98,7 +98,7 @@ const general = {
       state.printingNotification = true
       state.printing = { type: 'invoice', item: invoice}
       if(state.printer === null) {
-        this.commit('setEpsonDevice', true)
+        setEpsonDevice(true)
         console.error('PRINTER_NOT_SET');
         return
       }

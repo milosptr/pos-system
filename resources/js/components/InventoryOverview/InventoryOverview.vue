@@ -31,6 +31,7 @@
         :key="category.id"
         @click="setActiveCategory(category.id)"
         class="InventoryBox InventoryItem flex items-center justify-center rounded-sm"
+        :class="'order-' + category.order"
         >
         <div class="text-center font-bold uppercase">
           {{ category.name }}
@@ -42,6 +43,7 @@
         v-for="item in inventory"
         :key="item.id"
         class="InventoryBox InventoryItem flex items-center justify-center rounded-sm"
+        :class="'order-' + item.order"
         @click="addToOrder(item)"
         >
         <div class="text-center font-bold">
