@@ -27,7 +27,6 @@
     created()
     {
       this.pusherInit()
-      this.$store.commit('setEpsonDevice')
     },
     methods: {
       pusherInit()
