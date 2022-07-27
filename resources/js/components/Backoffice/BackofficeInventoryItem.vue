@@ -5,7 +5,7 @@
       <input v-model="item.name" type="text" class="appearance-none w-full p-0 m-0 border-none bg-transparent" />
     </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
-      <input v-model="item.price" type="number" class="appearance-none w-20 p-0 m-0 border-none bg-transparent text-right" />
+      <input v-model="item.price" type="number" class="appearance-none w-20 p-0 m-0 border-none bg-transparent text-right" @click="selectAll" />
      RSD</td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">{{ soldByText(item.sold_by) }}</td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
@@ -51,6 +51,9 @@
           .then((res) => {
             this.defaultItem = { ...this.item }
           })
+      },
+      selectAll(e) {
+        e.target.select()
       },
       soldByText(id) {
         if(id === 1)
