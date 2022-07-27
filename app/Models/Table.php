@@ -9,7 +9,7 @@ class Table extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'area', 'position_x', 'position_y'];
+    protected $fillable = ['name', 'area','table_number', 'position_x', 'position_y', 'size', 'rotate', 'position_x_middle', 'position_y_middle'];
     public $timestamps = true;
 
 
