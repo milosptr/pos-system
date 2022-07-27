@@ -113,7 +113,7 @@ const general = {
       state.printer.addText('   Naziv      Cena      Kol.              Ukupno\n');
       invoice.order.forEach((item) => {
         state.printer.addText('   ' + item.name +' (Ђ)/' + item.unit + '\n');
-        state.printer.addText(printerItemPriceText(formatPrice(item.price).toString(), parseInt(item.qty).toString(),formatPrice(item.price * item.qty).toString()));
+        state.printer.addText(printerItemPriceText(formatPrice(item.price).toString(), parseFloat(item.qty).toString(),formatPrice(item.price * item.qty).toString()));
       })
       state.printer.addText('   =============================================\n');
       state.printer.addTextSize(1, 2);
