@@ -147,7 +147,7 @@ const general = {
 
 // Helper functions
 const printerTextBetween = (left, right) => {
-  const spaces = 45 - left.length - right.length
+  const spaces = 45 - left.toString().length - right.toString().length
   return '   ' + left + " ".repeat(spaces) + right + '\n'
 }
 
