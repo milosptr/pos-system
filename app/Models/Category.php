@@ -12,6 +12,6 @@ class Category extends Model
     CONST PARENT_0 = "ŠANK";
     CONST PARENT_1 = "KUHINJA";
 
-    protected $fillable = ['name', 'order'];
+    protected $fillable = ['name', 'order', 'print'];
     public $timestamps = true;
 }
