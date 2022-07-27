@@ -103,8 +103,8 @@ const general = {
         return
       }
 
-      state.printer.addLayout(printer.LAYOUT_RECEIPT, 800, 0, -8, 0, 0, 0);
-      state.printer.addTextStyle(false, false, true, printer.COLOR_1);
+      state.printer.addLayout(state.printer.LAYOUT_RECEIPT, 800, 0, -8, 0, 0, 0);
+      state.printer.addTextStyle(false, false, true, state.printer.COLOR_1);
       state.printer.addText('   =================== RAČUN ===================\n\n\n');
       state.printer.addText('   Kasir:                                Vlasnik\n');
       state.printer.addText(printerTextBetween('Reon:', invoice.location));
@@ -132,7 +132,7 @@ const general = {
       const counter = (3323 + invoice.id) + '/' + (3561 + invoice.id)
       state.printer.addText(printerTextBetween('Brojač računa:', counter));
       state.printer.addFeedLine(3);
-      state.printer.addCut(printer.CUT_FEED);
+      state.printer.addCut(state.printer.CUT_FEED);
       state.printer.send();
       console.log('PRINTING_DONE');
     },
