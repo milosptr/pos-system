@@ -5,6 +5,9 @@
 *,
 .montserrat {
   font-family: 'Montserrat', sans-serif;
+}
+
+div, a, img, p, table, td, ul, li, span {
   user-select: none;
 }
 
