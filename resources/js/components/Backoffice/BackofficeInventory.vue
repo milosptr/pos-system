@@ -1,5 +1,23 @@
 <template>
   <div class="flex flex-col">
+      <div class="flex justify-end gap-4 mb-3 -mx-4 sm:-mx-6 lg:-mx-8">
+        <div class="">
+          <div>
+            <div class="relative flex items-center">
+              <input v-model="filters.q" type="text" name="search" id="search" placeholder="Search" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 sm:text-sm border-gray-300 rounded-md" @input="filterInventory(false)" />
+              <div class="absolute inset-y-0 left-0 flex py-1.5 pr-1.5">
+                <div class="inline-flex items-center px-2 text-sm font-sans font-medium text-gray-400"> <SearchIcon class="h-4 w-4" /> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="">
+          <Select :list="categories" @select="filterInventory" />
+        </div>
+        <div v-if="filters.q || filters.category" class="border border-gray-100 rounded-sm py-2" @click="clearFilters">
+          <XCircleIcon class="w-6 h-6" />
+        </div>
+      </div>
       <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle">
           <div class="shadow-sm ring-1 ring-black ring-opacity-5">
@@ -28,17 +46,41 @@
     </div>
 </template>
 <script>
+import Select from '../common/Select.vue'
+import { SearchIcon, XCircleIcon } from '@heroicons/vue/outline'
+
 export default {
     name: 'BackofficeInventory',
+    components: {
+      Select,
+      SearchIcon,
+      XCircleIcon,
+    },
+    data: () => ({
+      filters: {}
+    }),
     computed: {
       inventory() {
         return this.$store.getters.inventory
-      }
+      },
+      categories() {
+        return this.$store.getters.categories
+      },
     },
     mounted() {
-        this.$store.dispatch('getInventory')
+        this.$store.dispatch('getInventory', this.filters)
+        this.$store.dispatch('getCategories')
     },
     methods: {
+      filterInventory(cat) {
+        if(cat)
+          this.filters.category = cat.id
+        this.$store.dispatch('getInventory', this.filters)
+      },
+      clearFilters() {
+        this.filters = {}
+        this.$store.dispatch('getInventory', this.filters)
+      },
       soldByText(id) {
         if(id === 1)
           return 'PP'

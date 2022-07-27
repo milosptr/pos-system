@@ -42,11 +42,12 @@ const backoffice = {
                     commit('setCategories', res.data.data)
                 })
         },
-        getInventory({ commit }) {
-            axios.get('/api/inventory')
-                .then( (res) => {
-                    commit('setInventory', res.data.data)
-                })
+        getInventory({ commit }, filters) {
+          const params = new URLSearchParams(filters);
+          axios.get('/api/inventory?' + params.toString())
+              .then( (res) => {
+                  commit('setInventory', res.data.data)
+              })
         },
         getUsers({ commit }) {
             axios.get('/api/users')
