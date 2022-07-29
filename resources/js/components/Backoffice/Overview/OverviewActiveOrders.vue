@@ -9,7 +9,10 @@
       :class="{'bg-orange-100': activeOrder && activeOrder.id === table.id}"
       @click="$store.commit('setActiveOrder', table)"
     >
-      <div class="flex flex-col sm:flex-row justify-between items-center font-semibold">
+      <div
+        class="flex flex-col sm:flex-row justify-between items-center font-semibold"
+        :class="{'text-blue-500': table.id === lastActiveTableId}"
+      >
         <div>{{ table.name }}</div>
         <div>{{ $filters.formatPrice(table.total) }} RSD</div>
       </div>
@@ -28,7 +31,16 @@ export default {
     computed: {
       activeOrder() {
         return this.$store.getters.activeOrder
-      }
+      },
+      lastActiveTableId() {
+        let tables = this.$store.getters.activeTableOrders.map((t) => {
+          return { id: t.id, order: t.orders.sort((a,b) => {
+            return new Date(b.created_at_full) - new Date(a.created_at_full)
+          })[0]
+          }
+        }).sort((a, b) => new Date(b.order.created_at_full) - new Date(a.order.created_at_full))
+        return tables[0].id
+      },
     }
 }
 </script>
