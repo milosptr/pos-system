@@ -6,6 +6,7 @@ use App\Models\Inventory;
 use Illuminate\Http\Request;
 use App\Http\Resources\InventoryCollection;
 use App\Http\Requests\InventoryStoreRequest;
+use App\Http\Resources\InventoryResource;
 
 class InventoryController extends Controller
 {
@@ -38,7 +39,7 @@ class InventoryController extends Controller
      */
     public function store(InventoryStoreRequest $request)
     {
-        return new InventoryCollection(Inventory::create($request->all()));
+        return new InventoryResource(Inventory::create($request->all()));
     }
 
     /**
@@ -83,8 +84,9 @@ class InventoryController extends Controller
      * @param  \App\Models\Inventory  $inventory
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Inventory $inventory)
+    public function destroy($id)
     {
-        //
+        $inventory = Inventory::find($id);
+        return $inventory->delete();
     }
 }

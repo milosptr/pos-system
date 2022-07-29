@@ -84,7 +84,10 @@ Route::get('working-day', function() {
 
 //Backoffice
 Route::prefix('/backoffice')->group(function() {
+    Route::post('/inventory', [InventoryController::class, 'store']);
     Route::put('/inventory/{id}', [InventoryController::class, 'update']);
+    Route::delete('/inventory/{id}', [InventoryController::class, 'destroy']);
+
     Route::put('/categories/{id}', [CategoryController::class, 'update']);
     Route::put('/tables/{id}', [TableController::class, 'update']);
 });

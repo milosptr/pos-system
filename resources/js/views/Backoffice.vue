@@ -26,10 +26,10 @@
                     v-for="item in navigation"
                     :key="item.name"
                     :to="{name: item.href}"
-                    :class="[item.href === currentRoute ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'group flex items-center px-2 py-2 text-base font-medium rounded-md']"
+                    :class="[currentRoute.includes(item.href) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'group flex items-center px-2 py-2 text-base font-medium rounded-md']"
                     @click="sidebarOpen = false"
                   >
-                    <component :is="item.icon" :class="[item.href === currentRoute ? 'text-gray-300' : 'text-gray-400 group-hover:text-gray-300', 'mr-4 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
+                    <component :is="item.icon" :class="[currentRoute.includes(item.href) ? 'text-gray-300' : 'text-gray-400 group-hover:text-gray-300', 'mr-4 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
                     {{ item.name }}
                   </router-link>
                 </nav>
@@ -65,8 +65,8 @@
             <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg" alt="Workflow" />
           </div>
           <nav class="mt-5 flex-1 px-2 space-y-1">
-            <router-link v-for="item in navigation" :key="item.name" :to="{name: item.href}" :class="[item.href === currentRoute ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'group flex items-center px-2 py-2 text-sm font-medium rounded-md']">
-              <component :is="item.icon" :class="[item.href === currentRoute ? 'text-gray-300' : 'text-gray-400 group-hover:text-gray-300', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
+            <router-link v-for="item in navigation" :key="item.name" :to="{name: item.href}" :class="[currentRoute.includes(item.href) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'group flex items-center px-2 py-2 text-sm font-medium rounded-md']">
+              <component :is="item.icon" :class="[currentRoute.includes(item.href) ? 'text-gray-300' : 'text-gray-400 group-hover:text-gray-300', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
               {{ item.name }}
             </router-link>
           </nav>
@@ -95,8 +95,13 @@
       </div>
       <main class="flex-1">
         <div class="py-6">
-          <div class="max-w-7xl mx-auto">
-            <h1 class="text-2xl font-semibold text-gray-900 capitalize">{{ currentRoute }}</h1>
+          <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-semibold text-gray-900 capitalize">{{ currentRoute.replace('-', ' ') }}</h1>
+            <div v-if="currentPath === '/inventory' || currentPath === '/categories'" class="ml-4 mt-2 flex-shrink-0" @click="handleAddButton">
+              <button type="button" class="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                {{ buttonName }}
+              </button>
+            </div>
           </div>
           <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <!-- Replace with your content -->
@@ -147,7 +152,15 @@ export default {
   computed: {
     currentRoute() {
       return this.$route.name
-    }
+    },
+    currentPath() {
+       return this.$route.path
+    },
+    buttonName() {
+      if(this.$route.name === 'inventory')
+        return 'Add item'
+      return 'Add ' + this.$route.name
+    },
   },
   mounted() {
     this.pusherInit()
@@ -161,7 +174,10 @@ export default {
             this.$store.dispatch('getStats')
             this.$store.dispatch('getActiveTableOrders')
         })
-      }
-  }
+      },
+      handleAddButton() {
+        this.$router.push(this.$route.path + '/new')
+      },
+  },
 }
 </script>

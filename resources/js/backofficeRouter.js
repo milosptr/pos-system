@@ -3,6 +3,7 @@ import Backoffice from './views/Backoffice.vue'
 import BackofficeOverview from './components/Backoffice/BackofficeOverview.vue'
 import BackofficeCategories from './components/Backoffice/BackofficeCategories.vue'
 import BackofficeInventory from './components/Backoffice/BackofficeInventory.vue'
+import BackofficeInventoryNew from './components/Backoffice/BackofficeInventoryNew.vue'
 import BackofficeUsers from './components/Backoffice/BackofficeUsers.vue'
 import BackofficeTables from './components/Backoffice/BackofficeTables.vue'
 import BackofficeOrders from './components/Backoffice/BackofficeOrders.vue'
@@ -21,17 +22,29 @@ const routes = [
             {
                 path: '/categories',
                 name: 'categories',
-                component: BackofficeCategories
+                component: BackofficeCategories,
+                children: [
+                  {
+                    path: 'new',
+                    name: 'categories',
+                    component: BackofficeCategories
+                  },
+                ]
             },
             {
                 path: '/inventory',
                 name: 'inventory',
-                component: BackofficeInventory
+                component: BackofficeInventory,
+            },
+            {
+              path: '/inventory/new',
+              name: 'inventory-new',
+              component: BackofficeInventoryNew,
             },
             {
                 path: '/users',
                 name: 'users',
-                component: BackofficeUsers
+                component: BackofficeInventoryNew
             },
             {
                 path: '/tables',
