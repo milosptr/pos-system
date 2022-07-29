@@ -11,7 +11,7 @@
     >
       <div
         class="flex flex-col sm:flex-row justify-between items-center font-semibold"
-        :class="{'text-blue-500': table.id === lastActiveTableId}"
+        :class="{'text-indigo-600': table.id === lastActiveTableId}"
       >
         <div>{{ table.name }}</div>
         <div>{{ $filters.formatPrice(table.total) }} RSD</div>
