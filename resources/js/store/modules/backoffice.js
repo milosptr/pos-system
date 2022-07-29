@@ -84,6 +84,8 @@ const backoffice = {
         },
         setActiveTableOrders(state, tableOrders) {
             state.activeTableOrders = tableOrders
+            if(state.activeOrder && state.activeOrder.id)
+              state.activeOrder = state.activeTableOrders.find((o) => o.id === state.activeOrder.id)
         },
         setActiveOrder(state, table) {
           state.activeOrder = table

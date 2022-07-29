@@ -23,7 +23,7 @@
                   <div class="relative mt-6 flex-1 px-4 sm:px-6">
                     <div v-if="activeOrder" class="OrderSidebar overflow-x-hidden">
                       <SingleOrder
-                        v-for="(order, index) in activeOrder.orders"
+                        v-for="(order, index) in orders"
                         :key="order.id"
                         :order="order"
                         :index="index + 1"
@@ -63,6 +63,11 @@
     computed: {
       activeOrder() {
         return this.$store.getters.activeOrder
+      },
+      orders() {
+        return this.activeOrder.orders.sort(function(a,b){
+          return new Date(b.created_at_full) - new Date(a.created_at_full);
+        });
       },
     },
     mounted() {},
