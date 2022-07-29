@@ -129,6 +129,7 @@ import {
   XIcon,
   ClipboardListIcon,
   ChartPieIcon,
+  UserGroupIcon,
 } from '@heroicons/vue/outline'
 
 const navigation = [
@@ -139,6 +140,7 @@ const navigation = [
   { name: 'Invoices', href: 'invoices', icon: ClipboardListIcon, current: false },
   { name: 'Reports', href: 'reports', icon: ChartPieIcon, current: false },
   { name: 'Settings', href: 'settings', icon: CogIcon, current: false },
+  { name: 'Users', href: 'users', icon: UserGroupIcon, current: false },
 ]
 
 export default {

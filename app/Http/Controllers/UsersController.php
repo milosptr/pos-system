@@ -10,11 +10,17 @@ class UsersController extends Controller
 {
     public function index()
     {
-        return UserResource::collection(User::all());
+        return UserResource::collection(User::where('is_admin', 0)->get());
     }
 
     public function waiters()
     {
       return WaitersResource::collection(User::where('is_admin', 0)->get());
+    }
+
+    public function destroy($id)
+    {
+      $user = User::find($id);
+      return $user->delete();
     }
 }

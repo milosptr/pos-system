@@ -71,6 +71,11 @@ const routes = [
                 name: 'reports',
                 component: BackofficeInvoices
             },
+            {
+                path: '/users',
+                name: 'users',
+                component: BackofficeUsers
+            },
         ]
     },
 
