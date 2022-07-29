@@ -26,7 +26,7 @@
                         v-for="(order, index) in orders"
                         :key="order.id"
                         :order="order"
-                        :index="index + 1"
+                        :index="orders.length - index"
                         :showOrderLine="!isInvoice"
                         :boxBackground="false"
                         class="fs-18"
