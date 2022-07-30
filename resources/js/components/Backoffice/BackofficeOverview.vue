@@ -1,5 +1,6 @@
 <template>
 <div class="flex flex-col w-full">
+    <OverviewRevenue />
     <OverviewStats />
     <OverviewActiveOrders />
     <OverviewSlideoverSidebar />
@@ -13,6 +14,7 @@
 import OverviewStats from './Overview/OverviewStats.vue'
 import OverviewActiveOrders from './Overview/OverviewActiveOrders.vue'
 import OverviewSlideoverSidebar from './Overview/OverviewSlideoverSidebar.vue'
+import OverviewRevenue from './OverviewRevenue.vue'
 
 export default {
     name: "BackofficeOverview",
@@ -20,6 +22,7 @@ export default {
         OverviewStats,
         OverviewActiveOrders,
         OverviewSlideoverSidebar,
+        OverviewRevenue,
     },
     mounted() {
         this.$store.dispatch('getStats')
