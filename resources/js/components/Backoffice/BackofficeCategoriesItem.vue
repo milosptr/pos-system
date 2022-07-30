@@ -11,8 +11,11 @@
     <td :class="[idx !== categories.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
       <Switch :enabled="!!item.print" @click="emitFun" />
     </td>
-    <td :class="[idx !== categories.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
-      <div class="text-blue-500" @click="updateItem">Save</div>
+    <td class="text-right" :class="[idx !== categories.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
+      <div class="flex gap-4 justify-end">
+        <div class="text-blue-500" @click="updateItem">Save</div>
+        <div class="text-red-500" @click="deleteItem">Delete</div>
+      </div>
     </td>
   </tr>
 </template>
@@ -53,6 +56,12 @@
         axios.put('/api/backoffice/categories/' + this.item.id, this.item)
           .then((res) => {
             this.defaultItem = { ...this.item }
+          })
+      },
+      deleteItem() {
+        axios.delete('/api/backoffice/categories/' + this.item.id)
+          .then(() => {
+            this.$store.dispatch('getCategories', {})
           })
       },
       emitFun(e, b) {

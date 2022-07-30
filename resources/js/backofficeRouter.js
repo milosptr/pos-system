@@ -2,12 +2,14 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import Backoffice from './views/Backoffice.vue'
 import BackofficeOverview from './components/Backoffice/BackofficeOverview.vue'
 import BackofficeCategories from './components/Backoffice/BackofficeCategories.vue'
+import BackofficeCategoriesNew from './components/Backoffice/BackofficeCategoriesNew.vue'
 import BackofficeInventory from './components/Backoffice/BackofficeInventory.vue'
 import BackofficeInventoryNew from './components/Backoffice/BackofficeInventoryNew.vue'
 import BackofficeUsers from './components/Backoffice/BackofficeUsers.vue'
 import BackofficeTables from './components/Backoffice/BackofficeTables.vue'
 import BackofficeOrders from './components/Backoffice/BackofficeOrders.vue'
 import BackofficeInvoices from './components/Backoffice/BackofficeInvoices.vue'
+import BackofficeReports from './components/Backoffice/Reports/BackofficeReports.vue'
 
 const routes = [
     {
@@ -23,13 +25,11 @@ const routes = [
                 path: '/categories',
                 name: 'categories',
                 component: BackofficeCategories,
-                children: [
-                  {
-                    path: 'new',
-                    name: 'categories',
-                    component: BackofficeCategories
-                  },
-                ]
+            },
+            {
+                path: '/categories/new',
+                name: 'categories-new',
+                component: BackofficeCategoriesNew,
             },
             {
                 path: '/inventory',
@@ -69,7 +69,7 @@ const routes = [
             {
                 path: '/reports',
                 name: 'reports',
-                component: BackofficeInvoices
+                component: BackofficeReports
             },
             {
                 path: '/users',

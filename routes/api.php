@@ -89,7 +89,11 @@ Route::prefix('/backoffice')->group(function() {
   Route::put('/inventory/{id}', [InventoryController::class, 'update']);
   Route::delete('/inventory/{id}', [InventoryController::class, 'destroy']);
 
+  Route::post('/categories', [CategoryController::class, 'store']);
   Route::put('/categories/{id}', [CategoryController::class, 'update']);
+  Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+
+
   Route::put('/tables/{id}', [TableController::class, 'update']);
 
   Route::delete('users/{id}', [UsersController::class, 'destroy']);

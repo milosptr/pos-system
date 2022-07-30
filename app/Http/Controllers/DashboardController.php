@@ -41,18 +41,12 @@ class DashboardController extends Controller
         [
           "name" => 'Active Orders',
           "stat" => (int) $activeTablesTotal,
-          "previousStat" => 0,
-          "change" => null,
-          "changeType" => null,
           "primary" => false,
         ],
         ReportsService::parseStats($today, $yesterday, 'Refund', 'refund'),
         [
           "name" => 'Total + Active Orders',
           "stat" => (int) $activeTablesTotal + (int) $today['total'],
-          "previousStat" => 0,
-          "change" => null,
-          "changeType" => null,
           "primary" => true,
         ],
       ];
