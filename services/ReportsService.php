@@ -36,9 +36,7 @@ class ReportsService {
       return [
         "name" => $name,
         "stat" => $today[$field],
-        "previousStat" => $yesterday[$field],
-        "change" => abs(self::getPercentageChange($yesterday[$field], $today[$field])) . '%',
-        "changeType" => self::getPercentageChange($yesterday[$field], $today[$field]) < 0 ? 'increase' : 'decrease'
+        "primary" => false,
       ];
     }
 }

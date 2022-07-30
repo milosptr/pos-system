@@ -1,3 +1,5 @@
+const path = require('path')
+const colors = require('tailwindcss/colors');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
@@ -7,6 +9,8 @@ module.exports = {
         './resources/views/**/*.blade.php',
         "./index.html",
         './resources/**/*.{vue,js,ts,jsx,tsx}',
+        './node_modules/litepie-datepicker/**/*.js',
+        "./resources/**/*.blade.php",
     ],
     theme: {
         extend: {
@@ -15,6 +19,8 @@ module.exports = {
             },
             colors: {
               primary: '#e86423',
+              'litepie-primary': colors.indigo,
+              'litepie-secondary': colors.gray,
             },
         },
     },
