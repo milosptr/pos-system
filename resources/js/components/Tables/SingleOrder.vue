@@ -84,15 +84,17 @@
             this.showCacheOutModal = false
             this.$store.dispatch('getTableOrders')
             this.$store.dispatch('getTables')
+            this.$store.dispatch('setPrintingInvoice', res.data.data)
           })
       },
       handleTableMenu(item) {
         if(item === 'cashout') {
           this.showCacheOutModal = true
         }
-        // if(item === 'reprint') {
-        //   this.$store.dispatch('')
-        // }
+        if(item === 'reprint') {
+          this.$store.dispatch('setPrintingOrder', this.order)
+        }
+
         if(item === 'refund') {
           this.showRefundReasonModal = true
         }
