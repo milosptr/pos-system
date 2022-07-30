@@ -44,6 +44,7 @@
         :key="item.id"
         class="InventoryBox InventoryItem flex items-center justify-center rounded-sm"
         :class="'order-' + item.order"
+        :style="[item.color ? `color: ${item.color};` : '']"
         @click="addToOrder(item)"
         >
         <div class="text-center font-bold">
