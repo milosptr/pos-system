@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-      <div class="flex justify-end gap-4 mb-3 -mx-0 sm:-mx-6 lg:-mx-8">
+      <div class="flex justify-end gap-4 mb-3">
         <div class="">
           <div>
             <div class="relative flex items-center">

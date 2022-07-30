@@ -1,5 +1,5 @@
 <template>
-  <div class="-mx-0 sm:-mx-6 lg:-mx-8 mt-4">
+  <div class="mt-4">
     <div class="w-full xl:w-1/2 grid grid-cols-1 gap-4">
       <div>
         <label for="name" class="block text-sm font-medium text-gray-700">Name</label>

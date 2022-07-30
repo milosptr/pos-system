@@ -1,5 +1,5 @@
 <template>
-<div class="flex flex-col w-full -mx-0 sm:-mx-6 lg:-mx-8">
+<div class="flex flex-col w-full">
     <OverviewStats />
     <OverviewActiveOrders />
     <OverviewSlideoverSidebar />
