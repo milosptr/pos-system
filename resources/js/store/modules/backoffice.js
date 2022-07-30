@@ -123,7 +123,7 @@ const backoffice = {
         stats: (state) => state.stats,
         totalActiveTableOrders: (state) => state.activeTableOrders.reduce((a, v) => a + v.total, 0),
         totalRevenue: (state) => {
-          const total = state.stats ? state.stats[0].stat : 0
+          const total = state.stats && state.stats[0].stat ? state.stats[0].stat : 0
           const totalActiveTableOrders = state.activeTableOrders.reduce((a, v) => a + v.total, 0)
           return parseInt(totalActiveTableOrders) + parseInt(total)
         },
