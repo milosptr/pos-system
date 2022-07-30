@@ -23,9 +23,9 @@ class ReportsService {
 
     public static function getRevenueForDate($date)
     {
-      return Invoice::selectRaw('sum(total) AS total')
+      return Invoice::selectRaw('sum(total) AS total_with_refund')
         ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
-        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as income')
+        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as total')
         ->whereBetween('created_at', $date)
         ->get()
         ->first();

@@ -8,10 +8,10 @@
             <dd class="mt-1 flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
               <div class="flex flex-col xl:flex-row items-baseline text-2xl font-semibold text-indigo-600 mb-2 xl:mb-0">
                 {{ $filters.formatPrice(item.stat) }} RSD
-                <span class="xl:ml-2 text-sm font-medium text-gray-500"> from {{ $filters.formatPrice(item.previousStat) }} RSD </span>
+                <span v-if="item.changeType" class="xl:ml-2 text-sm font-medium text-gray-500"> from {{ $filters.formatPrice(item.previousStat) }} RSD </span>
               </div>
 
-              <div :class="[item.changeType === 'increase' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800', 'inline-flex items-baseline px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0']">
+              <div v-if="item.changeType" :class="[item.changeType === 'increase' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800', 'inline-flex items-baseline px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0']">
                 <ArrowSmUpIcon v-if="item.changeType === 'increase'" class="-ml-1 mr-0.5 flex-shrink-0 self-center h-5 w-5 text-green-500" aria-hidden="true" />
                 <ArrowSmDownIcon v-else class="-ml-1 mr-0.5 flex-shrink-0 self-center h-5 w-5 text-red-500" aria-hidden="true" />
                 <span class="sr-only"> {{ item.changeType === 'increase' ? 'Increased' : 'Decreased' }} by </span>

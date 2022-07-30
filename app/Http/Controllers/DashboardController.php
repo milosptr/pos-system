@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use Services\WorkingDay;
 use Illuminate\Http\Request;
 use App\Http\Resources\TableResource;
+use App\Models\Order;
 use Carbon\Carbon;
 use Services\ReportsService;
 
@@ -33,11 +34,18 @@ class DashboardController extends Controller
     {
       $today = ReportsService::getRevenueForDate(WorkingDay::getWorkingDay());
       $yesterday = ReportsService::getRevenueForDate(WorkingDay::getWorkingDay(Carbon::now(), 'yesterday'));
+      $activeTablesTotal = Order::selectRaw('sum(total) as total')->groupBy('table_id')->get()->sum('total');
 
       return [
         ReportsService::parseStats($today, $yesterday, 'Total', 'total'),
+       [
+          "name" => 'Active Orders',
+          "stat" => (int) $activeTablesTotal,
+          "previousStat" => 0,
+          "change" => null,
+          "changeType" => null,
+        ],
         ReportsService::parseStats($today, $yesterday, 'Refund', 'refund'),
-        ReportsService::parseStats($today, $yesterday, 'Income', 'income'),
       ];
 
     }
