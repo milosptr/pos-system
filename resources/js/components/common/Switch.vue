@@ -22,7 +22,7 @@ import { Switch } from '@headlessui/vue'
 export default {
   props: {
     enabled: {
-      type: Boolean,
+      type: Boolean || Number,
       default: () => false
     }
   },

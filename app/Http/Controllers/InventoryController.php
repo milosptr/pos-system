@@ -15,9 +15,15 @@ class InventoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function all(Request $request)
     {
         $inventory = Inventory::filter($request)->get();
+        return new InventoryCollection($inventory);
+    }
+
+    public function index(Request $request)
+    {
+        $inventory = Inventory::filter($request)->where('active', 1)->get();
         return new InventoryCollection($inventory);
     }
 

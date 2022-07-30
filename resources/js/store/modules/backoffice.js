@@ -44,7 +44,7 @@ const backoffice = {
         },
         getInventory({ commit }, filters) {
           const params = new URLSearchParams(filters);
-          axios.get('/api/inventory?' + params.toString())
+          axios.get('/api/inventory/all?' + params.toString())
               .then( (res) => {
                   commit('setInventory', res.data.data)
               })

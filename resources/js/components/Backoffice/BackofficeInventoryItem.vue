@@ -1,8 +1,8 @@
 <template>
   <tr class="hover:bg-orange-50 cursor-pointer" :class="{'bg-blue-200 hover:bg-blue-200': isChanged, 'bg-red-300': isRemoving}">
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8']">{{ idx + 1 }}</td>
-    <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500 hidden sm:table-cell']">
-      <input v-model="item.name" type="text" class="appearance-none w-full p-0 m-0 border-none bg-transparent" />
+    <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500 ']">
+      <input v-model="item.name" type="text" class="appearance-none min-w-input-name w-full p-0 m-0 border-none bg-transparent" />
     </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
       <input v-model="item.price" type="number" class="appearance-none w-20 p-0 m-0 border-none bg-transparent text-right" @click="selectAll" />
@@ -13,6 +13,9 @@
     </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">{{ item.category_name }}</td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
+      <Switch :enabled="!!item.active" @click="updateStatus" />
+    </td>
+    <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
       <div class="flex gap-4">
         <div class="text-blue-500" @click="updateItem">Save</div>
         <div class="text-red-500" @click="deleteItem">Delete</div>
@@ -22,6 +25,7 @@
 </template>
 
 <script>
+  import Switch from '../common/Switch.vue'
   export default {
     props: {
       idx: {
@@ -37,6 +41,7 @@
         default: () => {}
       }
     },
+    components: { Switch },
     data: () => ({
       defaultItem: null,
       isRemoving: false,
@@ -63,6 +68,9 @@
             this.$store.dispatch('getInventory', {})
           })
       },
+      updateStatus(e) {
+        this.item.active = !this.item.active ? 1 : 0
+      },
       selectAll(e) {
         e.target.select()
       },
@@ -76,3 +84,9 @@
     }
   }
 </script>
+
+<style scoped>
+  .min-w-input-name {
+    min-width: 300px;
+  }
+</style>

@@ -83,4 +83,12 @@
     font-size: 18px!important;
     font-weight: 500;
   }
+
+  @media (max-width: 450px) {
+    .fs-18 * {
+      font-size: 14px!important;
+      line-height: 18px;
+      font-weight: 500;
+    }
+  }
 </style>

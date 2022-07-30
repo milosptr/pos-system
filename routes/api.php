@@ -39,6 +39,7 @@ Route::post('tables', [TableController::class, 'store']);
 
 //Inventory
 Route::get('inventory', [InventoryController::class, 'index']);
+Route::get('inventory/all', [InventoryController::class, 'all']);
 Route::post('inventory', [InventoryController::class, 'store']);
 
 //Categories
