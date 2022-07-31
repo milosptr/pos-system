@@ -133,6 +133,12 @@
     }
   }
 
+  @media(min-width: 1600px) {
+    .SingleTable {
+      transform: scale(1.1)!important;
+    }
+  }
+
   @keyframes scaleTable {
     0% {
       transform: scale(0);
