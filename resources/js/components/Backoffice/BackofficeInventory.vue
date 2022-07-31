@@ -38,7 +38,7 @@
               <tbody class="bg-white">
                 <BackofficeInventoryItem
                   v-for="(item, idx) in inventory"
-                  :key="item.id"
+                  :key="item.id + '-' + idx"
                   :item="item"
                   :inventory="inventory"
                   :idx="idx"
