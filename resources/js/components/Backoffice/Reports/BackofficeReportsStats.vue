@@ -19,7 +19,7 @@
           </dt>
           <dd class="flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
             <div
-              class="flex flex-col lg:flex-row items-baseline text-2xl font-semibold mb-2 xl:mb-0 text-gray-700"
+              class="flex flex-col lg:flex-row items-baseline text-2xl font-semibold mb-2 xl:mb-0 text-red-500"
             >
               {{ $filters.formatPrice(reportsStat?.refund) }} RSD
             </div>
@@ -31,7 +31,7 @@
           </dt>
           <dd class="flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
             <div
-              class="flex flex-col lg:flex-row items-baseline text-2xl font-semibold mb-2 xl:mb-0 text-gray-700"
+              class="flex flex-col lg:flex-row items-baseline text-2xl font-semibold mb-2 xl:mb-0 text-indigo-500"
             >
               {{ $filters.formatPrice(reportsStat?.income) }} RSD
             </div>
