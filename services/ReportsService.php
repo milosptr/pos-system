@@ -31,7 +31,7 @@ class ReportsService {
         ->first();
     }
 
-    public static function parseStats($today, $yesterday, $name, $field)
+    public static function parseStats($today, $name, $field)
     {
       return [
         "name" => $name,

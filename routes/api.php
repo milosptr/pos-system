@@ -11,6 +11,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ValidatePinController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 use Services\WorkingDay;
@@ -73,7 +74,6 @@ Route::get('refund-reasons', [RefundReasonController::class, 'index']);
 Route::post('validate-pin', [ValidatePinController::class, 'validatePin']);
 
 //Dashboard
-Route::get('revenue', [DashboardController::class, 'revenue']);
 Route::get('stats', [DashboardController::class, 'stats']);
 Route::get('active-orders', [DashboardController::class, 'activeOrders']);
 Route::get('users', [UsersController::class, 'index']);
@@ -97,4 +97,6 @@ Route::prefix('/backoffice')->group(function() {
   Route::put('/tables/{id}', [TableController::class, 'update']);
 
   Route::delete('users/{id}', [UsersController::class, 'destroy']);
+
+  Route::get('reports', [ReportsController::class, 'index']);
 });

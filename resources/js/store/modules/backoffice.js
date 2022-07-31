@@ -2,7 +2,8 @@ import axios from "axios"
 
 const backoffice = {
     state: () => ({
-        revenue: [],
+        reports: null,
+        reportFilters: {},
         stats: null,
         activeTableOrders: [],
         activeOrder: null,
@@ -18,11 +19,12 @@ const backoffice = {
     }),
 
     actions: {
-        getRevenue({ commit }) {
-            axios.get('/api/revenue')
-                .then( (res) => {
-                    commit('setRevenue', res.data)
-                })
+        getReports({ commit, state }) {
+          const params = new URLSearchParams(state.reportFilters);
+          axios.get('/api/backoffice/reports?' + params.toString())
+          .then((res) => {
+            commit('setReports', res.data)
+          })
         },
         getStats({ commit }) {
             axios.get('/api/stats')
@@ -76,8 +78,12 @@ const backoffice = {
     },
 
     mutations: {
-        setRevenue(state, revenue) {
-            state.revenue = revenue
+        setReports(state, reports) {
+            state.reports = reports
+        },
+        setReportFilters(state, filter) {
+          state.reportFilters[filter.key] = filter.value
+          if(!filter.value) delete state.reportFilters[filter.key]
         },
         setStats(state, stats) {
             state.stats = stats
@@ -113,7 +119,7 @@ const backoffice = {
     getters: {
         activeTableOrders: (state) => state.activeTableOrders,
         activeOrder: (state) => state.activeOrder,
-        revenue: (state) => state.revenue,
+        reports: (state) => state.reports,
         categories: (state) => state.categories,
         inventory: (state) => state.inventory,
         users: (state) => state.users,

@@ -33,17 +33,16 @@ class DashboardController extends Controller
     public function stats()
     {
       $today = ReportsService::getRevenueForDate(WorkingDay::getWorkingDay());
-      $yesterday = ReportsService::getRevenueForDate(WorkingDay::getWorkingDay(Carbon::now(), 'yesterday'));
       $activeTablesTotal = Order::selectRaw('sum(total) as total')->groupBy('table_id')->get()->sum('total');
 
       return [
-        ReportsService::parseStats($today, $yesterday, 'Total', 'total'),
+        ReportsService::parseStats($today, 'Total', 'total'),
         [
           "name" => 'Active Orders',
           "stat" => (int) $activeTablesTotal,
           "primary" => false,
         ],
-        ReportsService::parseStats($today, $yesterday, 'Refund', 'refund'),
+        ReportsService::parseStats($today, 'Refund', 'refund'),
         [
           "name" => 'Total + Active Orders',
           "stat" => (int) $activeTablesTotal + (int) $today['total'],

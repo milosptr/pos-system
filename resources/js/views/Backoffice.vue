@@ -165,7 +165,7 @@ const navigation = [
   { name: 'Categories', href: 'categories', icon: FolderIcon, current: false },
   { name: 'Tables', href: 'tables', icon: ViewGridIcon, current: false },
   { name: 'Invoices', href: 'invoices', icon: ClipboardListIcon, current: false },
-  // { name: 'Reports', href: 'reports', icon: ChartPieIcon, current: false },
+  { name: 'Reports', href: 'reports', icon: ChartPieIcon, current: false },
   // { name: 'Settings', href: 'settings', icon: CogIcon, current: false },
   { name: 'Users', href: 'users', icon: UserGroupIcon, current: false },
 ]

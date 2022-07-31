@@ -20,4 +20,13 @@ class WorkingDay
         return [$date->startOfDay()->addHours(4)->toDateTimeString(), $date->endOfDay()->addHours(4)->toDateTimeString()];
     }
 
+    public static function getWorkingDayForRange($date = null)
+    {
+      if(!$date) $date = Carbon::now()->subYears(100)->format('Y-m-d') . ' to ' . Carbon::now()->format('Y-m-d');
+      $date = explode(' to ', $date);
+      $from = self::getWorkingDay(Carbon::parse($date[0] . '04:00:00'));
+      $to = self::getWorkingDay(Carbon::parse($date[1] . '04:00:00'));
+
+      return [$from[0], $to[1]];
+    }
 }
