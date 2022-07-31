@@ -11,7 +11,7 @@
                 <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
                   <div class="px-4 sm:px-6">
                     <div class="flex items-start justify-between">
-                      <DialogTitle class="text-2xl font-bold text-gray-900"> {{ activeOrder?.name }} </DialogTitle>
+                      <DialogTitle class="text-2xl font-bold text-gray-900"> {{ title }} </DialogTitle>
                       <div class="ml-3 flex h-7 items-center">
                         <button type="button" class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" @click="$store.commit('setActiveOrder', null)">
                           <span class="sr-only">Close panel</span>
@@ -68,6 +68,13 @@
         return this.activeOrder.orders.sort(function(a,b){
           return new Date(b.created_at_full) - new Date(a.created_at_full);
         });
+      },
+      title() {
+        if(this.activeOrder && this.activeOrder.name)
+          return this.activeOrder.name
+        if(this.activeOrder && this.activeOrder.table)
+          return this.activeOrder.table.name
+        return ''
       },
     },
     mounted() {},
