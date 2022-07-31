@@ -26,6 +26,7 @@
     <div class="w-64 relative text-sm">
       <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
       <litepie-datepicker
+        i18n="sr"
         use-range
         separator=" to "
         :formatter="formatter"
@@ -74,8 +75,9 @@
         label: 'This week',
         atClick: () => {
           const date = new Date();
+          const startOfWeek = dayjs().day(-7 + dayjs().day() + 1).format()
           return [
-            new Date(date.setDate(date.getDate() - 1)),
+            startOfWeek,
             date
           ];
         }
@@ -83,50 +85,55 @@
       {
         label: 'Last week',
         atClick: () => {
-          const date = new Date();
+          const startOfWeek = dayjs().day(-14 + dayjs().day() + 1).format()
+          const endOfWeek = dayjs().day(-7 + dayjs().day() + 1).format()
           return [
-            new Date(date.setDate(date.getDate() - 1)),
-            date
+            startOfWeek,
+            endOfWeek
           ];
         }
       },
       {
         label: 'This Month',
         atClick: () => {
-          const date = new Date();
+          const startOfMonth = dayjs().startOf('M');
+          const endOfMonth = dayjs().endOf('M');
           return [
-            new Date(date.setFullYear(date.getFullYear() - 1)),
-            new Date()
+            startOfMonth,
+            endOfMonth
           ];
         }
       },
       {
         label: 'Last Month',
         atClick: () => {
-          const date = new Date();
+          const startOfMonth = dayjs().subtract(1, 'month').startOf('M');
+          const endOfMonth = dayjs().subtract(1, 'month').endOf('M');
           return [
-            new Date(date.setFullYear(date.getFullYear() - 1)),
-            new Date()
+            startOfMonth,
+            endOfMonth
           ];
         }
       },
       {
         label: 'Last 6 Months',
         atClick: () => {
-          const date = new Date();
+          const startOfMonth = dayjs().subtract(5, 'month').startOf('M');
+          const endOfMonth = dayjs().endOf('M')
           return [
-            new Date(date.setFullYear(date.getFullYear() - 1)),
-            new Date()
+            startOfMonth,
+            endOfMonth
           ];
         }
       },
       {
         label: 'This Year',
         atClick: () => {
-          const date = new Date();
+          const startOfYear = dayjs().startOf('year')
+          const endOfYear = dayjs().endOf('year')
           return [
-            new Date(date.setFullYear(date.getFullYear() - 1)),
-            new Date()
+            startOfYear,
+            endOfYear
           ];
         }
       },
@@ -149,7 +156,7 @@
       }
     },
     mounted() {
-      console.log(this.$dayjs(new Date()));
+      console.log(dayjs());
       axios.get('/api/waiters')
         .then((res) => {
           this.waiters = res.data.data

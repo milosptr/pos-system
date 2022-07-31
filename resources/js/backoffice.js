@@ -1,6 +1,5 @@
 import './bootstrap'
 import '../css/app.css'
-import dayjs from 'dayjs'
 import { createApp } from 'vue'
 import Portal from 'vue3-portal'
 import vClickOutside from "click-outside-vue3"
@@ -16,7 +15,6 @@ const backoffice = createApp(Backoffice)
     .use(vClickOutside)
     .use(LitepieDatepicker)
 
-backoffice.config.globalProperties.$dayjs = dayjs
 backoffice.config.globalProperties.$filters = {
   formatPrice(value) {
     if(!value)
