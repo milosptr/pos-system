@@ -90,7 +90,7 @@ const general = {
       axios.post('/api/orders', { table_id, order: state.order, total})
       .then((res) => {
           if(res.data.data.order.some((i) => i.should_print))
-          dispatch('setPrintingOrder', res.data.data, { root: true })
+            dispatch('setPrintingOrder', res.data.data, { root: true })
           dispatch('getTables')
           dispatch('getTableOrders')
         })

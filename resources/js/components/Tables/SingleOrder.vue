@@ -92,7 +92,8 @@
           this.showCacheOutModal = true
         }
         if(item === 'reprint') {
-          this.$store.dispatch('setPrintingOrder', this.order)
+          if(this.order.order.some((i) => i.should_print))
+            this.$store.dispatch('setPrintingOrder', this.order)
         }
 
         if(item === 'refund') {
