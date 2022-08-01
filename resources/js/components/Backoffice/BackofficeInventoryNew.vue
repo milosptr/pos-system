@@ -88,6 +88,7 @@
         sold_by: 0,
         order: 0,
         active: 1,
+        qty: 1,
         unit: 'KOM.'
       },
       error: false,
