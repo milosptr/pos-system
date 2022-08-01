@@ -11,6 +11,9 @@
     <td :class="[idx !== categories.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
       <Switch :enabled="!!item.print" @click="emitFun" />
     </td>
+    <td :class="[idx !== categories.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
+      <input v-model="item.color" type="color" name="" id="">
+    </td>
     <td class="text-right" :class="[idx !== categories.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
       <div class="flex gap-4 justify-end">
         <div class="text-blue-500" @click="updateItem">Save</div>
