@@ -32,7 +32,7 @@
         @click="setActiveCategory(category.id)"
         class="InventoryBox InventoryItem flex items-center justify-center rounded-sm"
         :class="'order-' + category.order"
-        :style="[item.color ? `color: ${item.color};` : '']"
+        :style="[category.color ? `color: ${category.color};` : '']"
         >
         <div class="text-center font-bold uppercase">
           {{ category.name }}
