@@ -24,7 +24,13 @@
         type: Boolean,
         default: () => false,
       }
-    }
+    },
+    mounted() {
+      document.body.style.overflow = 'hidden'
+    },
+    beforeUnmount() {
+       document.body.style.overflow = ''
+    },
   }
 </script>
 
