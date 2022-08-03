@@ -24,17 +24,16 @@ app.config.globalProperties.$filters = {
   }
 }
 
-function enterFullScreen(element) {
-  if(element.requestFullscreen) {
-    element.requestFullscreen();
-  }else if (element.mozRequestFullScreen) {
-    element.mozRequestFullScreen();     // Firefox
-  }else if (element.webkitRequestFullscreen) {
-    element.webkitRequestFullscreen();  // Safari
-  }else if(element.msRequestFullscreen) {
-    element.msRequestFullscreen();      // IE/Edge
+const elem = document.querySelector("body");
+function openFullscreen() {
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    elem.msRequestFullscreen();
   }
 }
-enterFullScreen()
+openFullscreen()
 
 app.mount('#app')
