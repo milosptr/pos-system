@@ -24,4 +24,6 @@ app.config.globalProperties.$filters = {
   }
 }
 
+alert(window.innerWidth + ' x ' + window.innerHeight)
+
 app.mount('#app')
