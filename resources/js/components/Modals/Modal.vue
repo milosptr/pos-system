@@ -9,7 +9,7 @@
         <div class="absolute right-0 top-0 p-3">
           <img :src="$filters.imgUrl('close.svg')" alt="close" width="36" @click="$emit('close')" />
         </div>
-        <div class="pt-5 h-full overflow-scroll">
+        <div class="pt-5 h-full" :class="bodyClass">
           <slot></slot>
         </div>
       </div>
@@ -27,6 +27,10 @@
       superWide: {
         type: Boolean,
         default: () => false,
+      },
+      bodyClass: {
+        type: String,
+        default: () => ''
       }
     },
     mounted() {
@@ -40,7 +44,7 @@
 
 <style scoped>
   .ModalHeight {
-    height: 92%;
+    height: 90%;
   }
   .NumpadWidth {
     width: 42%;
