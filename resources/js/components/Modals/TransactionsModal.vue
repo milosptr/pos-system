@@ -86,9 +86,9 @@
           this.workingDay = res.data[0]
         })
 
-      if(window.innerWidth < 1100) {
-        this.canvasWidth = 254
-        this.canvasHeight = 100
+      if(window.innerWidth < 1200) {
+        this.canvasWidth = 370
+        this.canvasHeight = 145
       }
     },
     methods: {
