@@ -77,8 +77,7 @@
     }),
     computed: {
       today() {
-        const now = new Date(this.workingDay)
-        return now.getDate() + '.' + (now.getMonth() + 1) + '.' + now.getFullYear()
+        return dayjs().format('DD.MM.YYYY')
       }
     },
     mounted() {
@@ -88,8 +87,8 @@
         })
 
       if(window.innerWidth < 1100) {
-        this.canvasWidth = 500
-        this.canvasHeight = 197
+        this.canvasWidth = 370
+        this.canvasHeight = 145
       }
     },
     methods: {
