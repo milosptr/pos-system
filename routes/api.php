@@ -96,6 +96,8 @@ Route::prefix('/backoffice')->group(function() {
 
   Route::put('/tables/{id}', [TableController::class, 'update']);
 
+  Route::get('users/{id}', [UsersController::class, 'show']);
+  Route::post('users/{id}', [UsersController::class, 'update']);
   Route::delete('users/{id}', [UsersController::class, 'destroy']);
 
   Route::get('reports', [ReportsController::class, 'index']);

@@ -166,7 +166,8 @@ import {
   ChartPieIcon,
   UserGroupIcon,
   ViewBoardsIcon,
-  DesktopComputerIcon
+  DesktopComputerIcon,
+  UserIcon,
 } from '@heroicons/vue/outline'
 
 const navigation = [
@@ -176,8 +177,8 @@ const navigation = [
   { name: 'Tables', href: 'tables', icon: ViewGridIcon, current: false },
   { name: 'Invoices', href: 'invoices', icon: ClipboardListIcon, current: false },
   { name: 'Reports', href: 'reports', icon: ChartPieIcon, current: false },
-  // { name: 'Settings', href: 'settings', icon: CogIcon, current: false },
   { name: 'Users', href: 'users', icon: UserGroupIcon, current: false },
+  { name: 'My Account', href: 'my-account', icon: UserIcon, current: false },
 ]
 
 export default {

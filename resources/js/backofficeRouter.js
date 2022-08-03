@@ -6,6 +6,7 @@ import BackofficeCategoriesNew from './components/Backoffice/BackofficeCategorie
 import BackofficeInventory from './components/Backoffice/BackofficeInventory.vue'
 import BackofficeInventoryNew from './components/Backoffice/BackofficeInventoryNew.vue'
 import BackofficeUsers from './components/Backoffice/BackofficeUsers.vue'
+import BackofficeMyAccount from './components/Backoffice/BackofficeMyAccount.vue'
 import BackofficeTables from './components/Backoffice/BackofficeTables.vue'
 import BackofficeOrders from './components/Backoffice/BackofficeOrders.vue'
 import BackofficeInvoices from './components/Backoffice/BackofficeInvoices.vue'
@@ -75,6 +76,11 @@ const routes = [
                 path: '/users',
                 name: 'users',
                 component: BackofficeUsers
+            },
+            {
+                path: '/my-account',
+                name: 'my-account',
+                component: BackofficeMyAccount
             },
         ]
     },
