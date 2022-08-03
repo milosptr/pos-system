@@ -1,5 +1,5 @@
 <template>
-  <Modal>
+  <Modal :superWide="true">
      <div class="text-xl font-semibold mb-3">Naslov za tabelu</div>
      <table class="min-w-full border-separate" style="border-spacing: 0">
         <thead class="bg-gray-50">

@@ -4,7 +4,7 @@
       <div class="bg-black opacity-50 absolute left-0 top-0 w-full h-screen z-30" @click="$emit('close')"></div>
       <div
         class="ModalHeight bg-white rounded-sm p-6 z-40 relative"
-        :class="[ numpad ? 'NumpadWidth' : 'w-1/2' ]"
+        :class="[ numpad ? 'NumpadWidth' : 'w-1/2', { 'w-2/3': superWide } ]"
       >
         <div class="absolute right-0 top-0 p-3">
           <img :src="$filters.imgUrl('close.svg')" alt="close" width="36" @click="$emit('close')" />
@@ -21,6 +21,10 @@
   export default {
     props: {
       numpad: {
+        type: Boolean,
+        default: () => false,
+      },
+      superWide: {
         type: Boolean,
         default: () => false,
       }
