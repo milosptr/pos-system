@@ -35,7 +35,7 @@
   .NumpadWidth {
     width: 42%;
   }
-  @media (min-width: 1600px) {
+  @media (max-width: 1600px) {
     .ModalHeight {
       height: 85%;
     }
