@@ -77,8 +77,7 @@
         return this.$store.getters.activeInvoice
       },
       today() {
-        const now = new Date(this.workingDay)
-        return now.getDate() + '.' + (now.getMonth() + 1) + '.' + now.getFullYear()
+        return dayjs().format('DD.MM.YYYY')
       }
     },
     mounted() {
