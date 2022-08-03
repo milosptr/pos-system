@@ -31,7 +31,7 @@
           <div class="uppercase w-full tracking-wide font-medium">Racuni</div>
         </div>
       </div>
-      <div class="flex flex-col text-lg font-bold text-white text-center w-72">
+      <div class="flex flex-col text-lg font-bold text-white text-center w-72" @click="toggleFullScreen">
         <div>Radni dan</div>
         <div>{{ timestamp }}</div>
       </div>
@@ -83,6 +83,20 @@
         const seconds = now.getSeconds() < 10 ? '0' + now.getSeconds() : now.getSeconds()
         const time = hours + ":" + minutes + ":" + seconds;
         return date + ' ' + time
+      },
+      toggleFullScreen() {
+        var doc = window.document;
+        var docEl = doc.documentElement;
+
+        var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+        if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        requestFullScreen.call(docEl);
+        }
+        else {
+        cancelFullScreen.call(doc);
+        }
       }
     }
   }
