@@ -168,6 +168,7 @@ import {
   ViewBoardsIcon,
   DesktopComputerIcon,
   UserIcon,
+  BellIcon,
 } from '@heroicons/vue/outline'
 
 const navigation = [
@@ -177,6 +178,7 @@ const navigation = [
   { name: 'Tables', href: 'tables', icon: ViewGridIcon, current: false },
   { name: 'Invoices', href: 'invoices', icon: ClipboardListIcon, current: false },
   { name: 'Reports', href: 'reports', icon: ChartPieIcon, current: false },
+  { name: 'Tasks', href: 'tasks', icon: BellIcon, current: false },
   { name: 'Users', href: 'users', icon: UserGroupIcon, current: false },
   { name: 'My Account', href: 'my-account', icon: UserIcon, current: false },
 ]
@@ -216,6 +218,9 @@ export default {
         pusher.bind('tables-update', (data) => {
             this.$store.dispatch('getStats')
             this.$store.dispatch('getActiveTableOrders')
+        })
+        pusher.bind('notifications', (data) => {
+            this.$store.dispatch('getTasks')
         })
       },
       handleAddButton() {

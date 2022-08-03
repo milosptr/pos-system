@@ -29,10 +29,11 @@
     computed: {
       tables() {
         return this.$store.getters.getTables
-      }
+      },
     },
     mounted() {
       this.$store.commit('clearOrder')
+      this.$store.dispatch('getTasks')
     },
     methods: {
       setActiveTable(table) {

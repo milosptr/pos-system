@@ -12,6 +12,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ValidatePinController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 use Services\WorkingDay;
@@ -66,6 +67,13 @@ Route::post('invoices/{id}/refund', [InvoiceController::class, 'refund']);
 
 // Waiters
 Route::get('waiters', [UsersController::class, 'waiters']);
+
+// Tasks
+Route::get('tasks', [TaskController::class, 'index']);
+Route::get('tasks/today', [TaskController::class, 'indexForToday']);
+Route::post('tasks', [TaskController::class, 'store']);
+Route::post('tasks/finish/{id}', [TaskController::class, 'finish']);
+Route::delete('tasks/{id}', [TaskController::class, 'destroy']);
 
 // Refund Reasons
 Route::get('refund-reasons', [RefundReasonController::class, 'index']);

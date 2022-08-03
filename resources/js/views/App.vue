@@ -36,6 +36,9 @@
         pusher.bind('tables-update', (data) => {
             this.$store.dispatch('getTables')
         })
+        pusher.bind('notifications', (data) => {
+            this.$store.dispatch('getTasks')
+        })
       }
     }
   }

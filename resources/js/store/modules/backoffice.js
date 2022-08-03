@@ -13,6 +13,7 @@ const backoffice = {
         tables: [],
         orders: [],
         invoices: [],
+        tasks: [],
         ordersFilters: {
             date: null
         }
@@ -75,6 +76,12 @@ const backoffice = {
                     commit('setInvoices', res.data.data)
                 })
         },
+        getTasks({ commit }) {
+            axios.get('/api/tasks')
+                .then( (res) => {
+                    commit('setTasks', res.data.data)
+                })
+        },
     },
 
     mutations: {
@@ -114,6 +121,9 @@ const backoffice = {
         setInvoices(state, invoices) {
             state.invoices = invoices
         },
+        setTasks(state, tasks) {
+            state.tasks = tasks
+        },
     },
 
     getters: {
@@ -126,6 +136,7 @@ const backoffice = {
         tables: (state) => state.tables,
         orders: (state) => state.orders,
         invoices: (state) => state.invoices,
+        tasks: (state) => state.tasks,
         stats: (state) => state.stats,
         totalActiveTableOrders: (state) => state.activeTableOrders.reduce((a, v) => a + v.total, 0),
         totalRevenue: (state) => {

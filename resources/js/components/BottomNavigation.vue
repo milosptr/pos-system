@@ -31,26 +31,37 @@
           <div class="uppercase w-full tracking-wide font-medium">Racuni</div>
         </div>
       </div>
-      <div class="flex flex-col text-lg font-bold text-white text-center w-72">
-        <div>Radni dan</div>
-        <div>{{ timestamp }}</div>
+      <div class="flex items-center w-80">
+        <div class="py-5 px-6 bg-white rounded-md relative" @click="showTasksModal = true">
+          <div v-if="tasks.length" class="absolute right-0 top-0 h-6 w-6 mt-3 mr-4 rounded-full bg-red-500 flex items-center justify-center">
+            <div class="text-sm text-white leading-none font-bold" :class="{'text-xs': tasks.length > 9}">{{ tasks.length }}</div>
+          </div>
+          <BellIcon class="w-9 h-9 animateBell" />
+        </div>
+        <div class="flex flex-col text-lg font-bold text-white text-center w-72">
+          <div>Radni dan</div>
+          <div>{{ timestamp }}</div>
+        </div>
       </div>
     </div>
     <InvoicesModal v-if="showInvoicesModal" @close="showInvoicesModal = false" />
     <TransactionsModal v-if="showTransactionsModal" @close="showTransactionsModal = false" />
+    <TasksModal v-if="showTasksModal" @close="showTasksModal = false" />
   </div>
 </template>
 
 <script>
   import TransactionsModal from './Modals/TransactionsModal.vue'
   import InvoicesModal from './Modals/InvoicesModal.vue'
-
+  import TasksModal from './Modals/TasksModal.vue'
+  import { BellIcon } from '@heroicons/vue/outline'
   export default {
-  components: { TransactionsModal, InvoicesModal },
+    components: { TransactionsModal, InvoicesModal, BellIcon, TasksModal },
     data: () => ({
       timestamp: null,
       showTransactionsModal: false,
       showInvoicesModal: false,
+      showTasksModal: false,
       tabs: [
         {id: 0, name: 'Promet', url: '/transactions', icon: '/images/coins.svg'},
         {id: 1, name: 'Racuni', url: '/invoices', icon: '/images/receipt.svg'},
@@ -62,6 +73,9 @@
       },
       areas() {
         return this.$store.getters.getAreas
+      },
+      tasks() {
+        return this.$store.getters.tasks.filter((t) => !t.done)
       },
     },
     mounted() {
@@ -87,3 +101,22 @@
     }
   }
 </script>
+
+<style scoped>
+  .animateDot {
+    animation: pulse 3s linear infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1.1);
+    }
+    50% {
+      transform: scale(0.8);
+    }
+    100% {
+      transform: scale(1.1);
+    }
+  }
+
+</style>

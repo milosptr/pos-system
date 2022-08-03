@@ -1,6 +1,7 @@
 const general = {
   state: () => ({
     invoices: [],
+    tasks: [],
     activeInvoice: null,
     openedDeleteButton: null
   }),
@@ -19,6 +20,12 @@ const general = {
           commit('setActiveInvoice', state.activeInvoice.id)
         })
     },
+    getTasks({ commit }) {
+      axios.get('/api/tasks/today')
+        .then( (res) => {
+            commit('setTasks', res.data.data)
+        })
+    },
   },
 
   mutations: {
@@ -31,6 +38,9 @@ const general = {
     setOpenedDeleteButton( state, btn ) {
       state.openedDeleteButton = btn
     },
+    setTasks(state, tasks) {
+      state.tasks = tasks
+    },
   },
 
   getters: {
@@ -42,7 +52,8 @@ const general = {
     },
     openedDeleteButton(state) {
       return state.openedDeleteButton
-    }
+    },
+    tasks: (state) => state.tasks,
   }
 }
 
