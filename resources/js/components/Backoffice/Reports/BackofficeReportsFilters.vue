@@ -1,15 +1,13 @@
 <template>
   <div class="flex justify-end gap-4">
     <div v-if="!tabInvoices">
-      <label for="inventory" class="block text-sm font-medium text-gray-700">Inventory item</label>
-      <select
-        name="inventory"
-        class="block w-48 pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-        @change="updateReportFilters('inventory', $event.target.value)"
-      >
-        <option value="" selected>All</option>
-        <option v-for="item in inventory" :key="item.id" :value="item.id">{{ item.name }}</option>
-      </select>
+      <label for="inventory" class="block text-sm font-medium text-gray-700">Inventory search</label>
+      <div class="relative flex items-center">
+        <input  @input="debounceInput" type="text" name="search" id="search" placeholder="Search" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 sm:text-sm border-gray-300 rounded-md" />
+        <div class="absolute inset-y-0 left-0 flex py-1.5 pr-1.5">
+          <div class="inline-flex items-center px-2 text-sm font-sans font-medium text-gray-400"> <SearchIcon class="h-4 w-4" /> </div>
+        </div>
+      </div>
     </div>
     <div v-if="!tabInvoices">
       <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
@@ -61,6 +59,8 @@
 </template>
 
 <script>
+import { SearchIcon } from '@heroicons/vue/outline'
+
   const customShortcuts = () => {
     return [
       {
@@ -163,6 +163,7 @@
   }
 
   export default {
+    components: { SearchIcon },
     data: () => ({
       date: '',
       formatter: {
@@ -203,7 +204,10 @@
       updateReportFilters(key, value) {
         this.$store.commit('setReportFilters', { key, value })
         this.$store.dispatch('getReports')
-      }
+      },
+      debounceInput: _.debounce(function(e) {
+        this.updateReportFilters('q', e.target.value)
+      }, 400)
     }
   }
 </script>

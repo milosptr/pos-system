@@ -17,12 +17,17 @@ class ReportsController extends Controller
       $sales = [];
       if($type == 0) {
         $stats = Invoice::filterStats($request)->first();
-        $invoices = InvoiceResource::collection(Invoice::filter($request)->get());
+        $invoices = InvoiceResource::collection(Invoice::filter($request)->orderBy('id', 'desc')->get());
       }
 
       if($type == 1) {
         $stats = Sales::filterStats($request)->first();
-        $sales = Sales::filter($request)->get();
+        $sales = Sales::filter($request)
+          ->selectRaw('sales.inventory_id, sum(sales.qty) as qty, sum(sales.total) as total, inventory.name as name')
+          ->leftJoin('inventory', 'inventory.id', '=', 'sales.inventory_id')
+          ->groupBy('sales.inventory_id')
+          ->orderBy('qty', 'DESC')
+          ->get();
       }
 
       return [

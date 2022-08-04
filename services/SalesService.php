@@ -18,6 +18,8 @@ class SalesService {
     {
       $data = [];
       foreach ($orders as $order) {
+        if(isset($order['refund']) && $order['refund'])
+          continue;
         array_push($data, [
           'invoice_id' => $invoice->id,
           'inventory_id' => $order['id'],
@@ -29,7 +31,6 @@ class SalesService {
           'total' => $order['price'] * $order['qty'],
           'sku' => $order['sku'],
           'qty' => $order['qty'],
-          'status' => isset($order['refund']) && $order['refund'] ? 0 : 1,
           'created_at' => Carbon::now(),
           'updated_at' => Carbon::now(),
         ]);

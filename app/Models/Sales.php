@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use App\Models\Traits\Revenue;
+use App\Models\Traits\SalesRevenue;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Sales extends Model
 {
-    use HasFactory, Revenue;
+    use HasFactory, SalesRevenue;
 
     protected $fillable = [
       'invoice_id',

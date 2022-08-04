@@ -2,22 +2,17 @@
 
 namespace App\Models\Traits;
 
-use App\Models\Invoice;
+use App\Http\Filters\Sales\Search;
 use Illuminate\Http\Request;
-use App\Http\Filters\Invoice\Date;
-use App\Http\Filters\Invoice\Inventory;
-use App\Http\Filters\Inventory\Category;
-use App\Http\Filters\Invoice\Waiter;
-use App\Http\Filters\Invoice\Status;
+use App\Http\Filters\Sales\Date;
+use App\Http\Filters\Sales\Category;
 use Illuminate\Database\Eloquent\Builder;
 
-trait Revenue
+trait SalesRevenue
 {
     protected $filters = [
         'date' => Date::class,
-        'waiter' => Waiter::class,
-        'status' => Status::class,
-        'inventory' => Inventory::class,
+        'q' => Search::class,
         'category' => Category::class,
     ];
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Filters\Invoice;
+namespace App\Http\Filters\Sales;
 
 use Services\WorkingDay;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,7 +11,7 @@ class Date
     {
         $dates = WorkingDay::getWorkingDayForRange($value);
 
-        $builder->whereBetween('created_at', $dates);
+        $builder->whereBetween('sales.created_at', $dates);
 
         return $builder;
     }
