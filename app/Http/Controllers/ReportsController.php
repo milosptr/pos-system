@@ -25,7 +25,7 @@ class ReportsController extends Controller
         $sales = Sales::filter($request)
           ->selectRaw('sales.inventory_id, sum(sales.qty) as qty, sum(sales.total) as total, inventory.name as name')
           ->leftJoin('inventory', 'inventory.id', '=', 'sales.inventory_id')
-          ->groupBy('sales.inventory_id')
+          ->groupBy('sales.inventory_id', 'inventory.name')
           ->orderBy('qty', 'DESC')
           ->get();
       }
