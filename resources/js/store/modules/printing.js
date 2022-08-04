@@ -94,7 +94,7 @@ const general = {
 
       state.printer.addLayout(state.printer.LAYOUT_RECEIPT, 800, 0, -8, 0, 0, 0);
       state.printer.addTextStyle(false, false, true, state.printer.COLOR_1);
-      state.printer.addText('   =================== RAČUN ===================\n\n\n');
+      state.printer.addText('   ================= PREDRAČUN =================\n\n\n');
       state.printer.addText('   Kasir:                                Vlasnik\n');
       state.printer.addText(printerTextBetween('Reon:', invoice.location));
       state.printer.addText(printerTextBetween('Sto broj:', parseInt(invoice.table.table_number).toString()));
