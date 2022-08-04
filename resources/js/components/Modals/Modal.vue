@@ -6,9 +6,9 @@
         class="ModalHeight bg-white rounded-sm p-6 z-40 relative"
         :class="[ numpad ? 'NumpadWidth' : 'w-1/2', { 'w-2/3': superWide } ]"
       >
-        <div class="absolute right-0 top-0 p-3">
+        <!-- <div class="absolute right-0 top-0 p-3">
           <img :src="$filters.imgUrl('close.svg')" alt="close" width="36" @click="$emit('close')" />
-        </div>
+        </div> -->
         <div class="pt-5 h-full" :class="bodyClass">
           <slot></slot>
         </div>
@@ -43,6 +43,15 @@
 </script>
 
 <style scoped>
+    .overflow-scroll {
+      -ms-overflow-style: none; /* for Internet Explorer, Edge */
+      scrollbar-width: none; /* for Firefox */
+      overflow-y: scroll;
+  }
+
+  .overflow-scroll::-webkit-scrollbar {
+      display: none; /* for Chrome, Safari, and Opera */
+  }
   .ModalHeight {
     height: 90%;
   }
