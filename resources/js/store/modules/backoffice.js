@@ -16,13 +16,14 @@ const backoffice = {
         tasks: [],
         ordersFilters: {
             date: null
-        }
+        },
+        reportsActiveTab: 0,
     }),
 
     actions: {
-        getReports({ commit, state }) {
+        getReports({ commit, state }, type) {
           const params = new URLSearchParams(state.reportFilters);
-          axios.get('/api/backoffice/reports?' + params.toString())
+          axios.get('/api/backoffice/reports/'+ state.reportsActiveTab + '/?' + params.toString())
           .then((res) => {
             commit('setReports', res.data)
           })
@@ -92,6 +93,9 @@ const backoffice = {
           state.reportFilters[filter.key] = filter.value
           if(!filter.value) delete state.reportFilters[filter.key]
         },
+        resetReportFilters(state) {
+          state.reportFilters = {}
+        },
         setStats(state, stats) {
             state.stats = stats
         },
@@ -124,6 +128,9 @@ const backoffice = {
         setTasks(state, tasks) {
             state.tasks = tasks
         },
+        setReportsActiveTab(state, tab) {
+            state.reportsActiveTab = tab
+        },
     },
 
     getters: {
@@ -138,6 +145,7 @@ const backoffice = {
         invoices: (state) => state.invoices,
         tasks: (state) => state.tasks,
         stats: (state) => state.stats,
+        reportsActiveTab: (state) => state.reportsActiveTab,
         totalActiveTableOrders: (state) => state.activeTableOrders.reduce((a, v) => a + v.total, 0),
         totalRevenue: (state) => {
           const total = state.stats && state.stats[0].stat ? state.stats[0].stat : 0

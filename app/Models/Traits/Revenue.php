@@ -5,6 +5,8 @@ namespace App\Models\Traits;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use App\Http\Filters\Invoice\Date;
+use App\Http\Filters\Invoice\Inventory;
+use App\Http\Filters\Inventory\Category;
 use App\Http\Filters\Invoice\Waiter;
 use App\Http\Filters\Invoice\Status;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +17,8 @@ trait Revenue
         'date' => Date::class,
         'waiter' => Waiter::class,
         'status' => Status::class,
+        'inventory' => Inventory::class,
+        'category' => Category::class,
     ];
 
     public function scopeFilter(Builder $builder, Request $request)
@@ -34,9 +38,9 @@ trait Revenue
 
     public function scopeFilterStats(Builder $builder, Request $request)
     {
-        $builder->selectRaw('sum(invoices.total) as total')
-            ->selectRaw('sum(case when invoices.status = 0 then invoices.total else 0 end) as refund')
-            ->selectRaw('sum(total) - sum(case when invoices.status = 0 then invoices.total else 0 end) as income');
+        $builder->selectRaw('sum(total) as total')
+            ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
+            ->selectRaw('sum(total) - sum(case when status = 0 then total else 0 end) as income');
 
         foreach($request->all() as $filter => $value)
         {

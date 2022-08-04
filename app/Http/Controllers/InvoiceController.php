@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use Illuminate\Http\Request;
 use App\Http\Resources\InvoiceResource;
 use App\Http\Requests\InvoiceStoreRequest;
+use Services\SalesService;
 use Services\WorkingDay;
 
 class InvoiceController extends Controller
@@ -50,6 +51,7 @@ class InvoiceController extends Controller
       if ($invoice) {
         if($orderID) Order::where('id', $orderID)->delete();
         if(!$orderID) Order::where('table_id', $request->get('table_id'))->delete();
+        SalesService::parseAndSaveOrder($request->get('order'), $invoice);
         app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
       }
       return new InvoiceResource($invoice);

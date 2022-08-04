@@ -1,6 +1,28 @@
 <template>
   <div class="flex justify-end gap-4">
-    <div>
+    <div v-if="!tabInvoices">
+      <label for="inventory" class="block text-sm font-medium text-gray-700">Inventory item</label>
+      <select
+        name="inventory"
+        class="block w-48 pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+        @change="updateReportFilters('inventory', $event.target.value)"
+      >
+        <option value="" selected>All</option>
+        <option v-for="item in inventory" :key="item.id" :value="item.id">{{ item.name }}</option>
+      </select>
+    </div>
+    <div v-if="!tabInvoices">
+      <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+      <select
+        name="category"
+        class="block w-48 pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+        @change="updateReportFilters('category', $event.target.value)"
+      >
+        <option value="" selected>All</option>
+        <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+      </select>
+    </div>
+    <div v-if="tabInvoices">
       <label for="waiters" class="block text-sm font-medium text-gray-700">Waiter</label>
       <select
         name="waiters"
@@ -11,7 +33,7 @@
         <option v-for="waiter in waiters" :key="waiter.id" :value="waiter.id">{{ waiter.name }}</option>
       </select>
     </div>
-    <div>
+    <div v-if="tabInvoices">
       <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
       <select
         name="status"
@@ -148,18 +170,33 @@
         month: 'MMM'
       },
       customShortcuts,
-      waiters: []
+      waiters: [],
+      inventory: [],
+      categories: [],
     }),
     watch: {
       date(val) {
         this.updateReportFilters('date', val)
       }
     },
+    computed: {
+      tabInvoices() {
+        return !this.$store.getters.reportsActiveTab
+      },
+    },
     mounted() {
       console.log(dayjs());
       axios.get('/api/waiters')
         .then((res) => {
           this.waiters = res.data.data
+        })
+      axios.get('/api/inventory')
+        .then((res) => {
+          this.inventory = res.data.data
+        })
+      axios.get('/api/categories')
+        .then((res) => {
+          this.categories = res.data.data
         })
     },
     methods: {
