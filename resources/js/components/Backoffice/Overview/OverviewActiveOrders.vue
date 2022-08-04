@@ -1,8 +1,8 @@
 <template>
 <div>
   <div class="flex items-center justify-between">
-    <div class="text-xl font-semibold mt-10 mb-5">Active Orders</div>
-    <div class="text-lg font-medium mt-10 mb-5 text-indigo-500" @click="showAllActiveOrdersSidebar = true">See All</div>
+    <div class="text-xl font-semibold mt-10">Active Orders</div>
+    <div class="text-lg font-medium mt-10 text-indigo-500" @click="showAllActiveOrdersSidebar = true">See All</div>
   </div>
   <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-2">
     <div
