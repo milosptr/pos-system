@@ -35,7 +35,7 @@
     <div
       v-for="(invoice, index) in invoices"
       :key="invoice.id"
-      class="bg-white mt-2 py-3 px-4 text-xl rounded-sm border  grid grid-cols-5 gap-3 items-center font-medium"
+      class="bg-white mt-2 py-2 px-4 text-xl rounded-sm border  grid grid-cols-5 gap-3 items-center font-medium"
       :class="[activeInvoice && invoice.id === activeInvoice.id ? 'border-primary' : 'border-gray-300', invoice.status === 0 ? 'text-red-500' : '']"
       @click="selectInvoice(invoice.id)"
     >
@@ -57,8 +57,8 @@
       <div class="text-center">
         {{ invoice.user.name }}
       </div>
-      <div class="text-center text-xl px-2">
-        {{ invoice.created_at }}
+      <div class="text-center px-2">
+        {{ getTime(invoice.created_at) }}
       </div>
     </div>
   </div>
@@ -90,6 +90,9 @@
     methods: {
       selectInvoice(id) {
         this.$store.commit('setActiveInvoice', id)
+      },
+      getTime(date) {
+        return dayjs(date).format('HH:mm:ss')
       }
     }
   }
@@ -99,7 +102,7 @@
   @media (max-width: 1024px) {
     .text-xl,
     .text-xl * {
-      font-size: 14px;
+      font-size: 16px;
     }
   }
 </style>
