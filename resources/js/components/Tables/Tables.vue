@@ -52,6 +52,7 @@
           boxHeight = 180
         }
         let marginTop = table.size ? 0 : (colHeight - boxHeight) / 2
+        marginTop = table.rotate ? (marginTop - colHeight / 2) : marginTop
         let marginLeft = (colWidth - boxWidth) / 2
         const gridArea = `grid-area: ${table.position_y}/${table.position_x};`
 
