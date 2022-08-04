@@ -80,7 +80,7 @@
 
 <style scoped>
   .OrderSidebar {
-      max-height: 79vh;
+      max-height: calc(100vh - 130px);
       overflow-y: scroll;
     }
   @media (max-width: 1024px) {
