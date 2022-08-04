@@ -19,6 +19,7 @@ class TaskController extends Controller
     {
       $workingDay = WorkingDay::getWorkingDay();
       $tasks = Task::whereBetween('created_at', $workingDay)
+        ->orWhereBetween('updated_at', $workingDay)
         ->orWhere('done', 0)
         ->orderBy('id', 'desc')
         ->get();
