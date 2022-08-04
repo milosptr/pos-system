@@ -19,7 +19,10 @@
                   <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8', {'text-red-500': item.status === 0 }]">{{ item.id }}</td>
                   <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500 ', {'text-red-500': item.status === 0 }]">{{ $filters.formatPrice(item.total) }} RSD</td>
                   <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500 ', {'text-red-500': item.status === 0 }]">{{ item.table.name }}</td>
-                  <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500', {'text-red-500': item.status === 0 }]">{{ item.status ? 'Payed' : 'Refunded' }}</td>
+                  <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500', {'text-red-500': item.status === 0 }]">
+                    {{ item.status ? 'Payed' : 'Refunded' }}
+                    <div class="text-xs whitespace-nowrap">{{ item.refund_reason }}</div>
+                  </td>
                   <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500', {'text-red-500': item.status === 0 }]">{{ item.user.name }}</td>
                   <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500', {'text-red-500': item.status === 0 }]">{{ item.created_at }}</td>
                 </tr>

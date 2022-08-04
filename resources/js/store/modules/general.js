@@ -13,8 +13,8 @@ const general = {
           commit('setInvoices', res.data.data)
         })
     },
-    refundInvoice( {commit, state }) {
-      axios.post(`/api/invoices/${state.activeInvoice.id}/refund`)
+    refundInvoice( {commit, state }, data) {
+      axios.post(`/api/invoices/${state.activeInvoice.id}/refund`, data)
         .then((res) => {
           commit('setInvoices', res.data.data)
           commit('setActiveInvoice', state.activeInvoice.id)

@@ -2,8 +2,8 @@
   <Modal>
      <div class="flex flex-col justify-between h-full">
       <div class="">
-        <div class="text-center text-2xl font-semibold mb-6 uppercase">Izaberite konobara</div>
-        <div class="grid grid-cols-3 gap-3">
+        <div v-if="!preventEvent" class="text-center text-2xl font-semibold mb-6 uppercase">Izaberite konobara</div>
+        <div v-if="!preventEvent" class="grid grid-cols-3 gap-3">
           <div
             v-for="waiter in waiters"
             :key="waiter.id"
@@ -50,6 +50,12 @@
   import Modal from "./Modal.vue"
 
   export default {
+    props: {
+      preventEvent: {
+        type: Boolean,
+        default: () => false,
+      }
+    },
     components: { Modal },
     data: () => ({
       reasons: [],
@@ -84,7 +90,12 @@
           this.showError = true
           return
         }
-        this.$store.dispatch('cashOut', { table_id: this.$route.params.id, status: 0, user_id: this.selectedWaiterId, wrefund_reason_id: this.selectedReasonId  })
+        if(this.preventEvent) {
+          this.$emit('refund', { status: 0, refund_reason_id: this.selectedReasonId })
+          return
+        }
+
+        this.$store.dispatch('cashOut', { table_id: this.$route.params.id, status: 0, user_id: this.selectedWaiterId, refund_reason_id: this.selectedReasonId  })
         this.$router.push('/')
       },
     }

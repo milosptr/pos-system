@@ -4,7 +4,13 @@
     <div class="flex flex-col justify-between h-full" v-show="validPin">
       <div class="">
         <div class="text-center text-2xl font-semibold mb-6 uppercase">Pregled prometa {{ today }}</div>
-        <div class="flex flex-col items-center justify-center mt-10 relative">
+        <div v-if="hasActiveOrders" class="text-2xl text-red-500 font-medium">
+          Imate jos nenaplaćenih stolova:
+          <div>
+            {{ activeTables }}
+          </div>
+        </div>
+        <div v-if="!hasActiveOrders" class="flex flex-col items-center justify-center mt-10 relative">
           <canvas :width="canvasWidth" :height="canvasHeight" id="transactionsGraph"></canvas>
           <div class="absolute left-0 top-0 text-center w-full font-bold text-4xl flex items-center justify-center" :style="`height: ${canvasHeight}px`">
             <div class="">
@@ -12,7 +18,7 @@
             </div>
           </div>
         </div>
-        <div class="mt-10 text-xl">
+        <div v-if="!hasActiveOrders" class="mt-10 text-xl">
           <div class="flex justify-between items-center py-1 font-medium">
             <div>Gotovina</div>
             <div>{{ $filters.formatPrice(transactions.total) }} RSD</div>
@@ -74,16 +80,27 @@
         highDpiSupport: true,
       },
       workingDay: new Date(),
+      activeTables: []
     }),
     computed: {
       today() {
         return dayjs().format('DD.MM.YYYY')
-      }
+      },
+      hasActiveOrders() {
+        return !!this.activeTables.length
+      },
+      activeTables() {
+        return this.activeTables.map((t) => t.name).join(', ')
+      },
     },
     mounted() {
       axios.get('/api/working-day')
         .then((res) => {
           this.workingDay = res.data[0]
+        })
+      axios.get('/api/active-orders')
+        .then((res) => {
+          this.activeTables = res.data.data
         })
 
       if(window.innerWidth < 1200) {

@@ -52,7 +52,7 @@
       </div>
       <div class="text-center">
         <div>{{ invoice.status ? 'Naplacen' : 'Storniran' }}</div>
-        <div class="text-sm">{{ invoice.refund_reason }}</div>
+        <div class="text-sm whitespace-nowrap">{{ invoice.refund_reason }}</div>
       </div>
       <div class="text-center">
         {{ invoice.user.name }}
@@ -103,6 +103,11 @@
     .text-xl,
     .text-xl * {
       font-size: 16px;
+    }
+
+    .text-xl .text-sm {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
     }
   }
 </style>

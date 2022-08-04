@@ -60,11 +60,11 @@ class InvoiceController extends Controller
      * @param  \Illuminate\Http\Request  $id
      * @return \Illuminate\Http\Response
      */
-    public function refund($id)
+    public function refund($id, Request $request)
     {
       $invoice = Invoice::find($id);
       if($invoice)
-        $invoice->update(['status' => Invoice::STATUS_REFUNDED]);
+        $invoice->update($request->all());
       return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
     }
 

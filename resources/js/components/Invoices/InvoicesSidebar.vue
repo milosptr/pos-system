@@ -31,20 +31,29 @@
         {{ $filters.formatPrice(invoice?.total) }} RSD
       </div>
     </div>
+    <RefundReasonModal
+      v-if="showRefundReasonModal"
+      :preventEvent="true"
+      @close="showRefundReasonModal = false"
+      @refund="refund"
+    />
   </div>
 </template>
 
 <script>
   import SingleOrder from "../Tables/SingleOrder.vue"
   import InvoiceMenu from "../Invoices/InvoiceMenu.vue"
+  import RefundReasonModal from "../Modals/RefundReasonModal.vue"
 
   export default {
     components: {
       SingleOrder,
       InvoiceMenu,
+      RefundReasonModal
     },
     data: () => ({
       showTableMenu: false,
+      showRefundReasonModal: false,
     }),
     computed: {
       invoice() {
@@ -55,14 +64,15 @@
       }
     },
     methods: {
-      refund() {
-        this.$store.dispatch('refundInvoice')
+      refund(data) {
+        this.$store.dispatch('refundInvoice', data)
+        this.showRefundReasonModal = false
       },
       handleInvoiceMenu(val) {
         if(val === 'reprint')
           return
         if(val === 'refund')
-          this.refund()
+          this.showRefundReasonModal = true
       }
     }
   }
@@ -70,7 +80,7 @@
 
 <style scoped>
   .OrderSidebar {
-      max-height: 83vh;
+      max-height: 79vh;
       overflow-y: scroll;
     }
   @media (max-width: 1024px) {
