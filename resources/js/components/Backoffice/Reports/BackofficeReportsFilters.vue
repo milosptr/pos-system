@@ -52,6 +52,8 @@
         :formatter="formatter"
         :shortcuts="customShortcuts"
         :auto-apply="false"
+        readonly
+        aria-readonly="true"
         v-model="date"
       />
     </div>
