@@ -10,14 +10,12 @@
         Nazad
       </router-link>
     </div>
-    <div class="py-1 px-4 mt-5 font-semibold rounded-sm grid grid-cols-5 gap-3">
-      <div class="flex items-center">
-        <div class="w-10">
-          No.
-        </div>
-        <div class="">
-          Total
-        </div>
+    <div class="py-1 px-4 mt-5 font-semibold rounded-sm grid grid-cols-5 gap-3 text-sm">
+      <div class="text-left">
+        Vreme naplate
+      </div>
+      <div class="">
+        Total
       </div>
       <div class="text-center">
         Broj stola
@@ -28,24 +26,19 @@
       <div class="text-center">
         Konobar
       </div>
-      <div class="text-center">
-        Vreme naplate
-      </div>
     </div>
     <div
-      v-for="(invoice, index) in invoices"
+      v-for="(invoice) in invoices"
       :key="invoice.id"
       class="bg-white mt-2 py-2 px-4 text-xl rounded-sm border  grid grid-cols-5 gap-3 items-center font-medium"
       :class="[activeInvoice && invoice.id === activeInvoice.id ? 'border-primary' : 'border-gray-300', invoice.status === 0 ? 'text-red-500' : '']"
       @click="selectInvoice(invoice.id)"
     >
-      <div class="flex items-center">
-        <div class="w-10">
-          {{ index + 1 }}
-        </div>
-        <div :class="{'line-through': invoice.status === 0}">
-          {{ $filters.formatPrice(invoice.total) }} RSD
-        </div>
+      <div class="px-2">
+        {{ getTime(invoice.created_at) }}
+      </div>
+      <div :class="{'line-through': invoice.status === 0}">
+        {{ $filters.formatPrice(invoice.total) }} RSD
       </div>
       <div class="text-center">
         {{ invoice?.table?.name }}
@@ -56,9 +49,6 @@
       </div>
       <div class="text-center">
         {{ invoice.user.name }}
-      </div>
-      <div class="text-center px-2">
-        {{ getTime(invoice.created_at) }}
       </div>
     </div>
   </div>
