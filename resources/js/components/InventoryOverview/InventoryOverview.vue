@@ -88,7 +88,7 @@
       },
     },
     mounted() {
-
+      this.setParentCategory(0)
     },
     methods: {
       setParentCategory(id) {
