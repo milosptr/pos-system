@@ -24,7 +24,7 @@ class InventoryResource extends JsonResource
             'sold_by' => $this->sold_by,
             'price' => $this->price,
             'sku' => $this->sku,
-            'qty' => (float) $this->qty,
+            'qty' => (int) $this->qty,
             'color' => $this->color,
             'order' => $this->order,
             'unit' => $this->unit,
