@@ -86,12 +86,12 @@
         this.showError = false
       },
       refund() {
-        if(this.selectedWaiterId === null) {
-          this.showError = true
-          return
-        }
         if(this.preventEvent) {
           this.$emit('refund', { status: 0, refund_reason_id: this.selectedReasonId })
+          return
+        }
+        if(this.selectedWaiterId === null) {
+          this.showError = true
           return
         }
 
