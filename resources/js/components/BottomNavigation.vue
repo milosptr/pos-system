@@ -31,12 +31,12 @@
           <div class="uppercase w-full tracking-wide font-medium">Racuni</div>
         </div>
       </div>
-      <div class="flex items-center w-80">
-        <div class="py-5 px-6 bg-white rounded-md relative" @click="showTasksModal = true">
-          <div v-if="tasks.length" class="absolute right-0 top-0 h-6 w-6 mt-3 mr-4 rounded-full bg-red-500 flex items-center justify-center">
+      <div class="flex items-center">
+        <div class="NotificationIcon flex items-center justify-center rounded-md relative px-4" style="background: rgb(65,	154,	174)" @click="showTasksModal = true">
+          <div v-if="tasks.length" class="absolute right-0 top-0 h-6 w-6 mt-1 mr-2 rounded-full bg-red-500 flex items-center justify-center">
             <div class="text-sm text-white leading-none font-bold" :class="{'text-xs': tasks.length > 9}">{{ tasks.length }}</div>
           </div>
-          <BellIcon class="w-9 h-9 animateBell" />
+          <BellIcon class="w-10 h-10 animateBell text-white" />
         </div>
         <div class="flex flex-col text-lg font-bold text-white text-center w-72">
           <div>Radni dan</div>
@@ -103,6 +103,9 @@
 </script>
 
 <style scoped>
+  .NotificationIcon {
+    height: 65px;
+  }
   .animateDot {
     animation: pulse 3s linear infinite;
   }

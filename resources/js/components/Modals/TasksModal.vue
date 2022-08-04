@@ -4,31 +4,31 @@
      <table class="min-w-full border-separate" style="border-spacing: 0">
         <thead class="bg-gray-50">
           <tr>
-            <th scope="col" class="border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-2 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">Uradjeno</th>
-            <th scope="col" class="border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-2 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">Firma</th>
             <th scope="col" class="border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-2 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">Datum</th>
+            <th scope="col" class="border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-2 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">Firma</th>
             <th scope="col" class="border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-2 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">Cena</th>
+            <th scope="col" class="w-32 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-2 text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter text-right">Uradjeno</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(task, idx) in tasks" :key="idx" class="hover:bg-orange-50 cursor-pointer" :class="{'bg-gray-50': idx % 2 === 1 }">
-            <td class="border-b border-gray-200 whitespace-nowrap py-2 px-3 text-sm font-medium text-gray-900">
-              <input :id="`task-${tasks.id}`" :name="`task-${tasks.id}`" type="checkbox" :checked="task.done" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded outline-none ring-0 focus:ring-0" :disabled="task.done" @click="finishTask(task)" />
+          <tr v-for="(task, idx) in tasks" :key="idx" class="hover:bg-orange-50 cursor-pointer text-base" :class="{'bg-gray-50': idx % 2 === 1 }">
+            <td class="border-b border-gray-200 whitespace-nowrap py-2 px-3 font-medium text-gray-900">{{ task.date }}</td>
+            <td class="border-b border-gray-200 whitespace-nowrap py-2 px-3 font-medium text-gray-900">{{ task.company }}</td>
+            <td class="border-b border-gray-200 whitespace-nowrap py-2 px-3 font-medium text-gray-900">{{ $filters.formatPrice(task.price) }} RSD</td>
+            <td class="w-32 border-b border-gray-200 whitespace-nowrap py-2 px-3 font-medium text-gray-900 text-right">
+              <input :id="`task-${tasks.id}`" :name="`task-${tasks.id}`" type="checkbox" :checked="task.done" class="focus:ring-indigo-500 h-5 w-5 text-indigo-600 border-gray-300 rounded outline-none ring-0 focus:ring-0" @click="finishTask(task)" />
             </td>
-            <td class="border-b border-gray-200 whitespace-nowrap py-2 px-3 text-sm font-medium text-gray-900">{{ task.company }}</td>
-            <td class="border-b border-gray-200 whitespace-nowrap py-2 px-3 text-sm font-medium text-gray-900">{{ task.date }}</td>
-            <td class="border-b border-gray-200 whitespace-nowrap py-2 px-3 text-sm font-medium text-gray-900">{{ task.price }}</td>
           </tr>
         </tbody>
      </table>
 
      <div class="text-xl font-semibold mt-6 mb-3">Ostale poruke</div>
      <div class="flex flex-col gap-2">
-      <div v-for="(message, idx) in messages" :key="idx" class="text-sm rounded-md bg-gray-100 p-4 flex items-start">
+      <div v-for="(message, idx) in messages" :key="idx" class="text-base rounded-md bg-gray-100 p-4 flex items-start">
         <div class="">
-          <input :id="`task-${message.id}`" :name="`task-${message.id}`" type="checkbox" :checked="message.done" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded outline-none ring-0 focus:ring-0" :disabled="message.done" @click="finishTask(message)" />
+          <input :id="`task-${message.id}`" :name="`task-${message.id}`" type="checkbox" :checked="message.done" class="focus:ring-indigo-500 h-5 w-5 text-indigo-600 border-gray-300 rounded outline-none ring-0 focus:ring-0" @click="finishTask(message)" />
         </div>
-        <div class="ml-2">{{ message.message }}</div>
+        <div class="ml-2 mt-0.5">{{ message.message }}</div>
       </div>
      </div>
   </Modal>
@@ -51,7 +51,7 @@
     },
     methods: {
       finishTask(task) {
-        axios.post('/api/tasks/finish/' + task.id)
+        axios.post('/api/tasks/finish/' + task.id, { done: !task.done })
       }
     }
   }

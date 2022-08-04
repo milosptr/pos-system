@@ -18,7 +18,11 @@ class TaskController extends Controller
     public function indexForToday()
     {
       $workingDay = WorkingDay::getWorkingDay();
-      return TaskResource::collection(Task::whereBetween('created_at', $workingDay)->orderBy('id', 'desc')->get());
+      $tasks = Task::whereBetween('created_at', $workingDay)
+        ->orWhere('done', 0)
+        ->orderBy('id', 'desc')
+        ->get();
+      return TaskResource::collection($tasks);
     }
 
     public function store(Request $request)
@@ -28,10 +32,10 @@ class TaskController extends Controller
       return TaskResource::collection(Task::orderBy('id', 'desc')->get());
     }
 
-    public function finish($id)
+    public function finish($id, Request $request)
     {
       $task = Task::find($id);
-      $task->update(['done' => 1]);
+      $task->update($request->all());
       app(Pusher::class)->trigger('broadcasting', 'notifications', []);
       return TaskResource::collection(Task::orderBy('id', 'desc')->get());
     }
@@ -39,6 +43,8 @@ class TaskController extends Controller
     public function destroy($id)
     {
       $task = Task::find($id);
-      return $task->delete();
+      $task->delete();
+      app(Pusher::class)->trigger('broadcasting', 'notifications', []);
+      return response(true, 200);
     }
 }
