@@ -70,7 +70,7 @@ const general = {
         state.printer.addTextStyle(false, false, true, state.printer.COLOR_1);
         state.printer.addTextSize(1, 2);
         state.printer.addText(' —————————————————————————————————————————————\n');
-        state.printer.addTextLineSpace(50);
+        state.printer.addTextLineSpace(55);
         order.order.forEach((o) => {
           if(o.should_print && !o.refund) {
             state.printer.addText(` ${o.qty} x ${o.name}\n`);
