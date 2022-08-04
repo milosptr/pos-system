@@ -97,7 +97,6 @@
     margin: 1%;
     position: absolute;
     transition: all .3s ease-in-out;
-    animation: scaleTable .3s ease-in-out forwards;
   }
 
   .SingleTable {
