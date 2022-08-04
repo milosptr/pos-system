@@ -1,7 +1,7 @@
 <template>
   <div>
       <dl class="mt-10 grid grid-cols-1 rounded-lg bg-white overflow-hidden shadow divide-y divide-gray-200 md:grid-cols-3 md:divide-y-0 md:divide-x">
-        <div class="px-4 py-5 sm:px-6">
+        <div v-if="tabInvoices" class="px-4 py-5 sm:px-6">
           <dt class="text-base font-normal text-gray-900">
             Total
           </dt>
@@ -13,7 +13,7 @@
             </div>
           </dd>
         </div>
-        <div class="px-4 py-5 sm:px-6">
+        <div v-if="tabInvoices" class="px-4 py-5 sm:px-6">
           <dt class="text-base font-normal text-gray-900">
             Refunded
           </dt>
@@ -46,6 +46,9 @@
     computed: {
       reportsStat() {
         return this.$store.getters.reports?.stats
+      },
+      tabInvoices() {
+        return !this.$store.getters.reportsActiveTab
       },
     },
   }

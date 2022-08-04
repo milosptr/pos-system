@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-end gap-4">
+  <div class="flex flex-col sm:flex-row justify-end gap-4">
     <div v-if="!tabInvoices">
       <label for="inventory" class="block text-sm font-medium text-gray-700">Inventory search</label>
       <div class="relative flex items-center">
@@ -13,7 +13,7 @@
       <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
       <select
         name="category"
-        class="block w-48 pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+        class="block w-full sm:w-48 pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
         @change="updateReportFilters('category', $event.target.value)"
       >
         <option value="" selected>All</option>
@@ -43,7 +43,7 @@
         <option value="1">Payed</option>
       </select>
     </div>
-    <div class="w-64 relative text-sm">
+    <div class="w-full sm:w-64 relative text-sm">
       <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
       <litepie-datepicker
         i18n="sr"
