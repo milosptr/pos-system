@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full TablesWrapper grid grid-cols-6 grid-rows-6 pt-1 pb-3">
+  <div class="relative w-full TablesWrapper grid grid-cols-6 grid-rows-6 pt-1 sm:py-5">
     <router-link
       v-for="table in tables"
       :key="table.id"
