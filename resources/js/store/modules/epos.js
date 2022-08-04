@@ -2,7 +2,7 @@ const general = {
   state: () => ({
     areas: [
       {id: 0, name: 'Sala', pattern: '/images/sala.jpg'},
-      {id: 1, name: 'Basta', pattern: '/images/basta.jpg'},
+      {id: 1, name: 'Bašta', pattern: '/images/basta.jpg'},
     ],
     parentCategories: [
       { id: 0, name: 'Šank' },

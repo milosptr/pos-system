@@ -28,7 +28,7 @@
            @click="showInvoicesModal = true"
         >
           <img :src="$filters.imgUrl('receipt.svg')" alt="icon" width="28" />
-          <div class="uppercase w-full tracking-wide font-medium">Racuni</div>
+          <div class="uppercase w-full tracking-wide font-medium">Računi</div>
         </div>
       </div>
       <div class="flex items-center">
@@ -64,7 +64,7 @@
       showTasksModal: false,
       tabs: [
         {id: 0, name: 'Promet', url: '/transactions', icon: '/images/coins.svg'},
-        {id: 1, name: 'Racuni', url: '/invoices', icon: '/images/receipt.svg'},
+        {id: 1, name: 'Računi', url: '/invoices', icon: '/images/receipt.svg'},
       ],
     }),
     computed: {
