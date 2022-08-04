@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="flex items-center">
-        <div class="NotificationIcon flex items-center justify-center rounded-md relative px-4" style="background: rgb(65,	154,	174)" @click="showTasksModal = true">
+        <div class="NotificationIcon flex items-center justify-center rounded-md relative px-4" @click="showTasksModal = true">
           <div v-if="tasks.length" class="absolute right-0 top-0 h-6 w-6 mt-1 mr-2 rounded-full bg-red-500 flex items-center justify-center">
             <div class="text-sm text-white leading-none font-bold" :class="{'text-xs': tasks.length > 9}">{{ tasks.length }}</div>
           </div>
