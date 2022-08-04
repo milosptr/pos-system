@@ -42,7 +42,7 @@
         return !!this.$store.getters.reportFilters?.inventory
       },
       sumQty() {
-        return this.$store.getters.reports.sales.reduce((a, v) => a + v.qty, 0)
+        return this.$store.getters.reports.sales.reduce((a, v) => a + (v.status ? v.qty : 0), 0)
       },
     },
   }
