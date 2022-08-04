@@ -23,6 +23,14 @@
             </div>
           </div>
         </div>
+        <div class="relative mt-5 mb-3">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t border-gray-300" />
+          </div>
+          <div class="relative flex justify-center">
+            <span class="px-2 text-sm bg-gray-100 text-gray-500"> OR </span>
+          </div>
+        </div>
         <div>
           <label for="comment" class="block text-sm font-medium text-gray-700">Add your comment</label>
           <div class="mt-1">
