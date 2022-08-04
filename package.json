@@ -30,6 +30,7 @@
         "litepie-datepicker": "^1.0.14",
         "pusher-js": "^7.2.0",
         "vue": "^3.2.36",
+        "vue-clipboard2": "^0.3.3",
         "vue-loader": "^17.0.0",
         "vue-router": "4",
         "vue-swipe-actions": "^2.0.0-beta.20",

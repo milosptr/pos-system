@@ -3,6 +3,7 @@ import '../css/app.css'
 import { createApp } from 'vue'
 import Portal from 'vue3-portal'
 import vClickOutside from "click-outside-vue3"
+import VueClipboard from 'vue-clipboard2'
 import LitepieDatepicker from 'litepie-datepicker'
 import backofficeRouter from './backofficeRouter'
 import backofficeStore from './backofficeStore'
@@ -14,6 +15,7 @@ const backoffice = createApp(Backoffice)
     .use(Portal)
     .use(vClickOutside)
     .use(LitepieDatepicker)
+    .use(VueClipboard)
 
 backoffice.config.globalProperties.$filters = {
   formatPrice(value) {

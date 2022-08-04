@@ -7,8 +7,9 @@
             </dt>
             <dd class="mt-2 flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
               <div
-                class="flex flex-col lg:flex-row items-baseline text-2xl font-semibold mb-2 xl:mb-0"
+                class="flex flex-col lg:flex-row items-baseline text-2xl font-semibold mb-2 xl:mb-0 cursor-pointer active:opacity-50"
                 :class="[item.primary ? 'text-indigo-600' : 'text-gray-700']"
+                @click="copyToClipBoard(item.stat)"
               >
                 {{ $filters.formatPrice(item.stat) }} RSD
               </div>
@@ -24,6 +25,11 @@ export default {
     name: "OverviewStats",
     components: {
       ArrowSmDownIcon, ArrowSmUpIcon
+    },
+    methods: {
+      copyToClipBoard(text){
+        this.$copyText(text.toString())
+      },
     }
 }
 </script>
