@@ -67,7 +67,7 @@
         return this.$store.getters.activeInvoice
       },
       today() {
-        return dayjs().format('DD.MM.YYYY')
+        return dayjs(this.workingDay).format('DD.MM.YYYY')
       }
     },
     mounted() {

@@ -84,7 +84,7 @@
     }),
     computed: {
       today() {
-        return dayjs().format('DD.MM.YYYY')
+        return dayjs(this.workingDay).format('DD.MM.YYYY')
       },
       hasActiveOrders() {
         return !!this.activeTables.length
