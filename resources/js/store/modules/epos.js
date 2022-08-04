@@ -69,13 +69,13 @@ const general = {
         dispatch('getTables')
     },
     getCategories( { commit, state }) {
-      axios.get('/api/categories/')
+      axios.get('/api/categories')
         .then((res) => {
           commit('setCategories', res.data.data)
         })
     },
     getInventory( { commit, state }) {
-      axios.get('/api/inventory/')
+      axios.get('/api/inventory')
         .then((res) => {
           commit('setInventory', res.data.data)
         })
