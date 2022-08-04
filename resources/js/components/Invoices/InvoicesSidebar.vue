@@ -4,7 +4,7 @@
       <div class="flex justify-between items-center border-b border-gray-200 pb-1 relative">
 
         <div class="text-2xl font-bold uppercase">
-          Račun broj #{{ invoice?.id }}
+          {{ invoice?.table.name }}
         </div>
         <div @click="showTableMenu = true">
           <img :src="$filters.imgUrl('dot-menu.svg')" alt="submenu" width="32">
@@ -16,6 +16,7 @@
           :order="invoice"
           :showOrderLine="false"
           :boxBackground="false"
+          :still="true"
           :class="{'text-red-500': invoice.status === 0}"
         />
       </div>

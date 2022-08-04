@@ -15,6 +15,7 @@
       :disableRefund="order.disableRefund"
       :class="{'bg-gray-100': boxBackground}"
       :saved="saved"
+      :still="still"
       class="py-1 px-2 text-xl my-1"
       @refund="refundItem(o)"
     />
@@ -42,6 +43,10 @@
       saved: {
         type: Boolean,
         default: () => true
+      },
+      still: {
+        type: Boolean,
+        default: () => false
       },
       showOrderLine: {
         type: Boolean,

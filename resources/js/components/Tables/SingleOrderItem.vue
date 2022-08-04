@@ -3,7 +3,7 @@
     v-click-outside="() => { showDelete = false }"
     v-if="order.qty"
     class="SingleOrderItem relative"
-    :class="[{'ShowDelete' : showDelete}, {'text-red-500': order.refund}, {'bg-gray-400': showChangedClass}, {'line-through': order.refund && !routeInvoice}]"
+    :class="[{'ShowDelete' : showDelete}, {'text-red-500': order.refund}, {'bg-gray-400': showChangedClass && !still}, {'line-through': order.refund && !routeInvoice}]"
     @click="shouldShowDelete"
   >
     <div class="font-semibold truncate">{{ order.name }}</div>
@@ -40,7 +40,11 @@
       disableRefund: {
         type: Boolean,
         default: () => false
-      }
+      },
+      still: {
+        type: Boolean,
+        default: () => false
+      },
     },
     data: () => ({
       showDelete: false,
