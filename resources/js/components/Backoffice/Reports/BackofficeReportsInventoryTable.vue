@@ -8,7 +8,12 @@
             <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">Name</th>
             <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">Category</th>
             <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell">Price</th>
-            <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">QTY</th>
+            <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">
+              QTY
+              <span v-if="hasInventoryFilter">
+                ({{ sumQty }})
+              </span>
+            </th>
             <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">Total</th>
           </tr>
         </thead>
@@ -32,6 +37,12 @@
     computed: {
       inventory() {
         return this.$store.getters.reports ? this.$store.getters.reports.sales : []
+      },
+      hasInventoryFilter() {
+        return !!this.$store.getters.reportFilters?.inventory
+      },
+      sumQty() {
+        return this.$store.getters.reports.sales.reduce((a, v) => a + v.qty, 0)
       },
     },
   }

@@ -146,6 +146,7 @@ const backoffice = {
         tasks: (state) => state.tasks,
         stats: (state) => state.stats,
         reportsActiveTab: (state) => state.reportsActiveTab,
+        reportFilters: (state) => state.reportFilters,
         totalActiveTableOrders: (state) => state.activeTableOrders.reduce((a, v) => a + v.total, 0),
         totalRevenue: (state) => {
           const total = state.stats && state.stats[0].stat ? state.stats[0].stat : 0
