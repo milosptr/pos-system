@@ -5,7 +5,8 @@
       class="bg-gray-500 flex justify-between items-center text-white px-2"
       @click="showSingleOrderMenu = true"
     >
-      <div>Porudzbina #{{ index }}</div>
+      <div v-if="title">{{ title }}</div>
+      <div v-else>Porudzbina #{{ index }}</div>
       <div v-if="order.created_at">{{ order.created_at }}</div>
     </div>
     <SingleOrderItem
@@ -59,6 +60,10 @@
       backoffice: {
         type: Boolean,
         default: () => false
+      },
+      title: {
+        type: String,
+        default: () => ''
       },
     },
     data: () => ({

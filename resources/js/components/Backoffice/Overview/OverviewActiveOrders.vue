@@ -1,6 +1,9 @@
 <template>
 <div>
-  <div class="text-xl font-semibold mt-10 mb-5">Active Orders</div>
+  <div class="flex items-center justify-between">
+    <div class="text-xl font-semibold mt-10 mb-5">Active Orders</div>
+    <div class="text-lg font-medium mt-10 mb-5 text-indigo-500" @click="showAllActiveOrdersSidebar = true">See All</div>
+  </div>
   <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-2">
     <div
       v-for="(table, idx) in $store.getters.activeTableOrders"
@@ -18,16 +21,22 @@
       </div>
     </div>
   </div>
+  <OverviewSlideoverAllActiveOrders :show="showAllActiveOrdersSidebar" @close="showAllActiveOrdersSidebar = false" />
 </div>
 </template>
 <script>
+import OverviewSlideoverAllActiveOrders from './OverviewSlideoverAllActiveOrders.vue'
 import OverviewTableOrder from './OverviewTableOrder.vue'
 
 export default {
     name: 'OverviewActiveOrders',
     components: {
-        OverviewTableOrder
+      OverviewTableOrder,
+      OverviewSlideoverAllActiveOrders,
     },
+    data: () => ({
+      showAllActiveOrdersSidebar: false,
+    }),
     computed: {
       activeOrder() {
         return this.$store.getters.activeOrder
@@ -41,7 +50,7 @@ export default {
         }).sort((a, b) => new Date(b.order.created_at_full) - new Date(a.order.created_at_full))
         return tables[0].id
       },
-    }
+    },
 }
 </script>
 <style scoped>
