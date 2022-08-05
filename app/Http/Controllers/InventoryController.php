@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Inventory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use App\Http\Resources\InventoryResource;
 use App\Http\Resources\InventoryCollection;
 use App\Http\Requests\InventoryStoreRequest;
-use App\Http\Resources\InventoryResource;
 
 class InventoryController extends Controller
 {
@@ -17,13 +18,19 @@ class InventoryController extends Controller
      */
     public function all(Request $request)
     {
-        $inventory = Inventory::filter($request)->get();
+        $inventory = Cache::remember('inventory', env('CACHE_TIME', 3600), function() use ($request) {
+            return Inventory::filter($request)->get();
+        });
+
         return new InventoryCollection($inventory);
     }
 
     public function index(Request $request)
     {
-        $inventory = Inventory::filter($request)->where('active', 1)->get();
+        $inventory = Cache::remember('active-inventory', env('CACHE_TIME', 3600), function() use($request) {
+            return Inventory::filter($request)->where('active', 1)->get();
+        });
+
         return new InventoryCollection($inventory);
     }
 

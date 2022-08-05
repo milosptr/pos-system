@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\CategoryResource;
-use App\Http\Requests\CategoryStoreRequest;
 use App\Http\Resources\CategoryCollection;
+use App\Http\Requests\CategoryStoreRequest;
 
 class CategoryController extends Controller
 {
@@ -17,7 +18,11 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return new CategoryCollection(Category::all());
+        $category = Cache::remember('categories', env('CACHE_TIME', 3600), function() {
+            return Category::all();
+        });
+
+        return new CategoryCollection($category);
     }
 
     public function indexPrinting()
