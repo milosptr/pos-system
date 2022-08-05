@@ -48,6 +48,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request)
     {
+        Cache::forget('categories');
         return new CategoryResource(Category::create($request->all()));
     }
 
@@ -84,6 +85,7 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
         $category->update($request->all());
+        Cache::forget('categories');
         return new CategoryCollection(Category::all());
     }
 
@@ -96,6 +98,8 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $category = Category::find($id);
-        return $category->delete();
+        $category->delete();
+        Cache::forget('categories');
+        return 'Deleted';
     }
 }

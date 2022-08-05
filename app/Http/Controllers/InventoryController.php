@@ -52,6 +52,7 @@ class InventoryController extends Controller
      */
     public function store(InventoryStoreRequest $request)
     {
+        $this->forgetCache();
         return new InventoryResource(Inventory::create($request->all()));
     }
 
@@ -88,6 +89,7 @@ class InventoryController extends Controller
     {
         $item = Inventory::find($id);
         $item->update($request->all());
+        $this->forgetCache();
         return new InventoryCollection(Inventory::all());
     }
 
@@ -100,6 +102,14 @@ class InventoryController extends Controller
     public function destroy($id)
     {
         $inventory = Inventory::find($id);
-        return $inventory->delete();
+        $inventory->delete();
+        $this->forgetCache();
+        return "Deleted";
+    }
+
+    public function forgetCache()
+    {
+        Cache::forget('inventory');
+        Cache::forget('active-inventory');
     }
 }
