@@ -18,7 +18,7 @@ const general = {
     inventory: [],
     orders: [],
     order: [],
-    selectedWaiterId: 0,
+    selectedWaiterId: 2,
     totalForTable: 0,
   }),
 
