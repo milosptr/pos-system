@@ -28,7 +28,7 @@ class OrderController extends Controller
      */
     public function indexForTable($id)
     {
-        return new OrderCollection(Order::where('table_id', $id)->orderBy('id', 'DESC')->get());
+        return OrderResource::collection(Order::where('table_id', $id)->orderBy('id', 'DESC')->get());
     }
 
     /**
