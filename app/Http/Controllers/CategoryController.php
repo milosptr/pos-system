@@ -18,7 +18,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-      $categories = Cache::remember('category-all', 86400, function() {
+      $categories = Cache::remember('category-all', 60, function() {
         return Category::all();
       });
       return new CategoryCollection($categories);
@@ -26,7 +26,7 @@ class CategoryController extends Controller
 
     public function indexPrinting()
     {
-      $categories = Cache::remember('category-printing', 86400, function() {
+      $categories = Cache::remember('category-printing', 60, function() {
         return Category::where('print', 1)->get();
       });
       return new CategoryCollection($categories);
