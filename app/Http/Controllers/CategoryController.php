@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\CategoryResource;
-use App\Http\Requests\CategoryStoreRequest;
 use App\Http\Resources\CategoryCollection;
+use App\Http\Requests\CategoryStoreRequest;
 
 class CategoryController extends Controller
 {
@@ -17,12 +18,16 @@ class CategoryController extends Controller
      */
     public function index()
     {
+      Cache::remember('category-all', 86400, function() {
         return new CategoryCollection(Category::all());
+      });
     }
 
     public function indexPrinting()
     {
+      Cache::remember('category-printing', 86400, function() {
         return new CategoryCollection(Category::where('print', 1)->get());
+      });
     }
 
     /**
@@ -79,6 +84,8 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
         $category->update($request->all());
+        Cache::forget('category-all');
+        Cache::forget('category-printing');
         return new CategoryCollection(Category::all());
     }
 
@@ -91,6 +98,8 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $category = Category::find($id);
+        Cache::forget('category-all');
+        Cache::forget('category-printing');
         return $category->delete();
     }
 }

@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Inventory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use App\Http\Resources\InventoryResource;
 use App\Http\Resources\InventoryCollection;
 use App\Http\Requests\InventoryStoreRequest;
-use App\Http\Resources\InventoryResource;
 
 class InventoryController extends Controller
 {
@@ -17,14 +18,19 @@ class InventoryController extends Controller
      */
     public function all(Request $request)
     {
-        $inventory = Inventory::filter($request)->get();
+      $inventory = Inventory::filter($request)->get();
+      Cache::remember('inventory-all', 86400, function() use($inventory){
         return new InventoryCollection($inventory);
+      });
+
     }
 
     public function index(Request $request)
     {
         $inventory = Inventory::filter($request)->where('active', 1)->get();
-        return new InventoryCollection($inventory);
+        Cache::remember('inventory', 86400, function() use($inventory){
+          return new InventoryCollection($inventory);
+        });
     }
 
     /**
@@ -81,6 +87,8 @@ class InventoryController extends Controller
     {
         $item = Inventory::find($id);
         $item->update($request->all());
+        Cache::forget('inventory-all');
+        Cache::forget('inventory');
         return new InventoryCollection(Inventory::all());
     }
 
@@ -93,6 +101,8 @@ class InventoryController extends Controller
     public function destroy($id)
     {
         $inventory = Inventory::find($id);
+        Cache::forget('inventory-all');
+        Cache::forget('inventory');
         return $inventory->delete();
     }
 }
