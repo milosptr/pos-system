@@ -122,10 +122,18 @@
             <path d="M251.148 138.528V273.005H270.828H290.507V224.275V175.544H343.923C389.186 175.544 398.557 175.357 404.649 174.045C431.357 168.516 453.754 150.617 465.374 125.315C471.09 113.132 472.59 105.635 472.59 90.2663C472.59 74.1478 470.903 66.4635 464.343 53.2501C453.379 30.7592 432.575 14.0784 407.085 7.33116C396.964 4.61351 381.502 4.05124 316.091 4.05124H251.148V138.528ZM397.245 42.9417C410.834 46.2217 424.328 56.1551 430.326 67.4006C435.386 76.6781 437.167 90.9223 434.73 101.512C431.825 114.069 421.329 127.47 409.615 133.28C398.838 138.715 396.402 138.997 340.924 138.997H290.507V90.2663V41.5361H340.924C382.626 41.5361 392.279 41.8172 397.245 42.9417Z" fill="white"/>
             <path d="M0 138.997V273.005H107.769H215.538V255.2V237.394H127.448H39.3591V196.629V155.865H113.86H188.361V138.059V120.254H113.86H39.3591V80.4265V40.5989H127.448H215.538V22.7936V4.98834H107.769H0V138.997Z" fill="white"/>
           </svg>
-          <button type="button" class="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" @click="sidebarOpen = true">
-            <span class="sr-only">Open sidebar</span>
-            <MenuIcon class="h-6 w-6 text-white" aria-hidden="true" />
-          </button>
+          <div class="flex items-center">
+            <div
+              class="-mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              @click="reloadPage"
+            >
+              <RefreshIcon class="h-6 w-6 text-white" aria-hidden="true" />
+            </div>
+            <button type="button" class="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" @click="sidebarOpen = true">
+              <span class="sr-only">Open sidebar</span>
+              <MenuIcon class="h-6 w-6 text-white" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </div>
       <main class="flex-1">
@@ -169,6 +177,7 @@ import {
   DesktopComputerIcon,
   UserIcon,
   BellIcon,
+  RefreshIcon,
 } from '@heroicons/vue/outline'
 
 const navigation = [
@@ -185,7 +194,7 @@ const navigation = [
 
 export default {
   components: {
-    Dialog, DialogPanel, TransitionChild, TransitionRoot, XIcon, MenuIcon, ViewBoardsIcon
+    Dialog, DialogPanel, TransitionChild, TransitionRoot, XIcon, MenuIcon, ViewBoardsIcon, RefreshIcon
   },
   data: () => ({
     navigation,
@@ -226,6 +235,9 @@ export default {
       handleAddButton() {
         this.$router.push(this.$route.path + '/new')
       },
+      reloadPage() {
+        location.reload()
+      }
   },
 }
 </script>
