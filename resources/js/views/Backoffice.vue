@@ -182,11 +182,11 @@ import {
 
 const navigation = [
   { name: 'Dashboard', href: 'overview', icon: HomeIcon, current: true },
+  { name: 'Invoices', href: 'invoices', icon: ClipboardListIcon, current: false },
+  { name: 'Reports', href: 'reports', icon: ChartPieIcon, current: false },
   { name: 'Inventory', href: 'inventory', icon: CubeIcon, current: false },
   { name: 'Categories', href: 'categories', icon: FolderIcon, current: false },
   { name: 'Tables', href: 'tables', icon: ViewGridIcon, current: false },
-  { name: 'Invoices', href: 'invoices', icon: ClipboardListIcon, current: false },
-  { name: 'Reports', href: 'reports', icon: ChartPieIcon, current: false },
   { name: 'Tasks', href: 'tasks', icon: BellIcon, current: false },
   { name: 'Users', href: 'users', icon: UserGroupIcon, current: false },
   { name: 'My Account', href: 'my-account', icon: UserIcon, current: false },
