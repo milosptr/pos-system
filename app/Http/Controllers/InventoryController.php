@@ -21,7 +21,7 @@ class InventoryController extends Controller
       $inventory = Cache::remember('inventory-all', 60, function() use($request){
         return Inventory::filter($request)->get();
       });
-      return new InventoryCollection($inventory);
+      return InventoryResource::collection($inventory);
 
     }
 
@@ -30,7 +30,7 @@ class InventoryController extends Controller
         $inventory = Cache::remember('inventory', 60, function() use($request){
           Inventory::filter($request)->where('active', 1)->get();
         });
-        return new InventoryCollection($inventory);
+        return InventoryResource::collection($inventory);
     }
 
     /**

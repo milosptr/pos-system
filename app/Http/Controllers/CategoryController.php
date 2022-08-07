@@ -21,7 +21,7 @@ class CategoryController extends Controller
       $categories = Cache::remember('category-all', 60, function() {
         return Category::all();
       });
-      return new CategoryCollection($categories);
+      return CategoryResource::collection($categories);
     }
 
     public function indexPrinting()
@@ -29,7 +29,7 @@ class CategoryController extends Controller
       $categories = Cache::remember('category-printing', 60, function() {
         return Category::where('print', 1)->get();
       });
-      return new CategoryCollection($categories);
+      return CategoryResource::collection($categories);
     }
 
     /**
