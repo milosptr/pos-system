@@ -93,8 +93,8 @@
     methods: {
       storeOrder() {
         if(this.order.order.length) {
-          this.$store.dispatch('storeOrder', this.$route.params.id)
           this.$store.getters.activeTable.total = parseInt(this.total.replace('.', ''))
+          this.$store.dispatch('storeOrder', this.$route.params.id)
         }
         this.$router.push('/')
       },
