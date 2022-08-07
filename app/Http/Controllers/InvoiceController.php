@@ -19,9 +19,9 @@ class InvoiceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function all()
+    public function all(Request $request)
     {
-        return InvoiceResource::collection(Invoice::orderBy('id', 'DESC')->get());
+        return InvoiceResource::collection(Invoice::filter($request)->orderBy('id', 'DESC')->get());
     }
 
     public function allForToday()

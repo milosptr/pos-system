@@ -71,11 +71,12 @@ const backoffice = {
                     commit('setOrders', res.data.data)
                 })
         },
-        getInvoices({ commit }) {
-            axios.get('/api/invoices')
-                .then( (res) => {
-                    commit('setInvoices', res.data.data)
-                })
+        getInvoices({ commit, state }) {
+          const params = new URLSearchParams(state.reportFilters);
+          axios.get('/api/invoices?' + params.toString())
+              .then( (res) => {
+                  commit('setInvoices', res.data.data)
+              })
         },
         getTasks({ commit }) {
             axios.get('/api/tasks')

@@ -166,6 +166,12 @@ import { SearchIcon } from '@heroicons/vue/outline'
 
   export default {
     components: { SearchIcon },
+    props: {
+      type: {
+        type: String,
+        default: () => 'reports'
+      },
+    },
     data: () => ({
       date: '',
       formatter: {
@@ -205,7 +211,10 @@ import { SearchIcon } from '@heroicons/vue/outline'
     methods: {
       updateReportFilters(key, value) {
         this.$store.commit('setReportFilters', { key, value })
-        this.$store.dispatch('getReports')
+        if(this.type === 'reports')
+          this.$store.dispatch('getReports')
+        if(this.type === 'invoices')
+          this.$store.dispatch('getInvoices')
       },
       debounceInput: _.debounce(function(e) {
         this.updateReportFilters('q', e.target.value)
