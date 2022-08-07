@@ -36,7 +36,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('tables', [TableController::class, 'all']);
 Route::get('tables/available', [TableController::class, 'available']);
 Route::get('table/{id}', [TableController::class, 'index']);
-Route::get('tables/{id}', [TableController::class, 'indexForArea']);
+// Route::get('tables/all', [TableController::class, 'indexForArea']);
 Route::post('tables', [TableController::class, 'store']);
 
 //Inventory

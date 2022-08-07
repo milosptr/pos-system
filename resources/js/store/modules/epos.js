@@ -41,7 +41,7 @@ const general = {
         })
     },
     getTables( { commit, state }) {
-      axios.get('/api/tables/' + state.activeArea.id)
+      axios.get('/api/tables')
         .then((res) => {
           commit('setTables', res.data.data)
         })

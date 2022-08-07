@@ -28,7 +28,7 @@
     }),
     computed: {
       tables() {
-        return this.$store.getters.getTables
+        return this.$store.getters.getTables.filter((t) => t.area === this.$store.getters.getActiveArea.id)
       },
     },
     mounted() {
