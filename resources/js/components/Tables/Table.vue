@@ -86,8 +86,14 @@
         return this.$filters.formatPrice(total)
       },
     },
+    // watch: {
+    //   $route: {
+    //     handler(val) {
+    //       console.log(val);
+    //     }
+    //   }
+    // },
     mounted() {
-      this.$store.dispatch('getTableOrders', this.$route.params.id)
       this.$store.dispatch('getCurrentTable', this.$route.params.id)
       // this.$store.dispatch('getInventory')
     },

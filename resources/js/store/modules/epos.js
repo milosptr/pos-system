@@ -57,6 +57,7 @@ const general = {
       axios.get('/api/table/' + id)
         .then((res) => {
           commit('setActiveTable', res.data.data)
+          dispatch('getTableOrders')
         })
     },
     setDefaultActiveArea( { dispatch, commit, state } ){
