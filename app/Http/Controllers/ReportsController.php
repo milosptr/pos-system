@@ -17,7 +17,13 @@ class ReportsController extends Controller
       $sales = [];
       if($type == 0) {
         $stats = Invoice::filterStats($request)->first();
-        $invoices = InvoiceResource::collection(Invoice::filter($request)->orderBy('id', 'desc')->get());
+        $invoices = Invoice::filter($request)
+          ->selectRaw('sum(total) as total, DATE(created_at) as date')
+          ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
+          ->selectRaw('sum(total) - sum(case when status = 0 then total else 0 end) as income')
+          ->orderBy('date', 'desc')
+          ->groupBy('date')
+          ->get();
       }
 
       if($type == 1) {

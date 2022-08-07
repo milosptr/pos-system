@@ -8,7 +8,6 @@
     <BackofficeReportsStats />
     <div v-if="!activeTab">
       <BackofficeReportsTable />
-      <OverviewSlideoverSidebar :isInvoice="true" />
     </div>
     <div v-else>
       <BackofficeReportsInventoryTable />
