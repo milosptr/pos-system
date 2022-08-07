@@ -1,0 +1,21 @@
+{
+  "name": "EverTree BackOffice",
+  "short_name": "EverTree BackOffice",
+  "description": "Progressive Web App.",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "fullscreen",
+  "theme_color": "#1f2937",
+  "background_color": "#1f2937"
+}
