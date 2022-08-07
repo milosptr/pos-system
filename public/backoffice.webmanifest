@@ -4,17 +4,17 @@
   "description": "Progressive Web App.",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "favicon.png",
       "sizes": "32x32",
       "type": "image/png"
     },
     {
-      "src": "icon.png",
+      "src": "favicon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
-  "start_url": "/",
+  "start_url": "/backoffice",
   "display": "fullscreen",
   "theme_color": "#1f2937",
   "background_color": "#1f2937"
