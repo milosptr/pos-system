@@ -38,6 +38,7 @@
     methods: {
       setActiveTable(table) {
         this.$store.commit('setActiveTable', table)
+        this.$store.commit('setTable', table)
         this.$store.commit('resetPrinting')
       },
       tablePosition(table) {

@@ -44,6 +44,11 @@ const general = {
       axios.get('/api/tables')
         .then((res) => {
           commit('setTables', res.data.data)
+          if(location.hash.includes('table/')) {
+            const id = parseInt(location.hash.replace('#/table/', ''))
+            const table = state.tables.find((t) => t.id === id)
+            commit('setTable', table)
+          }
         })
     },
     getTableOrders( {commit, state} ) {
@@ -139,6 +144,10 @@ const general = {
     setActiveTable( state, table ) {
       state.activeTable = table
     },
+    setTable( state, table ) {
+      state.activeTable = table
+      state.orders = table.orders
+    },
     setActiveParentCategoryId( state , id ){
         state.activeParentCategoryId = id
     },
@@ -222,7 +231,9 @@ const general = {
       return state.activeParentCategoryId
     },
     orders( state ) {
-      return state.orders
+      return state.orders.sort(function(a,b){
+        return new Date(b.created_at_full) - new Date(a.created_at_full);
+      })
     },
     order( state ) {
       return state.order

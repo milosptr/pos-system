@@ -86,21 +86,15 @@
         return this.$filters.formatPrice(total)
       },
     },
-    // watch: {
-    //   $route: {
-    //     handler(val) {
-    //       console.log(val);
-    //     }
-    //   }
-    // },
     mounted() {
-      this.$store.dispatch('getCurrentTable', this.$route.params.id)
-      // this.$store.dispatch('getInventory')
+      // this.$store.dispatch('getCurrentTable', this.$route.params.id)
+      this.$store.dispatch('getInventory')
     },
     methods: {
       storeOrder() {
         if(this.order.order.length) {
           this.$store.dispatch('storeOrder', this.$route.params.id)
+          this.$store.getters.activeTable.total = parseInt(this.total.replace('.', ''))
         }
         this.$router.push('/')
       },
