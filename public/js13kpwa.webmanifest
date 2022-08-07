@@ -1,6 +1,6 @@
 {
   "name": "EverTree Progressive Web App",
-  "short_name": "js13kPWA",
+  "short_name": "EverTree",
   "description": "Progressive Web App.",
   "icons": [
     {
@@ -16,6 +16,6 @@
   ],
   "start_url": "/",
   "display": "fullscreen",
-  "theme_color": "#B12A34",
-  "background_color": "#B12A34"
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF"
 }
