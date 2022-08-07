@@ -15,7 +15,7 @@
     }
   ],
   "start_url": "/backoffice",
-  "display" : "minimal-ui",
+  "display" : "standalone",
   "theme_color": "#1f2937",
   "background_color": "#1f2937"
 }
