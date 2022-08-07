@@ -5,6 +5,11 @@
         <div class="text-center text-3xl font-semibold mb-6 uppercase">Izaberite konobara</div>
         <div class="grid grid-cols-3 gap-3">
           <div
+            class="py-10 px-2 text-2xl my-1 text-center font-semibold border-2 border-primary bg-primary text-white"
+          >
+            Srdjan
+          </div>
+          <!-- <div
             v-for="waiter in waiters"
             :key="waiter.id"
             class="py-10 px-2 text-2xl my-1 text-center font-semibold border-2"
@@ -12,7 +17,7 @@
             @click="selectedWaiter(waiter.id)"
           >
             {{ waiter.name }}
-          </div>
+          </div> -->
         </div>
         <div v-if="showError" class="mt-2 text-2xl text-red-500 font-medium">Izaberite konobara da biste naplatili</div>
       </div>
