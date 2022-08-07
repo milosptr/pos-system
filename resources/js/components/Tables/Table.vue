@@ -87,8 +87,8 @@
       },
     },
     mounted() {
-      this.$store.dispatch('getCurrentTable', this.$route.params.id)
-      this.$store.dispatch('getInventory')
+      this.$store.dispatch('getTableOrders', this.$route.params.id)
+      // this.$store.dispatch('getInventory')
     },
     methods: {
       storeOrder() {
