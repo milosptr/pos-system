@@ -137,6 +137,17 @@
     overflow-y: scroll;
   }
 
+  /* hide scrollbar but allow scrolling */
+  .OrderSidebar {
+      -ms-overflow-style: none; /* for Internet Explorer, Edge */
+      scrollbar-width: none; /* for Firefox */
+      overflow-y: scroll;
+  }
+
+  .OrderSidebar::-webkit-scrollbar {
+      display: none; /* for Chrome, Safari, and Opera */
+  }
+
   @media (max-width: 1024px) {
     .OrderSidebar {
       max-height: 74vh;
