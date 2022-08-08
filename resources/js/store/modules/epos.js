@@ -20,6 +20,7 @@ const general = {
     order: [],
     selectedWaiterId: 2,
     totalForTable: 0,
+    showServerErrorModal: false,
   }),
 
   actions: {
@@ -99,6 +100,9 @@ const general = {
           dispatch('getTables')
           dispatch('getTableOrders')
         })
+        .catch(() => {
+          commit('setShowServerErrorModal', true)
+        })
     },
     cashOut( {commit, dispatch, state }, data) {
       let allItems = []
@@ -124,6 +128,9 @@ const general = {
           if(res.data.data.status)
           dispatch('setPrintingInvoice', res.data.data, { root: true })
           dispatch('getTables')
+        })
+        .catch(() => {
+          commit('setShowServerErrorModal', true)
         })
     },
   },
@@ -193,7 +200,10 @@ const general = {
     clearOrder( state ) {
       state.order = []
       state.orders = []
-    }
+    },
+    setShowServerErrorModal(state, value) {
+      state.showServerErrorModal = value
+    },
   },
 
   getters: {
@@ -247,6 +257,7 @@ const general = {
     selectedWaiterId( state ) {
       return state.selectedWaiterId
     },
+    showServerErrorModal: (state) => state.showServerErrorModal
   }
 }
 

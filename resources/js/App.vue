@@ -1,12 +1,14 @@
 <template>
   <router-view></router-view>
   <portal-target name="portal" />
+  <ServerErrorModal />
 </template>
 
 <script>
   import pusher from 'pusher-js'
-
+  import ServerErrorModal from './components/Modals/ServerErrorModal.vue'
   export default {
+    components: {ServerErrorModal},
     mounted() {
       this.$store.dispatch('setDefaultActiveArea')
       this.$store.dispatch('loadEPOS')
