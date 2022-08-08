@@ -5,7 +5,7 @@ let deviceObject = null
 
 export const connectToPrinter = () => {
     //Connects to a device
-    ePosDev.connect('192.168.1.141', '8008', callback_connect);
+    ePosDev.connect('192.168.200.80', '8008', callback_connect);
 }
 
 function callback_connect(resultConnect) {

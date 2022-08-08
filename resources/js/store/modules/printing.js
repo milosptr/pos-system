@@ -15,7 +15,7 @@ const general = {
     setEpsonDevice({ dispatch, commit, state }, reprint) {
       if(reprint) state.printingAttempts++
       state.ePosDev = new epson.ePOSDevice()
-      state.ePosDev.connect('192.168.1.141', 8008, (data) => {
+      state.ePosDev.connect('192.168.200.80', 8008, (data) => {
         console.log('PRINTER_CHECKING');
         if(data == 'OK' || data == 'SSL_CONNECT_OK') {
           console.log('PRINTER_DATA_OK');
