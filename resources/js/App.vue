@@ -14,6 +14,7 @@
       this.$store.dispatch('loadEPOS')
       this.$store.dispatch('setEpsonDevice')
       this.pusherInit()
+      this.checkServerConnection()
     },
     methods: {
       pusherInit()
@@ -26,6 +27,12 @@
         pusher.bind('notifications', (data) => {
             this.$store.dispatch('getTasks')
         })
+      },
+      checkServerConnection() {
+        this.$store.dispatch('checkServerConnection')
+        setInterval(() => {
+          this.$store.dispatch('checkServerConnection')
+        }, 10000);
       }
     }
   }

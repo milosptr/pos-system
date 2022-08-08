@@ -16,12 +16,9 @@
                 <div class="mt-3 text-center sm:mt-5">
                   <DialogTitle as="h2" class="text-2xl leading-6 font-semibold text-gray-900 uppercase"> Došlo je do greške! </DialogTitle>
                   <div class="mt-2">
-                    <p class="text-gray-500">Došlo je do greške pri konekciji sa serverom. Pokušajte ponovo ili kontaktirajte nadredjenog.</p>
+                    <p class="text-gray-500">Konekcija sa serverom nije moguća. Molimo sačekajte ili kontaktirajte nadredjenog.</p>
                   </div>
                 </div>
-              </div>
-              <div class="mt-5 sm:mt-6">
-                <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-none sm:text-sm" @click="reload">Osveži stranicu</button>
               </div>
             </DialogPanel>
           </TransitionChild>

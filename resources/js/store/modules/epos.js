@@ -29,6 +29,16 @@ const general = {
       dispatch('getInventory')
       dispatch('getWaiters')
     },
+    checkServerConnection({ commit, state }) {
+      axios.get('/api/connection')
+        .then(() => {
+          if(state.showServerErrorModal)
+            location.reload()
+        })
+        .catch(() => {
+          commit('setShowServerErrorModal', true)
+        })
+    },
     moveOrdersToTable( {dispatch}, data) {
       axios.post(`/api/orders/move/${data.from}/${data.to}`)
         .then(() => {
