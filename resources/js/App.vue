@@ -27,6 +27,9 @@
         pusher.bind('notifications', (data) => {
             this.$store.dispatch('getTasks')
         })
+        addEventListener("beforeunload", (event) => {
+          pusher.disconnect()
+        })
       },
       checkServerConnection() {
         this.$store.dispatch('checkServerConnection')
