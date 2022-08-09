@@ -43,7 +43,7 @@ export default {
         return dayjs(datetime).subtract(10, 'second').format('MMMM D, YYYY HH:mm:ss')
       },
       parseDuration(start, end) {
-        return dayjs(end).diff(dayjs(start).subtract(10, 'second'), 'second', true)
+        return dayjs(end).diff(dayjs(start), 'second', true) - 10
       }
     }
 }
