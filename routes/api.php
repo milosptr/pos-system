@@ -9,11 +9,13 @@ use App\Http\Controllers\TableController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ConnectionsLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ValidatePinController;
+use App\Models\ConnectionLog;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 use Services\WorkingDay;
 
@@ -27,9 +29,7 @@ use Services\WorkingDay;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('connection', function() {
-  return true;
-});
+Route::get('connection', [ConnectionsLogController::class, 'check']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -112,4 +112,6 @@ Route::prefix('/backoffice')->group(function() {
   Route::delete('users/{id}', [UsersController::class, 'destroy']);
 
   Route::get('reports/{type}', [ReportsController::class, 'index']);
+
+  Route::get('connections-log', [ConnectionsLogController::class, 'index']);
 });
