@@ -17,7 +17,9 @@
             <td :class="[idx !== logs.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-gray-500 ']">Connection lost</td>
             <td :class="[idx !== logs.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-gray-800 font-medium tracking-wide']">{{ parseTimestamp(item.start_at) }}</td>
             <td :class="[idx !== logs.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-gray-800 font-medium tracking-wide']">{{ parseTimestamp(item.end_at) }}</td>
-            <td :class="[idx !== logs.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-red-500 font-medium tracking-wide']">{{ parseDuration(item.start_at, item.end_at) }}s</td>
+            <td :class="[idx !== logs.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-red-500 font-medium tracking-wide flex items-center gap-2']">
+              <div>{{ parseDuration(item.start_at, item.end_at) }}s</div>
+              <div class="text-gray-400 text-sm">(±10)</div></td>
           </tr>
         </tbody>
       </table>
@@ -43,7 +45,7 @@ export default {
         return dayjs(datetime).subtract(10, 'second').format('MMMM D, YYYY HH:mm:ss')
       },
       parseDuration(start, end) {
-        return dayjs(end).diff(dayjs(start), 'second', true) - 10
+        return dayjs(end).diff(dayjs(start), 'second', true)
       }
     }
 }
