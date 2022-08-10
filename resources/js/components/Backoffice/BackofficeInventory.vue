@@ -85,7 +85,7 @@ export default {
         return this.$store.getters.categories
       },
       inventoryItemsPrice() {
-        return this.$store.getters.inventory.reduce((a, v) => a + v.price, 0)
+        return this.$store.getters.inventory.reduce((a, v) => a + (v.active ? v.price : 0), 0)
       },
     },
     mounted() {

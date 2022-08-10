@@ -9,6 +9,6 @@ class ConnectionLog extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['start_at', 'end_at'];
+    protected $fillable = ['platform', 'start_at', 'end_at'];
     public $timestamps = true;
 }

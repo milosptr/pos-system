@@ -30,7 +30,7 @@ const general = {
       dispatch('getWaiters')
     },
     checkServerConnection({ commit, state }) {
-      axios.get('/api/connection?error=' + state.showServerErrorModal)
+      axios.get('/api/connection?error=' + state.showServerErrorModal + '&platform=' + window.navigator.platform)
         .then(() => {
           if(state.showServerErrorModal)
             location.reload()

@@ -44,7 +44,7 @@
         v-for="item in inventory"
         :key="item.id"
         class="InventoryBox InventoryItem flex items-center justify-center rounded-sm"
-        :class="'order-' + item.order"
+        :class="['order-' + item.order, {'line-through text-gray-900 text-opacity-40 InactiveItem': !item.active}]"
         :style="[item.color ? `color: ${item.color};` : '']"
         @click="addToOrder(item)"
         >
@@ -103,9 +103,11 @@
         this.$store.commit('lastOrderHalfPortion')
       },
       addToOrder(item) {
-        this.$store.commit('setOrder', {...item, table_id: this.$route.params.id})
-        if(item.sold_by === 2)
-          this.showQuantityModal = true
+        if(item.active) {
+          this.$store.commit('setOrder', {...item, table_id: this.$route.params.id})
+          if(item.sold_by === 2)
+            this.showQuantityModal = true
+        }
       }
     }
   }
@@ -123,6 +125,10 @@
 
   .InventoryBox:active {
     background: #777;
+  }
+
+  .InventoryBox.InactiveItem:active {
+    background: #d5d5d5;
   }
 
   .InventoryBox.InventoryItem {
