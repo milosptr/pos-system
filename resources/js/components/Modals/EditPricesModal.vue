@@ -78,7 +78,9 @@
     },
     computed: {
       lastPricing() {
-        return this.item.pricing[0]
+        if(this.item.pricing[0])
+          return this.item.pricing[0]
+        return { retail_price: this.item.price, purchase_price: this.item.price, norm: 1 }
       }
     },
     mounted() {
