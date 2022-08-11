@@ -87,10 +87,16 @@
       },
     },
     mounted() {
-      // this.$store.dispatch('getCurrentTable', this.$route.params.id)
+      this.checkServerConnection()
       this.$store.dispatch('getInventory')
     },
     methods: {
+      checkServerConnection() {
+        this.$store.dispatch('checkServerConnection')
+        setInterval(() => {
+          this.$store.dispatch('checkServerConnection')
+        }, 6000);
+      },
       storeOrder() {
         if(this.order.order.length) {
           this.$store.getters.activeTable.total = parseInt(this.total.replace('.', ''))
