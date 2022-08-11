@@ -65,6 +65,7 @@
      showMoveTableModal: false,
      showRefundReasonModal: false,
      showTableMenu: false,
+     connectionChecup: null,
     }),
     computed: {
       tableName() {
@@ -90,10 +91,13 @@
       this.checkServerConnection()
       this.$store.dispatch('getInventory')
     },
+    unmounted() {
+      clearTimeout(this.connectionChecup)
+    },
     methods: {
       checkServerConnection() {
         this.$store.dispatch('checkServerConnection')
-        setInterval(() => {
+        this.connectionChecup = setInterval(() => {
           this.$store.dispatch('checkServerConnection')
         }, 6000);
       },
