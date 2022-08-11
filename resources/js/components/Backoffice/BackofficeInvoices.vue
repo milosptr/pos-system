@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
       <BackofficeReportsFilters type="invoices" />
-      <div class="-my-0 -mx-0  sm:-mx-6 lg:-mx-8 w-full sm:w-auto overflow-x-scroll lg:overflow-x-auto mt-5">
+      <div class="  w-full sm:w-auto overflow-x-scroll lg:overflow-x-auto mt-5">
         <div class="inline-block min-w-full py-2 align-middle">
           <div class="shadow-sm ring-1 ring-black ring-opacity-5">
             <table class="min-w-full border-separate" style="border-spacing: 0">

@@ -1,25 +1,26 @@
 <?php
 
 use App\Models\Invoice;
+use Services\WorkingDay;
 use Illuminate\Http\Request;
+use App\Models\ConnectionLog;
+use App\Models\InventoryPricing;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\RefundReasonController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ConnectionsLogController;
+use App\Http\Controllers\DBBackupController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\InventoryPricingController;
-use App\Http\Controllers\ReportsController;
-use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ValidatePinController;
-use App\Models\ConnectionLog;
-use App\Models\InventoryPricing;
+use App\Http\Controllers\RefundReasonController;
+use App\Http\Controllers\ConnectionsLogController;
+use App\Http\Controllers\InventoryPricingController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
-use Services\WorkingDay;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,4 +119,6 @@ Route::prefix('/backoffice')->group(function() {
   Route::get('reports/{type}', [ReportsController::class, 'index']);
 
   Route::get('connections-log', [ConnectionsLogController::class, 'index']);
+
+  Route::get('db-backup', [DBBackupController::class, 'backup']);
 });

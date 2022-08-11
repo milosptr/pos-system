@@ -7,7 +7,7 @@ import BackofficeInventory from './components/Backoffice/BackofficeInventory.vue
 import BackofficeInventoryNew from './components/Backoffice/BackofficeInventoryNew.vue'
 import BackofficeUsers from './components/Backoffice/BackofficeUsers.vue'
 import BackofficeConnectionsLog from './components/Backoffice/BackofficeConnectionsLog.vue'
-import BackofficeMyAccount from './components/Backoffice/BackofficeMyAccount.vue'
+import BackofficeSettings from './components/Backoffice/BackofficeSettings.vue'
 import BackofficeTables from './components/Backoffice/BackofficeTables.vue'
 import BackofficeOrders from './components/Backoffice/BackofficeOrders.vue'
 import BackofficeTasks from './components/Backoffice/BackofficeTasks.vue'
@@ -85,9 +85,9 @@ const routes = [
                 component: BackofficeUsers
             },
             {
-                path: '/my-account',
-                name: 'my-account',
-                component: BackofficeMyAccount
+                path: '/settings',
+                name: 'settings',
+                component: BackofficeSettings
             },
             {
                 path: '/connection-logs',

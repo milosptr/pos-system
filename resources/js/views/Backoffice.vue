@@ -146,7 +146,7 @@
               </button>
             </div>
           </div>
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+          <div class="max-w-7xl mx-auto">
             <!-- Replace with your content -->
             <div class="py-4">
               <router-view />
@@ -175,7 +175,6 @@ import {
   UserGroupIcon,
   ViewBoardsIcon,
   DesktopComputerIcon,
-  UserIcon,
   BellIcon,
   RefreshIcon,
   WifiIcon,
@@ -189,9 +188,8 @@ const navigation = [
   { name: 'Categories', href: 'categories', icon: FolderIcon, current: false },
   { name: 'Tables', href: 'tables', icon: ViewGridIcon, current: false },
   { name: 'Tasks', href: 'tasks', icon: BellIcon, current: false },
-  { name: 'Users', href: 'users', icon: UserGroupIcon, current: false },
   { name: 'Connections Log', href: 'connection-logs', icon: WifiIcon, current: false },
-  { name: 'My Account', href: 'my-account', icon: UserIcon, current: false },
+  { name: 'Settings', href: 'settings', icon: CogIcon, current: false },
 ]
 
 export default {
