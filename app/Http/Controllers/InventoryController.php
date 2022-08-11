@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\InventoryResource;
 use App\Http\Resources\InventoryCollection;
 use App\Http\Requests\InventoryStoreRequest;
+use App\Http\Resources\InventoryBackofficeResource;
 
 class InventoryController extends Controller
 {
@@ -22,7 +23,14 @@ class InventoryController extends Controller
         return Inventory::filter($request)->get();
       });
       return InventoryResource::collection($inventory);
+    }
 
+    public function allBackoffice(Request $request)
+    {
+      $inventory = Cache::remember('inventory-all', 60, function() use($request){
+        return Inventory::filter($request)->get();
+      });
+      return InventoryBackofficeResource::collection($inventory);
     }
 
     public function index(Request $request)

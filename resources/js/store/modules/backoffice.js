@@ -7,6 +7,7 @@ const backoffice = {
         stats: null,
         activeTableOrders: [],
         activeOrder: null,
+        activeInventoryPricing: null,
         categories: [],
         inventory: [],
         users: [],
@@ -48,11 +49,17 @@ const backoffice = {
         },
         getInventory({ commit }, filters) {
           const params = new URLSearchParams(filters);
-          axios.get('/api/inventory/all?' + params.toString())
+          return new Promise((resolve, reject) => {
+            axios.get('/api/backoffice/inventory/all?' + params.toString())
               .then( (res) => {
-                  commit('setInventory', res.data.data)
+                commit('setInventory', res.data.data)
+                resolve(res)
               })
-        },
+              .catch((error) => {
+                reject(error)
+              })
+          })
+      },
         getUsers({ commit }) {
             axios.get('/api/users')
                 .then( (res) => {
@@ -132,11 +139,15 @@ const backoffice = {
         setReportsActiveTab(state, tab) {
             state.reportsActiveTab = tab
         },
+        setActiveInventoryPricing(state, inventoryPricing) {
+          state.activeInventoryPricing = inventoryPricing
+        },
     },
 
     getters: {
         activeTableOrders: (state) => state.activeTableOrders,
         activeOrder: (state) => state.activeOrder,
+        activeInventoryPricing: (state) => state.activeInventoryPricing,
         reports: (state) => state.reports,
         categories: (state) => state.categories,
         inventory: (state) => state.inventory,

@@ -12,10 +12,12 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ConnectionsLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\InventoryPricingController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ValidatePinController;
 use App\Models\ConnectionLog;
+use App\Models\InventoryPricing;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 use Services\WorkingDay;
 
@@ -96,7 +98,9 @@ Route::get('working-day', function() {
 
 //Backoffice
 Route::prefix('/backoffice')->group(function() {
+  Route::get('/inventory/all', [InventoryController::class, 'allBackoffice']);
   Route::post('/inventory', [InventoryController::class, 'store']);
+  Route::post('/inventory-pricing', [InventoryPricingController::class, 'store']);
   Route::put('/inventory/{id}', [InventoryController::class, 'update']);
   Route::delete('/inventory/{id}', [InventoryController::class, 'destroy']);
 

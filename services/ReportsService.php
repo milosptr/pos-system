@@ -23,20 +23,20 @@ class ReportsService {
 
     public static function getRevenueForDate($date)
     {
-      return Invoice::selectRaw('sum(total) AS total_with_refund')
+      return Invoice::selectRaw('sum(total) AS total')
         ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
-        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as total')
+        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as income')
         ->whereBetween('created_at', $date)
         ->get()
         ->first();
     }
 
-    public static function parseStats($today, $name, $field)
+    public static function parseStats($today, $name, $field, $primary = false)
     {
       return [
         "name" => $name,
         "stat" => $today[$field],
-        "primary" => false,
+        "primary" => $primary,
       ];
     }
 }

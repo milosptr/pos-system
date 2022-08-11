@@ -26,7 +26,7 @@
                 <tr>
                   <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">Id</th>
                   <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">Name</th>
-                  <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell">Price</th>
+                  <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-center text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell">Price</th>
                   <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter whitespace-nowrap">Sold By</th>
                   <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">Order</th>
                   <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">Category</th>
@@ -59,12 +59,14 @@
           </div>
         </div>
       </div>
+      <OverviewSlideoverSidebarPricing />
     </div>
 </template>
 <script>
 import Select from '../common/Select.vue'
 import { SearchIcon, XCircleIcon } from '@heroicons/vue/outline'
 import BackofficeInventoryItem from './BackofficeInventoryItem.vue'
+import OverviewSlideoverSidebarPricing from './Overview/OverviewSlideoverSidebarPricing.vue'
 
 export default {
     name: 'BackofficeInventory',
@@ -73,6 +75,7 @@ export default {
       SearchIcon,
       XCircleIcon,
       BackofficeInventoryItem,
+      OverviewSlideoverSidebarPricing,
     },
     data: () => ({
       filters: {}

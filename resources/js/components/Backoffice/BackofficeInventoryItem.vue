@@ -5,8 +5,12 @@
       <input v-model="item.name" type="text" class="appearance-none min-w-input-name w-full p-0 m-0 border-none bg-transparent" />
     </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
-      <input v-model="item.price" type="number" class="appearance-none w-20 p-0 m-0 border-none bg-transparent text-right" @click="selectAll" />
-     RSD</td>
+      <div class="flex items-center">
+        <input v-model="item.price" type="number" class="appearance-none w-20 p-0 m-0 border-none bg-transparent text-right" @click="selectAll" />
+        <div>RSD</div>
+        <ClockIcon v-if="item.pricing.length" class="w-4 h-4 ml-2" @click="showPricingSidebar" />
+      </div>
+    </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">{{ soldByText(item.sold_by) }}</td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
       <input v-model="item.order" type="number" class="appearance-none w-16 p-0 m-0 border-none bg-transparent" />
@@ -16,14 +20,22 @@
       <Switch :enabled="!!item.active" @click="updateStatus" />
     </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
-      <input v-model="item.color" type="color" name="" id="">
+      <input v-model="item.color" type="color" name="" id="" class="w-6 rounded-full overflow-hidden">
     </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
       <div class="flex gap-4">
         <div class="text-blue-500" @click="updateItem">Save</div>
+        <div class="text-orange-500" @click="editPrices">Edit prices</div>
         <div class="text-red-500" @click="showDeleteModal = true">Delete</div>
       </div>
     </td>
+    <EditPricesModal
+      v-if="showEditPricesModal"
+      :item="item"
+      :price="item.price"
+      @close="showEditPricesModal = false"
+      @save="saveNewPrices"
+    />
     <DeleteModal
       :show="showDeleteModal"
       :title="'Delete - ' + item.name"
@@ -36,6 +48,8 @@
 <script>
   import Switch from '../common/Switch.vue'
   import DeleteModal from '../Modals/DeleteModal.vue'
+  import EditPricesModal from '../Modals/EditPricesModal.vue'
+  import { ClockIcon } from '@heroicons/vue/outline'
 
   export default {
     props: {
@@ -52,11 +66,12 @@
         default: () => {}
       }
     },
-    components: { Switch, DeleteModal },
+    components: { Switch, DeleteModal, EditPricesModal, ClockIcon },
     data: () => ({
       defaultItem: null,
       isRemoving: false,
       showDeleteModal: false,
+      showEditPricesModal: false,
     }),
     computed: {
       isChanged() {
@@ -73,12 +88,31 @@
             this.defaultItem = { ...this.item }
           })
       },
+      saveNewPrices(prices) {
+        this.item.price = prices.retail_price
+        this.updateItem()
+        axios.post('/api/backoffice/inventory-pricing', prices)
+          .then((res) => {
+            this.$store.commit('setActiveInventoryPricing', res.data.data)
+            this.$store.dispatch('getInventory').then(() => {
+              this.defaultItem = { ...this.item }
+            })
+
+          })
+        this.showEditPricesModal = false
+      },
+      editPrices() {
+        this.showEditPricesModal = true
+      },
       deleteItem() {
         this.isRemoving = true
         axios.delete('/api/backoffice/inventory/' + this.item.id)
           .then(() => {
             this.$store.dispatch('getInventory', {})
           })
+      },
+      showPricingSidebar() {
+        this.$store.commit('setActiveInventoryPricing', this.item)
       },
       updateStatus(e) {
         this.item.active = !this.item.active ? 1 : 0
