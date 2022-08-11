@@ -43,7 +43,7 @@ class DashboardController extends Controller
           "primary" => false,
         ],
         ReportsService::parseStats($today, 'Refund', 'refund'),
-        ReportsService::parseStats($today, 'Income', 'income', true),
+        ReportsService::parseStats($today, 'Income', 'income', true, $activeTablesTotal),
 
       ];
 

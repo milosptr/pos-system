@@ -31,11 +31,11 @@ class ReportsService {
         ->first();
     }
 
-    public static function parseStats($today, $name, $field, $primary = false)
+    public static function parseStats($today, $name, $field, $primary = false, $addition = 0)
     {
       return [
         "name" => $name,
-        "stat" => $today[$field],
+        "stat" => (int) $today[$field] + (int) $addition,
         "primary" => $primary,
       ];
     }
