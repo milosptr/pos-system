@@ -6,11 +6,12 @@ use Carbon\Carbon;
 use Services\Pusher;
 use App\Models\Order;
 use App\Models\Invoice;
+use Services\WorkingDay;
+use Services\SalesService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\InvoiceResource;
 use App\Http\Requests\InvoiceStoreRequest;
-use Services\SalesService;
-use Services\WorkingDay;
 
 class InvoiceController extends Controller
 {
@@ -27,6 +28,11 @@ class InvoiceController extends Controller
     public function allForToday()
     {
       return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
+    }
+
+    public function dailyMaximum()
+    {
+      return Invoice::selectRaw('sum(total) as total')->groupBy(DB::raw('Date(created_at)'))->orderBy('total', 'desc')->first();
     }
 
     /**

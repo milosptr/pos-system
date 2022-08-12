@@ -54,8 +54,8 @@
     data: () => ({
       canvasWidth: 700,
       canvasHeight: 276,
+      maximum: 70000,
       transactions: {
-        maximum: 70000,
         total: 0,
         storno: 0,
         neto: 0,
@@ -102,6 +102,10 @@
         .then((res) => {
           this.activeTables = res.data.data
         })
+      axios.get('/api/invoices/daily-maximum')
+        .then((res) => {
+          this.maximum = parseInt(res.data.total)
+        })
 
       if(window.innerWidth < 1200) {
         this.canvasWidth = 370
@@ -120,7 +124,7 @@
             setTimeout(() => {
               let target = document.getElementById('transactionsGraph'); // your canvas element
               let gauge = new Gauge(target).setOptions(this.options); // create sexy gauge!
-              gauge.maxValue = parseInt(this.transactions.maximum); // set max gauge value
+              gauge.maxValue = parseInt(this.maximum); // set max gauge value
               gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
               gauge.animationSpeed = 32; // set animation speed (32 is default value)
               gauge.set(parseInt(this.transactions.income)); // set actual value

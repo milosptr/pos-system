@@ -67,6 +67,7 @@ Route::post('orders/move/{fromId}/{toId}', [OrderController::class, 'move']);
 Route::get('invoices', [InvoiceController::class, 'all']);
 Route::get('invoices/today', [InvoiceController::class, 'allForToday']);
 Route::get('invoices/today-transactions', [InvoiceController::class, 'todayTransactions']);
+Route::get('invoices/daily-maximum', [InvoiceController::class, 'dailyMaximum']);
 Route::post('invoices', [InvoiceController::class, 'store']);
 Route::post('invoices/one/{orderId}', [InvoiceController::class, 'store']);
 Route::post('invoices/{id}/refund', [InvoiceController::class, 'refund']);

@@ -71,7 +71,7 @@
 
 <style scoped>
   .TablesListHeight {
-    max-height: 65vh;
+    max-height: 55vh;
     overflow-y: scroll;
   }
 </style>
