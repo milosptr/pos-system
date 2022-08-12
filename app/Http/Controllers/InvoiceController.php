@@ -32,7 +32,7 @@ class InvoiceController extends Controller
 
     public function dailyMaximum()
     {
-      return Invoice::selectRaw('sum(total) as total')->groupBy(DB::raw('Date(created_at)'))->orderBy('total', 'desc')->first();
+      return Invoice::selectRaw('sum(case when status = 1 then total else 0 end) as total')->groupBy(DB::raw('Date(created_at)'))->orderBy('total', 'desc')->first();
     }
 
     /**
