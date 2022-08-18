@@ -82,7 +82,8 @@
         this.$store.commit('setActiveInvoice', id)
       },
       getTime(date) {
-        return dayjs(date, 'DD.MM.YYYY HH:mm:ss').format('HH:mm:ss')
+        const pattern = /(\d{2})\.(\d{2})\.(\d{4})/;
+        return dayjs(date.replace(pattern,'$3-$2-$1')).format('HH:mm:ss')
       }
     }
   }
