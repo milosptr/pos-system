@@ -40,7 +40,7 @@
         </div>
         <div class="flex flex-col text-lg font-bold text-white text-left w-56">
           <div>Radni dan</div>
-          <div>{{ timestamp }}</div>
+          <div class="font-roboto-mono">{{ timestamp }}</div>
         </div>
       </div>
     </div>
@@ -109,6 +109,9 @@
   }
   .animateDot {
     animation: pulse 3s linear infinite;
+  }
+  .font-roboto-mono {
+    font-family: 'Roboto Mono', monospace;
   }
 
   @keyframes pulse {
