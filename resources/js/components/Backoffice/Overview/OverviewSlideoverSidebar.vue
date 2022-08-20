@@ -1,6 +1,6 @@
 <template>
   <TransitionRoot as="template" :show="!!activeOrder">
-    <Dialog as="div" class="relative z-10" @close="$store.commit('setActiveOrder', null)">
+    <Dialog as="div" class="relative z-30" @close="$store.commit('setActiveOrder', null)">
       <div class="fixed inset-0" />
 
       <div class="fixed inset-0 overflow-hidden">

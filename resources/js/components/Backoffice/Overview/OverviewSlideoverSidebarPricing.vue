@@ -1,6 +1,6 @@
 <template>
   <TransitionRoot as="template" :show="!!activeInventoryPricing">
-    <Dialog as="div" class="relative z-10" @close="$store.commit('setActiveInventoryPricing', null)">
+    <Dialog as="div" class="relative z-30" @close="$store.commit('setActiveInventoryPricing', null)">
       <div class="fixed inset-0" />
 
       <div class="fixed inset-0 overflow-hidden">
