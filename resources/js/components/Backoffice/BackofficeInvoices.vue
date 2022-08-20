@@ -32,14 +32,16 @@
           </div>
         </div>
       </div>
+      <BackofficeInvoicesPagination />
       <OverviewSlideoverSidebar :isInvoice="true" />
     </div>
 </template>
 <script>
 import OverviewSlideoverSidebar from './Overview/OverviewSlideoverSidebar.vue'
 import BackofficeReportsFilters from "./Reports/BackofficeReportsFilters.vue"
+import BackofficeInvoicesPagination from "./BackofficeInvoicesPagination.vue"
 export default {
-  components: { OverviewSlideoverSidebar, BackofficeReportsFilters },
+  components: { OverviewSlideoverSidebar, BackofficeReportsFilters, BackofficeInvoicesPagination },
     name: "BackofficeInvoices",
     computed: {
       invoices() {
@@ -49,8 +51,15 @@ export default {
         return this.$store.getters.activeOrder
       },
     },
-    mounted(){
-        this.$store.dispatch('getInvoices')
+    mounted() {
+      const key = 'paginate'
+      const value = true
+      this.$store.commit('setReportFilters', { key, value })
+      this.$store.dispatch('getInvoices')
+    },
+    unmounted() {
+        const key = 'paginate'
+       this.$store.commit('setReportFilters', { key })
     }
 }
 </script>

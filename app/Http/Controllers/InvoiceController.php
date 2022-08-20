@@ -22,7 +22,10 @@ class InvoiceController extends Controller
      */
     public function all(Request $request)
     {
-        return InvoiceResource::collection(Invoice::filter($request)->orderBy('id', 'DESC')->get());
+      $invoices = Invoice::filter($request)->orderBy('id', 'DESC');
+      if($request->get('paginate'))
+        return InvoiceResource::collection($invoices->paginate(20));
+      return InvoiceResource::collection($invoices->get());
     }
 
     public function allForToday()

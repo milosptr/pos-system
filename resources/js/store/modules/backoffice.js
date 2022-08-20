@@ -19,6 +19,7 @@ const backoffice = {
             date: null
         },
         reportsActiveTab: 0,
+        pagination: {},
     }),
 
     actions: {
@@ -83,6 +84,8 @@ const backoffice = {
           axios.get('/api/invoices?' + params.toString())
               .then( (res) => {
                   commit('setInvoices', res.data.data)
+                  if(res.data.links)
+                    commit('setPagination', { links: res.data.links, meta: res.data.meta })
               })
         },
         getTasks({ commit }) {
@@ -98,6 +101,7 @@ const backoffice = {
             state.reports = reports
         },
         setReportFilters(state, filter) {
+          console.log(filter);
           state.reportFilters[filter.key] = filter.value
           if(!filter.value) delete state.reportFilters[filter.key]
         },
@@ -142,6 +146,9 @@ const backoffice = {
         setActiveInventoryPricing(state, inventoryPricing) {
           state.activeInventoryPricing = inventoryPricing
         },
+        setPagination(state, pagination) {
+          state.pagination = pagination
+        },
     },
 
     getters: {
@@ -159,6 +166,7 @@ const backoffice = {
         stats: (state) => state.stats,
         reportsActiveTab: (state) => state.reportsActiveTab,
         reportFilters: (state) => state.reportFilters,
+        pagination: (state) => state.pagination,
         totalActiveTableOrders: (state) => state.activeTableOrders.reduce((a, v) => a + v.total, 0),
         totalRevenue: (state) => {
           const total = state.stats && state.stats[0].stat ? state.stats[0].stat : 0

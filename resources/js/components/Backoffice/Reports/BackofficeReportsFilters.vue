@@ -194,7 +194,6 @@ import { SearchIcon } from '@heroicons/vue/outline'
       },
     },
     mounted() {
-      console.log(dayjs());
       axios.get('/api/waiters')
         .then((res) => {
           this.waiters = res.data.data
