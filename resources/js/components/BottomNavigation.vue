@@ -32,15 +32,15 @@
         </div>
       </div>
       <div class="flex items-center">
+        <div class="flex flex-col text-base font-bold text-white text-center w-56">
+          <div>Radni dan</div>
+          <div class="font-roboto-mono">{{ timestamp }}</div>
+        </div>
         <div class="NotificationIcon flex items-center justify-center rounded-md relative pr-8" @click="showTasksModal = true">
           <div v-if="tasks.length" class="absolute right-0 top-0 h-6 w-6 mt-1 mr-6 rounded-full bg-red-500 flex items-center justify-center">
             <div class="text-sm text-white leading-none font-bold" :class="{'text-xs': tasks.length > 9}">{{ tasks.length }}</div>
           </div>
           <BellIcon class="w-10 h-10 animateBell text-white" />
-        </div>
-        <div class="flex flex-col text-lg font-bold text-white text-left w-56">
-          <div>Radni dan</div>
-          <div class="font-roboto-mono">{{ timestamp }}</div>
         </div>
       </div>
     </div>
