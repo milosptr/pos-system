@@ -56,12 +56,21 @@
         const value = this.pagination.meta.current_page - 1
         this.$store.commit('setReportFilters', { key, value })
         this.$store.dispatch('getInvoices')
+        this.scrollToTop()
       },
       nextPage() {
         const key = 'page'
         const value = this.pagination.meta.current_page + 1
         this.$store.commit('setReportFilters', { key, value })
         this.$store.dispatch('getInvoices')
+        this.scrollToTop()
+      },
+      scrollToTop() {
+        window.scroll({
+          top: 0,
+          left: 0,
+          behavior: 'smooth'
+        })
       },
     }
   }

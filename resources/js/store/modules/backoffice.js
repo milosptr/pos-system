@@ -101,7 +101,6 @@ const backoffice = {
             state.reports = reports
         },
         setReportFilters(state, filter) {
-          console.log(filter);
           state.reportFilters[filter.key] = filter.value
           if(!filter.value) delete state.reportFilters[filter.key]
         },
