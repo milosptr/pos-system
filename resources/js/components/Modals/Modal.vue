@@ -66,4 +66,9 @@
       width: 32%;
     }
   }
+  @media(max-width: 450px) {
+    .NumpadWidth {
+      width: 92%;
+    }
+  }
 </style>

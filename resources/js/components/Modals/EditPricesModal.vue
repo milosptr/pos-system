@@ -3,7 +3,7 @@
     <div class="h-full flex flex-col justify-between">
       <div class="">
         <div class="text-center text-2xl font-semibold mb-6 uppercase">{{ item.name }}</div>
-        <div class="grid grid-cols-2 gap-5">
+        <div class="grid gird-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label for="pricingDate" class="block text-sm font-medium text-gray-700">Datum</label>
             <div class="mt-1">
