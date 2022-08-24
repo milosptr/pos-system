@@ -27,10 +27,7 @@ class InventoryController extends Controller
 
     public function allBackoffice(Request $request)
     {
-      $inventory = Cache::remember('inventory-all', 60, function() use($request){
-        return Inventory::filter($request)->get();
-      });
-      return InventoryBackofficeResource::collection($inventory);
+      return InventoryBackofficeResource::collection(Inventory::filter($request)->get());
     }
 
     public function index(Request $request)
