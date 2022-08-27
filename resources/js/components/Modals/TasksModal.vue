@@ -24,11 +24,11 @@
 
      <div class="text-xl font-semibold mt-6 mb-3">Ostale poruke</div>
      <div class="flex flex-col gap-2">
-      <div v-for="(message, idx) in messages" :key="idx" class="text-base rounded-md bg-gray-100 p-4 flex items-start">
+      <div v-for="(message, idx) in messages" :key="idx" class="text-lg rounded-md bg-gray-100 p-4 flex items-start justify-between">
+        <div class="mr-2 mt-0.5" :class="{'text-green-600': message.done}">{{ message.message }}</div>
         <div class="">
           <input :id="`task-${message.id}`" :name="`task-${message.id}`" type="checkbox" :checked="message.done" class="focus:ring-green-500 h-5 w-5 text-green-600 border-gray-300 rounded outline-none ring-0 focus:ring-0" @click="finishTask(message)" />
         </div>
-        <div class="ml-2 mt-0.5" :class="{'text-green-600': message.done}">{{ message.message }}</div>
       </div>
      </div>
   </Modal>
