@@ -16,7 +16,7 @@
             <td class="border-b border-gray-200 whitespace-nowrap py-2 px-3 font-medium">{{ task.company }}</td>
             <td class="border-b border-gray-200 whitespace-nowrap py-2 px-3 font-medium">{{ $filters.formatPrice(task.price) }} RSD</td>
             <td class="w-32 border-b border-gray-200 whitespace-nowrap py-2 px-3 font-medium text-right">
-              <input :id="`task-${tasks.id}`" :name="`task-${tasks.id}`" type="checkbox" :checked="task.done" class="focus:ring-green-500 h-5 w-5 text-green-600 border-gray-300 rounded outline-none ring-0 focus:ring-0" @click="finishTask(task)" />
+              <input :id="`task-${tasks.id}`" :name="`task-${tasks.id}`" type="checkbox" :checked="task.done" class="focus:ring-green-500 h-5 w-5 text-green-600 border-red-500 rounded outline-none ring-0 focus:ring-0" @click="finishTask(task)" />
             </td>
           </tr>
         </tbody>
@@ -27,7 +27,7 @@
       <div v-for="(message, idx) in messages" :key="idx" class="text-lg rounded-md bg-gray-100 p-4 flex items-start justify-between">
         <div class="mr-2 mt-0.5" :class="{'text-green-600': message.done}">{{ message.message }}</div>
         <div class="">
-          <input :id="`task-${message.id}`" :name="`task-${message.id}`" type="checkbox" :checked="message.done" class="focus:ring-green-500 h-5 w-5 text-green-600 border-gray-300 rounded outline-none ring-0 focus:ring-0" @click="finishTask(message)" />
+          <input :id="`task-${message.id}`" :name="`task-${message.id}`" type="checkbox" :checked="message.done" class="focus:ring-green-500 h-5 w-5 text-green-600 border-red-500 rounded outline-none ring-0 focus:ring-0" @click="finishTask(message)" />
         </div>
       </div>
      </div>
