@@ -13,7 +13,7 @@
     </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">{{ soldByText(item.sold_by) }}</td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
-      <input v-model="item.order" type="number" class="appearance-none w-16 p-0 m-0 border-none bg-transparent" />
+      <input v-model="item.order" type="number" class="appearance-none w-10 p-0 m-0 border-none bg-transparent" />
     </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">{{ item.category_name }}</td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
@@ -23,9 +23,12 @@
       <input v-model="item.color" type="color" name="" id="" class="w-6 rounded-full overflow-hidden">
     </td>
     <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
+      <input v-model="item.sku" type="text" class="appearance-none w-16 p-0 m-0 border-none bg-transparent text-sm" />
+    </td>
+    <td :class="[idx !== inventory.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
       <div class="flex gap-4">
         <div class="text-blue-500" @click="updateItem">Save</div>
-        <div class="text-orange-500" @click="editPrices">Edit prices</div>
+        <!-- <div class="text-orange-500" @click="editPrices">Edit prices</div> -->
         <div class="text-red-500" @click="showDeleteModal = true">Delete</div>
       </div>
     </td>
