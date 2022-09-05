@@ -9,7 +9,7 @@
         </a>
         <div>
           <div class="relative flex items-center">
-            <input v-model="filters.q" type="text" name="search" id="search" placeholder="Search" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 sm:text-sm border-gray-300 rounded-md" @input="filterInventory(false)" />
+            <input v-model="filters.q" type="text" name="search" id="search" placeholder="Search" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 sm:text-sm border-gray-300 rounded-md" @input="debounceSearch" />
             <div class="absolute inset-y-0 left-0 flex py-1.5 pr-1.5">
               <div class="inline-flex items-center px-2 text-sm font-sans font-medium text-gray-400"> <SearchIcon class="h-4 w-4" /> </div>
             </div>
@@ -114,6 +114,9 @@ export default {
       exportInventory() {
         window.open('/api/backoffice/inventory/export', '_blank')
       },
+      debounceSearch: _.debounce(function(e) {
+        this.$store.dispatch('getInventory', this.filters)
+      }, 500)
     }
 }
 </script>
