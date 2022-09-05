@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\InventoryExport;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\InventoryResource;
 use App\Http\Resources\InventoryCollection;
@@ -109,5 +111,10 @@ class InventoryController extends Controller
         Cache::forget('inventory-all');
         Cache::forget('inventory');
         return $inventory->delete();
+    }
+
+    public function export()
+    {
+      return Excel::download(new InventoryExport, 'inventory.xlsx');
     }
 }

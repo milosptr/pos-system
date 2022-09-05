@@ -1,5 +1,6 @@
 <?php
 
+use App\Exports\InventoryExport;
 use App\Models\Invoice;
 use Services\WorkingDay;
 use Illuminate\Http\Request;
@@ -101,6 +102,7 @@ Route::get('working-day', function() {
 //Backoffice
 Route::prefix('/backoffice')->group(function() {
   Route::get('/inventory/all', [InventoryController::class, 'allBackoffice']);
+  Route::get('/inventory/export', [InventoryController::class, 'export']);
   Route::post('/inventory', [InventoryController::class, 'store']);
   Route::post('/inventory-pricing', [InventoryPricingController::class, 'store']);
   Route::put('/inventory/{id}', [InventoryController::class, 'update']);
