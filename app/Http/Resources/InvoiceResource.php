@@ -23,6 +23,7 @@ class InvoiceResource extends JsonResource
             'table' => $this->table,
             'status' => $this->status,
             'note' => $this->note,
+            'discount' => $this->discount,
             'disableRefund' => true,
             'refund_reason' => isset($this->refundReason) ? $this->refundReason->name : '',
             'user' => [

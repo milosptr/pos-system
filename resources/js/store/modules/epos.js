@@ -21,6 +21,7 @@ const general = {
     selectedWaiterId: 2,
     totalForTable: 0,
     showServerErrorModal: false,
+    discount: 0,
   }),
 
   actions: {
@@ -128,16 +129,21 @@ const general = {
         if(i.refund) refunded.push(i)
       })
       orders = [...orders, ...refunded]
+      let total = orders.reduce((a, b) => a + (b.refund ? 0 : (b.price * b.qty)), 0)
+      if(state.discount)
+        total = total - (total * state.discount / 100)
       axios.post('/api/invoices', {
         user_id: state.selectedWaiterId,
         order: orders,
-        total: orders.reduce((a, b) => a + (b.refund ? 0 : (b.price * b.qty)), 0),
+        total: total,
+        discount: state.discount,
         ...data
       })
         .then((res) => {
           if(res.data.data.status)
           dispatch('setPrintingInvoice', res.data.data, { root: true })
           dispatch('getTables')
+          commit('setDiscount', 0)
         })
         .catch(() => {
           commit('setShowServerErrorModal', true)
@@ -214,6 +220,9 @@ const general = {
     setShowServerErrorModal(state, value) {
       state.showServerErrorModal = value
     },
+    setDiscount(state, value) {
+      state.discount = parseFloat(value)
+    }
   },
 
   getters: {
@@ -267,7 +276,8 @@ const general = {
     selectedWaiterId( state ) {
       return state.selectedWaiterId
     },
-    showServerErrorModal: (state) => state.showServerErrorModal
+    showServerErrorModal: (state) => state.showServerErrorModal,
+    discount: (state) => state.discount,
   }
 }
 

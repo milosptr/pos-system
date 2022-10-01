@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <div class="text-center text-2xl font-semibold mb-6 uppercase">
+    <div v-if="!hideSubtitle" class="text-center text-2xl font-semibold mb-6 uppercase">
       Unesite Kolicinu
       <div v-if="subtitle.length">za {{ subtitle }}</div>
     </div>
@@ -37,6 +37,10 @@
       subtitle: {
         type: String,
         default: () => ''
+      },
+      hideSubtitle: {
+        type: Boolean,
+        default: () => false,
       }
     },
     data: () => ({
