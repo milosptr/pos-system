@@ -88,8 +88,8 @@
           </nav>
         </div>
         <div class="flex-shrink-0">
-          <div class="mb-5 flex-1 px-2 space-y-1">
-            <a v-for="item in bottomNavigation" :key="item.name" :href="item.href" class="text-gray-300 bg-gray-700 hover:bg-slate-900 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+          <div class="mb-5 flex-1 px-2 space-y-2">
+            <a v-for="item in bottomNavigation" :key="item.name" :href="item.href" :target="item.blank ? '_blank' : '_self'" class="text-gray-300 bg-gray-700 hover:bg-slate-900 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
               <component :is="item.icon" class="text-gray-300 group-hover:text-gray-300 mr-3 flex-shrink-0 h-6 w-6" aria-hidden="true" />
               {{ item.name }}
             </a>
@@ -172,7 +172,7 @@ import {
   XIcon,
   ClipboardListIcon,
   ChartPieIcon,
-  UserGroupIcon,
+  CalendarIcon,
   ViewBoardsIcon,
   DesktopComputerIcon,
   BellIcon,
@@ -200,7 +200,8 @@ export default {
     navigation,
     sidebarOpen: false,
     bottomNavigation: [
-      { name: 'Waiters Application', href: '/', icon: DesktopComputerIcon },
+      { name: 'Waiters Application', href: '/', icon: DesktopComputerIcon, blank: false },
+      { name: 'Scheduler Application', href: 'http://192.168.200.30:81/dashboard', icon: CalendarIcon, blank: true },
     ]
   }),
   computed: {
