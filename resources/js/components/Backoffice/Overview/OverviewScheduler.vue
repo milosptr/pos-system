@@ -104,10 +104,10 @@
       schedules: [],
     }),
     mounted() {
-      axios.get('http://192.168.200.30:81/public/today')
-        .then((res) => {
-          this.schedules = res.data
-        })
+      fetch("http://192.168.200.30:81/public/today")
+        .then(response => response.json())
+        .then(result => { this.schedules = result.data })
+        .catch(error => console.log('error', error))
     },
     methods: {
       getFilteredEmployees(shift, occupation) {
