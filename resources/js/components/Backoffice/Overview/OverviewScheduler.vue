@@ -1,96 +1,42 @@
 <template>
   <div>
     <div class="text-xl font-semibold mt-10">Employees</div>
-    <div class="mt-5 bg-white shadow px-4 py-5 sm:p-6">
-      <div class="text-lg font-semibold">Kuhinja</div>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 mt-2">
-        <div class="text-center">
-          <div class="border border-gray-200 bg-gray-100 font-bold">I</div>
-          <div class="grid gap-2 p-4">
-            <div
-              v-for="schedule in getFilteredEmployees(1,1)"
-              :key="schedule.id"
-              class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-              :style="'background: ' + schedule.employee.color"
-            >
-              {{ schedule.employee.name }}
-              <span v-if="schedule.time"> ({{ schedule.time }})</span>
-            </div>
+    <div class="mt-5 bg-white shadow">
+      <div class="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-6 divide-y lg:divide-y-0 divide-x divide-gray-200">
+        <div
+          v-for="(shift, index) in shifts"
+          :key="'s-' + shift"
+          class="flex flex-col gap-2 p-4 sm:p-6 sm:pt-2"
+        >
+          <div class="text-center font-semibold text-lg mb-3 border-b border-gray-200">
+            {{ shift }}
+          </div>
+          <div
+            v-for="schedule in getFilteredEmployees(index+1, 1)"
+            :key="schedule.id"
+            class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
+            :style="'background: ' + schedule.employee.color"
+          >
+            {{ schedule.employee.name }}
+            <span v-if="schedule.time"> ({{ schedule.time }})</span>
           </div>
         </div>
-        <div class="text-center">
-          <div class="border border-gray-200 bg-gray-100 font-bold">M</div>
-          <div class="grid gap-2 p-4">
-              <div
-                v-for="schedule in getFilteredEmployees(2,1)"
-                :key="schedule.id"
-                class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-                :style="'background: ' + schedule.employee.color"
-              >
-                {{ schedule.employee.name }}
-                <span v-if="schedule.time"> ({{ schedule.time }})</span>
-              </div>
-            </div>
-        </div>
-        <div class="text-center">
-          <div class="border border-gray-200 bg-gray-100 font-bold">II</div>
-          <div class="grid gap-2 p-4">
-            <div
-              v-for="schedule in getFilteredEmployees(3,1)"
-              :key="schedule.id"
-              class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-              :style="'background: ' + schedule.employee.color"
-            >
-              {{ schedule.employee.name }}
-              <span v-if="schedule.time"> ({{ schedule.time }})</span>
-            </div>
+        <div
+          v-for="(shift, index) in shifts"
+          :key="'s-' + shift"
+          class="flex flex-col gap-2 p-4 sm:p-6 sm:pt-2"
+        >
+          <div class="text-center font-semibold text-lg mb-3 border-b border-gray-200">
+            {{ shift }}
           </div>
-        </div>
-      </div>
-    </div>
-    <div class="mt-5 bg-white shadow px-4 py-5 sm:p-6">
-      <div class="text-lg font-semibold">Šank</div>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 mt-2">
-        <div class="text-center">
-          <div class="border border-gray-200 bg-gray-100 font-bold">I</div>
-          <div class="grid gap-2 p-4">
-            <div
-              v-for="schedule in getFilteredEmployees(1,0)"
-              :key="schedule.id"
-              class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-              :style="'background: ' + schedule.employee.color"
-            >
-              {{ schedule.employee.name }}
-              <span v-if="schedule.time"> ({{ schedule.time }})</span>
-            </div>
-          </div>
-        </div>
-        <div class="text-center">
-          <div class="border border-gray-200 bg-gray-100 font-bold">M</div>
-          <div class="grid gap-2 p-4">
-              <div
-                v-for="schedule in getFilteredEmployees(2,0)"
-                :key="schedule.id"
-                class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-                :style="'background: ' + schedule.employee.color"
-              >
-                {{ schedule.employee.name }}
-                <span v-if="schedule.time"> ({{ schedule.time }})</span>
-              </div>
-            </div>
-        </div>
-        <div class="text-center">
-          <div class="border border-gray-200 bg-gray-100 font-bold">II</div>
-          <div class="grid gap-2 p-4">
-            <div
-              v-for="schedule in getFilteredEmployees(3,0)"
-              :key="schedule.id"
-              class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-              :style="'background: ' + schedule.employee.color"
-            >
-              {{ schedule.employee.name }}
-              <span v-if="schedule.time"> ({{ schedule.time }})</span>
-            </div>
+          <div
+            v-for="schedule in getFilteredEmployees(index+1, 0)"
+            :key="schedule.id"
+            class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
+            :style="'background: ' + schedule.employee.color"
+          >
+            {{ schedule.employee.name }}
+            <span v-if="schedule.time"> ({{ schedule.time }})</span>
           </div>
         </div>
       </div>
@@ -101,6 +47,7 @@
 <script>
   export default {
     data: () => ({
+      shifts: ['I', 'M', 'II'],
       schedules: [],
     }),
     mounted() {
