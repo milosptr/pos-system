@@ -1,7 +1,7 @@
 <template>
 <div class="flex flex-col w-full">
     <OverviewStats />
-    <div class="flex flex-col lg:flex-col-reverse">
+    <div class="flex flex-col md:flex-col-reverse">
       <OverviewActiveOrders />
       <OverviewScheduler />
     </div>
