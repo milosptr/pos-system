@@ -11,15 +11,17 @@
           <div class="text-center font-semibold text-lg mb-3 border-b border-gray-200">
             {{ shift }}
           </div>
-          <div
-            v-for="schedule in getFilteredEmployees(index+1, 1)"
-            :key="schedule.id"
-            class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-            :style="'background: ' + schedule.employee.color"
-          >
-            {{ schedule.employee.name }}
-            <span v-if="schedule.time"> ({{ schedule.time }})</span>
-          </div>
+         <div class="w-full h-full flex flex-col justify-center items-center gap-2">
+           <div
+              v-for="schedule in getFilteredEmployees(index+1, 1)"
+              :key="schedule.id"
+              class="relative w-full rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
+              :style="'background: ' + schedule.employee.color"
+            >
+              {{ schedule.employee.name }}
+              <span v-if="schedule.time"> ({{ schedule.time }})</span>
+            </div>
+         </div>
         </div>
         <div
           v-for="(shift, index) in shifts"
@@ -29,15 +31,17 @@
           <div class="text-center font-semibold text-lg mb-3 border-b border-gray-200">
             {{ shift }}
           </div>
-          <div
-            v-for="schedule in getFilteredEmployees(index+1, 0)"
-            :key="schedule.id"
-            class="relative rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-            :style="'background: ' + schedule.employee.color"
-          >
-            {{ schedule.employee.name }}
-            <span v-if="schedule.time"> ({{ schedule.time }})</span>
-          </div>
+           <div class="w-full h-full flex flex-col justify-center items-center gap-2">
+            <div
+              v-for="schedule in getFilteredEmployees(index+1, 0)"
+              :key="schedule.id"
+              class="relative w-full rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
+              :style="'background: ' + schedule.employee.color"
+            >
+              {{ schedule.employee.name }}
+              <span v-if="schedule.time"> ({{ schedule.time }})</span>
+            </div>
+           </div>
         </div>
       </div>
     </div>

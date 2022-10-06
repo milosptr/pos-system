@@ -1,9 +1,11 @@
 <template>
 <div class="flex flex-col w-full">
     <OverviewStats />
-    <OverviewActiveOrders />
+    <div class="flex flex-col lg:flex-col-reverse">
+      <OverviewActiveOrders />
+      <OverviewScheduler />
+    </div>
     <OverviewSlideoverSidebar />
-    <OverviewScheduler />
 </div>
 
 
