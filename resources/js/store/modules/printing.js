@@ -111,7 +111,18 @@ const general = {
       })
       state.printer.addText('   =============================================\n');
       state.printer.addTextSize(1, 2);
-      state.printer.addText(printerTextBetween('Ukupan iznos:', formatPrice(invoice.total)));
+      if(invoice.discount) {
+        const original = invoice.total / 0.85
+        const discount = original - invoice.total
+        state.printer.addTextSize(1, 1);
+        state.printer.addText(printerTextBetween('Iznos bez popusta:', formatPrice(original)));
+        state.printer.addText(printerTextBetween('Popust 15%:', formatPrice(discount)));
+        state.printer.addTextSize(1, 2);
+        state.printer.addText(printerTextBetween('Ukupan iznos:', formatPrice(invoice.total)));
+      } else {
+        state.printer.addTextSize(1, 2);
+        state.printer.addText(printerTextBetween('Ukupan iznos:', formatPrice(invoice.total)));
+      }
       state.printer.addTextSize(1, 1);
       state.printer.addText('   =============================================\n');
       state.printer.addText('   Oznaka   Naziv       Stopa              Porez\n');

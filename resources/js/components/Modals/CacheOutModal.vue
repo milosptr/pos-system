@@ -23,13 +23,13 @@
           </div>
           <div
             v-if="discount"
-            class="hidden py-6 px-2 text-2xl my-1 text-center font-semibold border-2 border-gray-200 bg-gray-200"
+            class="py-6 px-2 text-2xl my-1 text-center font-semibold border-2 border-gray-200 bg-gray-200"
           >
             Popust: {{ discount }}%
           </div>
           <div
             v-else
-            class="hidden py-6 px-2 text-2xl my-1 text-center font-semibold border-2 border-gray-200 bg-gray-200"
+            class="py-6 px-2 text-2xl my-1 text-center font-semibold border-2 border-gray-200 bg-gray-200"
             @click="toggleShowDiscount"
           >
             Popust
