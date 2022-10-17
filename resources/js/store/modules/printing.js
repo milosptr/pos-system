@@ -91,6 +91,7 @@ const general = {
         console.error('PRINTER_NOT_SET');
         return
       }
+      const orders = invoice.order.reverse()
 
       state.printer.addLayout(state.printer.LAYOUT_RECEIPT, 800, 0, -8, 0, 0, 0);
       state.printer.addTextStyle(false, false, true, state.printer.COLOR_1);
@@ -103,7 +104,7 @@ const general = {
       state.printer.addText('Artikli\n');
       state.printer.addText('   —————————————————————————————————————————————\n');
       state.printer.addText('   Naziv      Cena      Kol.              Ukupno\n');
-      invoice.order.forEach((item) => {
+      orders.forEach((item) => {
         if(!item.refund) {
           state.printer.addText('   ' + item.name +' (Ђ)/' + item.unit + '\n');
           state.printer.addText(printerItemPriceText(formatPrice(item.price).toString(), parseFloat(item.qty).toString(),formatPrice(item.price * item.qty).toString()));

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="text-xl font-semibold mt-10">Employees</div>
-    <div class="mt-5 bg-white shadow">
+    <div class="mt-5 bg-white shadow rounded-lg">
       <div class="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-6 divide-y lg:divide-y-0 divide-x divide-gray-200">
         <div
           v-for="(shift, index) in shifts"
