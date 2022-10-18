@@ -104,7 +104,7 @@
       },
       addToOrder(item) {
         if(item.active) {
-          this.$store.commit('setOrder', {...item, table_id: this.$route.params.id})
+          this.$store.commit('setOrder', {...item, table_id: this.$route.params.id, timestamp: dayjs().valueOf()})
           if(item.sold_by === 2)
             this.showQuantityModal = true
         }

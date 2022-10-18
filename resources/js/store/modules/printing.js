@@ -91,7 +91,7 @@ const general = {
         console.error('PRINTER_NOT_SET');
         return
       }
-      const orders = invoice.order.reverse()
+      const orders = invoice.order.sort((a, b) => a.timestamp ? (a.timestamp - b.timestamp) : 1)
 
       state.printer.addLayout(state.printer.LAYOUT_RECEIPT, 800, 0, -8, 0, 0, 0);
       state.printer.addTextStyle(false, false, true, state.printer.COLOR_1);
