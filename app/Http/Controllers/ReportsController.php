@@ -18,7 +18,7 @@ class ReportsController extends Controller
       if($type == 0) {
         $stats = Invoice::filterStats($request)->first();
         $invoices = Invoice::filter($request)
-          ->selectRaw('sum(total) as total, DATE(created_at) as date')
+          ->selectRaw('sum(total) as total, DATE(DATE_SUB(created_at, INTERVAL 4 HOUR)) as date')
           ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
           ->selectRaw('sum(total) - sum(case when status = 0 then total else 0 end) as income')
           ->orderBy('date', 'desc')

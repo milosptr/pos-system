@@ -3,7 +3,9 @@ import axios from "axios"
 const backoffice = {
     state: () => ({
         reports: null,
-        reportFilters: {},
+        reportFilters: {
+          date: ''
+        },
         stats: null,
         activeTableOrders: [],
         activeOrder: null,

@@ -194,6 +194,11 @@ import { SearchIcon } from '@heroicons/vue/outline'
       },
     },
     mounted() {
+      const startOfMonth = dayjs().startOf('M').format('YYYY-MM-DD')
+      const endOfMonth = dayjs().endOf('M').format('YYYY-MM-DD')
+      const defaultDate = startOfMonth + ' to ' + endOfMonth
+      this.updateReportFilters('date', defaultDate)
+
       axios.get('/api/waiters')
         .then((res) => {
           this.waiters = res.data.data
