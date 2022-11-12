@@ -14,6 +14,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DBBackupController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
@@ -118,6 +119,12 @@ Route::prefix('/backoffice')->group(function() {
   Route::get('users/{id}', [UsersController::class, 'show']);
   Route::post('users/{id}', [UsersController::class, 'update']);
   Route::delete('users/{id}', [UsersController::class, 'destroy']);
+
+  // Clients
+  Route::get('clients', [ClientController::class, 'show']);
+  Route::post('clients', [ClientController::class, 'create']);
+  Route::post('clients/{id}', [ClientController::class, 'update']);
+  Route::delete('clients/{id}', [ClientController::class, 'destroy']);
 
   Route::get('reports/{type}', [ReportsController::class, 'index']);
 

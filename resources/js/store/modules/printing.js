@@ -113,11 +113,11 @@ const general = {
       state.printer.addText('   =============================================\n');
       state.printer.addTextSize(1, 2);
       if(invoice.discount) {
-        const original = invoice.total / 0.85
+        const original = invoice.total / (1 - invoice.discount / 100)
         const discount = original - invoice.total
         state.printer.addTextSize(1, 1);
         state.printer.addText(printerTextBetween('Iznos bez popusta:', formatPrice(original)));
-        state.printer.addText(printerTextBetween('Popust 15%:', formatPrice(discount)));
+        state.printer.addText(printerTextBetween('Popust '+ parseInt(invoice.discount) +'%:', formatPrice(discount)));
         state.printer.addTextSize(1, 2);
         state.printer.addText(printerTextBetween('Ukupan iznos:', formatPrice(invoice.total)));
       } else {

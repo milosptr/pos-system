@@ -2,11 +2,27 @@
   <Modal>
     <div v-if="showDiscount" class="flex flex-col justify-between h-full">
       <div>
-        <div class="text-center text-3xl font-semibold mb-6 uppercase">Dodavanje popusta</div>
-        <EnterPin @success="applyDiscount" />
+        <div v-if="!showDiscountModal">
+          <div class="text-center text-3xl font-semibold mb-6 uppercase">Dodavanje popusta</div>
+          <EnterPin @success="openDiscountModal" />
+        </div>
+        <div v-else>
+          <div class="text-center text-3xl font-semibold mb-6 uppercase">Klijenti</div>
+          <div class="grid grid-cols-2 gap-4 max-h-[300px] overflow-scroll">
+            <div
+              v-for="client in clients"
+              :key="client.id"
+              class="flex items-center justify-center py-3 px-2 text-xl text-center font-semibold border-2 border-gray-200 bg-gray-200"
+              @click="applyDiscount(client.discount)"
+            >
+              {{ client.name }} - {{ client.discount }}%
+            </div>
+          </div>
+        </div>
       </div>
       <div
-        class="bg-gray-200 py-5 rounded-sm text-2xl uppercase font-bold text-center text-red-500 mx-10"
+        class="bg-gray-200 py-5 rounded-sm text-2xl uppercase font-bold text-center text-red-500"
+        :class="{'mx-10': !showDiscountModal}"
         @click="toggleShowDiscount"
       >
         Odustani
@@ -101,11 +117,23 @@
     data: () => ({
       showError: false,
       showDiscount: false,
+      showDiscountModal: false,
+      clients: []
     }),
+    mounted() {
+      axios.get('/api/backoffice/clients')
+        .then((res) => {
+          this.clients = res.data
+        })
+    },
     methods: {
-      applyDiscount() {
-        this.$store.commit('setDiscount', 15)
+      openDiscountModal() {
+        this.showDiscountModal = true
+      },
+      applyDiscount(discount = 0) {
+        this.$store.commit('setDiscount', discount)
         this.showDiscount = false
+        this.showDiscountModal = false
       },
       toggleShowDiscount() {
         if(this.discount) {

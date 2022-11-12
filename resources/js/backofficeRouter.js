@@ -13,6 +13,8 @@ import BackofficeOrders from './components/Backoffice/BackofficeOrders.vue'
 import BackofficeTasks from './components/Backoffice/BackofficeTasks.vue'
 import BackofficeInvoices from './components/Backoffice/BackofficeInvoices.vue'
 import BackofficeReports from './components/Backoffice/Reports/BackofficeReports.vue'
+import BackofficeClients from './components/Backoffice/BackofficeClients.vue'
+import BackofficeClientsNew from './components/Backoffice/BackofficeClientsNew.vue'
 
 const routes = [
     {
@@ -83,6 +85,16 @@ const routes = [
                 path: '/users',
                 name: 'users',
                 component: BackofficeUsers
+            },
+            {
+                path: '/clients',
+                name: 'clients',
+                component: BackofficeClients
+            },
+            {
+                path: '/clients/new',
+                name: 'clients-new',
+                component: BackofficeClientsNew
             },
             {
                 path: '/settings',

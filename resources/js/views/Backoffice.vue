@@ -140,7 +140,7 @@
         <div class="py-6">
           <div class="max-w-7xl flex justify-between items-center mx-4 sm:mx-auto">
             <h1 class="text-2xl font-semibold text-gray-900 capitalize">{{ currentRoute.replace('-', ' ') }}</h1>
-            <div v-if="currentPath === '/inventory' || currentPath === '/categories'" class="ml-4 mt-2 flex-shrink-0" @click="handleAddButton">
+            <div v-if="showButton" class="ml-4 mt-2 flex-shrink-0" @click="handleAddButton">
               <button type="button" class="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 {{ buttonName }}
               </button>
@@ -178,6 +178,7 @@ import {
   BellIcon,
   RefreshIcon,
   WifiIcon,
+  UserGroupIcon
 } from '@heroicons/vue/outline'
 
 const navigation = [
@@ -188,6 +189,7 @@ const navigation = [
   { name: 'Categories', href: 'categories', icon: FolderIcon, current: false },
   { name: 'Tables', href: 'tables', icon: ViewGridIcon, current: false },
   { name: 'Tasks', href: 'tasks', icon: BellIcon, current: false },
+  { name: 'Clients', href: 'clients', icon: UserGroupIcon, current: false },
   { name: 'Connections Log', href: 'connection-logs', icon: WifiIcon, current: false },
   { name: 'Settings', href: 'settings', icon: CogIcon, current: false },
 ]
@@ -211,9 +213,15 @@ export default {
     currentPath() {
        return this.$route.path
     },
+    showButton() {
+      const paths = ['/inventory', '/categories', '/clients']
+      return paths.includes(this.$route.path)
+    },
     buttonName() {
       if(this.$route.name === 'inventory')
         return 'Add item'
+      if(this.$route.name === 'clients')
+        return 'Add client'
       return 'Add ' + this.$route.name
     },
   },

@@ -11,6 +11,7 @@ const backoffice = {
         activeOrder: null,
         activeInventoryPricing: null,
         categories: [],
+        clients: [],
         inventory: [],
         users: [],
         tables: [],
@@ -49,6 +50,12 @@ const backoffice = {
                 .then( (res) => {
                     commit('setCategories', res.data.data)
                 })
+        },
+        getClients({ commit }) {
+          axios.get('/api/backoffice/clients')
+            .then((res) => {
+              commit('setClients', res.data)
+            })
         },
         getInventory({ commit }, filters) {
           const params = new URLSearchParams(filters);
@@ -123,6 +130,9 @@ const backoffice = {
         setCategories(state, categories) {
             state.categories = categories
         },
+        setClients(state, clients) {
+            state.clients = clients
+        },
         setInventory(state, inventory) {
             state.inventory = inventory
         },
@@ -165,6 +175,7 @@ const backoffice = {
         invoices: (state) => state.invoices,
         tasks: (state) => state.tasks,
         stats: (state) => state.stats,
+        clients: (state) => state.clients,
         reportsActiveTab: (state) => state.reportsActiveTab,
         reportFilters: (state) => state.reportFilters,
         pagination: (state) => state.pagination,

@@ -71,7 +71,7 @@
       },
       handleInvoiceMenu(val) {
         if(val === 'reprint')
-          return
+          this.$store.dispatch('setPrintingInvoice', this.invoice)
         if(val === 'refund')
           this.showRefundReasonModal = true
       }
