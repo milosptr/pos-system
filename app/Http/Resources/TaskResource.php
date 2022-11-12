@@ -18,7 +18,7 @@ class TaskResource extends JsonResource
         return [
             'id' => $this->id,
             'company' => $this->company,
-            'date' => isset($this->date) ? Carbon::parse($this->date)->format('d.m.Y') : '',
+            'date' => isset($this->date) ? Carbon::parse($this->date)->format('d.m.Y') : Carbon::parse($this->created_at)->format('d.m.Y'),
             'price' => $this->price,
             'message' => $this->message,
             'done' => $this->done,
