@@ -29,7 +29,7 @@ app.config.globalProperties.$filters = {
 Sentry.init({
   app,
   dsn: "https://7ab1563e9f7e402fb49a68005d993c6d@o4504147121274880.ingest.sentry.io/4504147122978816",
-  environment: 'localhost',
+  environment: import.meta.env.APP_ENV ? import.meta.env.APP_ENV : 'localhost',
   integrations: [
     new BrowserTracing({
       routingInstrumentation: Sentry.vueRouterInstrumentation(router),
