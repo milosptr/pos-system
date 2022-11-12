@@ -36,6 +36,7 @@ Sentry.init({
     }),
   ],
   tracesSampleRate: 1.0,
+  tunnel: '/unblocksentry'
 })
 
 app.mount('#app')
