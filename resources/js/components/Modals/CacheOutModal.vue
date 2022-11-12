@@ -156,3 +156,14 @@
     }
   }
 </script>
+
+<style scoped>
+
+  .overflow-scroll {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .overflow-scroll::-webkit-scrollbar {
+      display: none;  /* Safari and Chrome */
+  }
+</style>
