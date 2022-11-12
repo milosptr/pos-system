@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Http\Resources\TaskResource;
+use Exception;
+use Illuminate\Support\Facades\Log;
 use Services\WorkingDay;
 use Services\Pusher;
 
@@ -29,7 +31,11 @@ class TaskController extends Controller
     public function store(Request $request)
     {
       Task::create($request->all());
-      app(Pusher::class)->trigger('broadcasting', 'notifications', []);
+      try {
+        app(Pusher::class)->trigger('broadcasting', 'notifications', []);
+      } catch (Exception $e) {
+        Log::error($e->getMessage());
+      }
       return TaskResource::collection(Task::orderBy('id', 'desc')->get());
     }
 
@@ -37,7 +43,11 @@ class TaskController extends Controller
     {
       $task = Task::find($id);
       $task->update($request->all());
-      app(Pusher::class)->trigger('broadcasting', 'notifications', []);
+      try {
+        app(Pusher::class)->trigger('broadcasting', 'notifications', []);
+      } catch (Exception $e) {
+        Log::error($e->getMessage());
+      }
       return TaskResource::collection(Task::orderBy('id', 'desc')->get());
     }
 
@@ -45,7 +55,11 @@ class TaskController extends Controller
     {
       $task = Task::find($id);
       $task->delete();
-      app(Pusher::class)->trigger('broadcasting', 'notifications', []);
+      try {
+        app(Pusher::class)->trigger('broadcasting', 'notifications', []);
+      } catch (Exception $e) {
+        Log::error($e->getMessage());
+      }
       return response(true, 200);
     }
 }

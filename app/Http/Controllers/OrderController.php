@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use Services\Pusher;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\OrderCollection;
 use App\Http\Requests\OrderStoreRequest;
-use Services\Pusher;
 
 class OrderController extends Controller
 {
@@ -51,8 +53,12 @@ class OrderController extends Controller
     {
         $order = Order::create($request->all());
 
-        if($order)
+        try {
+          if($order)
             app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+        } catch(Exception $e) {
+          Log::error($e->getMessage());
+        }
 
         return new OrderResource($order);
     }
@@ -90,7 +96,12 @@ class OrderController extends Controller
     {
       $order = Order::find($id);
       $order->update($request->only(['order', 'total', 'table_id']));
-      app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+      try {
+        if($order)
+          app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+      } catch(Exception $e) {
+        Log::error($e->getMessage());
+      }
       return $order;
     }
 
@@ -102,7 +113,12 @@ class OrderController extends Controller
         $order->table_id = $toId;
         $order->save();
       }
-      app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+      try {
+        if($order)
+          app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+      } catch(Exception $e) {
+        Log::error($e->getMessage());
+      }
       return response('Order moved!', 200);
     }
 

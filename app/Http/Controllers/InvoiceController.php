@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\InvoiceResource;
 use App\Http\Requests\InvoiceStoreRequest;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
@@ -61,7 +63,11 @@ class InvoiceController extends Controller
         if($orderID) Order::where('id', $orderID)->delete();
         if(!$orderID) Order::where('table_id', $request->get('table_id'))->delete();
         SalesService::parseAndSaveOrder($request->get('order'), $invoice);
-        app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+        try {
+          app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+        } catch(Exception $e) {
+          Log::error($e->getMessage());
+        }
       }
       return new InvoiceResource($invoice);
     }

@@ -97,7 +97,8 @@
         const minutes = now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes()
         const seconds = now.getSeconds() < 10 ? '0' + now.getSeconds() : now.getSeconds()
         const time = hours + ":" + minutes + ":" + seconds;
-        return fullDate + ' ' + time
+        const timestamp = fullDate + ' ' + time
+        return timestamp.toString().replaceAll('0', 'O')
       },
     }
   }
