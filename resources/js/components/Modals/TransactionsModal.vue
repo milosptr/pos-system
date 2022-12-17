@@ -21,7 +21,11 @@
         <div v-if="!hasActiveOrders" class="mt-10 text-xl">
           <div class="flex justify-between items-center py-1 font-medium">
             <div>Gotovina</div>
-            <div>{{ $filters.formatPrice(transactions.total) }} RSD</div>
+            <div>{{ $filters.formatPrice(transactions.income) }} RSD</div>
+          </div>
+          <div class="flex justify-between items-center py-1 font-medium">
+            <div>Reprezentacija</div>
+            <div>{{ $filters.formatPrice(transactions.onthehouse) }} RSD</div>
           </div>
           <div class="flex justify-between items-center py-1 pb-3 border-b border-gray-300 font-medium">
             <div>Storno</div>
@@ -29,7 +33,7 @@
           </div>
           <div class="flex justify-between items-center py-1 pt-3 font-bold">
             <div>Ukupno</div>
-            <div>{{ $filters.formatPrice(transactions.income) }} RSD</div>
+            <div>{{ $filters.formatPrice(transactions.total) }} RSD</div>
           </div>
         </div>
       </div>

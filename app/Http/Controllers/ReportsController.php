@@ -20,7 +20,8 @@ class ReportsController extends Controller
         $invoices = Invoice::filter($request)
           ->selectRaw('sum(total) as total, DATE(DATE_SUB(created_at, INTERVAL 4 HOUR)) as date')
           ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
-          ->selectRaw('sum(total) - sum(case when status = 0 then total else 0 end) as income')
+          ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
+          ->selectRaw('sum(total) - sum(case when status = 0 then total else 0 end) - sum(case when status = 2 then total else 0 end) as income')
           ->orderBy('date', 'desc')
           ->groupBy('date')
           ->get();

@@ -89,7 +89,8 @@ class InvoiceController extends Controller
     {
       return Invoice::selectRaw('sum(total) AS total')
         ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
-        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) as income')
+        ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
+        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) - sum(case when status = 2 then total else 0 end) as income')
         ->selectRaw('70000 as maximum')
         ->whereBetween('created_at', WorkingDay::getWorkingDay())
         ->get()

@@ -30,7 +30,7 @@
                         :showOrderLine="!isInvoice"
                         :boxBackground="false"
                         class="fs-18"
-                        :class="{'text-red-500': isInvoice && order.status === 0}"
+                        :class="[{'text-red-500': isInvoice && order.status === 0}, {'text-indigo-500': isInvoice && order.status === 2}]"
                       />
                     </div>
                   </div>

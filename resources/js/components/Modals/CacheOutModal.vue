@@ -33,9 +33,11 @@
         <div class="text-center text-3xl font-semibold mb-6 uppercase">Naplata</div>
         <div class="grid grid-cols-2 gap-3">
           <div
-            class="py-6 px-2 text-2xl my-1 text-center font-semibold border-2 border-gray-200 bg-gray-200"
+            class="py-6 px-2 text-2xl my-1 text-center font-semibold border-2 border-gray-200"
+            :class="[isOnTheHouse ? 'bg-primary text-white' : 'bg-gray-200']"
+            @click="isOnTheHouse = true"
           >
-            Konobar: Srdjan
+            Reprezentacija
           </div>
           <div
             v-if="discount"
@@ -66,6 +68,13 @@
           @click="toggleShowDiscount"
         >
          Ukloni popust
+        </div>
+        <div
+          v-if="isOnTheHouse"
+          class="bg-gray-200 py-5 rounded-sm text-2xl uppercase font-bold text-center text-red-500"
+          @click="isOnTheHouse = false"
+        >
+         Ukloni reprezentaciju
         </div>
         <div class="flex gap-2">
           <div
@@ -118,6 +127,7 @@
       showError: false,
       showDiscount: false,
       showDiscountModal: false,
+      isOnTheHouse: false,
       clients: []
     }),
     mounted() {
@@ -151,7 +161,8 @@
           this.showError = true
           return
         }
-        this.$emit('charge')
+        const status = this.isOnTheHouse ? 2 : 1
+        this.$emit('charge', status)
       }
     }
   }

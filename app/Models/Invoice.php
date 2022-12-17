@@ -14,6 +14,7 @@ class Invoice extends Model
 
     CONST STATUS_REFUNDED = 0;
     CONST STATUS_PAYED = 1;
+    CONST STATUS_ON_THE_HOUSE = 2;
 
     protected $fillable = ['user_id', 'table_id', 'status', 'order', 'total', 'payment_type', 'note', 'refund_reason_id', 'discount'];
     protected $casts = ['order' => 'array'];

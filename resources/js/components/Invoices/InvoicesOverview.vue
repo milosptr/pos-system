@@ -31,7 +31,7 @@
       v-for="(invoice) in invoices"
       :key="invoice.id"
       class="bg-white mt-2 py-2 px-4 text-xl rounded-sm border  grid grid-cols-5 gap-3 items-center font-medium"
-      :class="[activeInvoice && invoice.id === activeInvoice.id ? 'border-primary' : 'border-gray-300', invoice.status === 0 ? 'text-red-500' : '']"
+      :class="[activeInvoice && invoice.id === activeInvoice.id ? 'border-primary' : 'border-gray-300', invoice.status === 0 ? 'text-red-500' : '', invoice.status === 2 ? 'text-indigo-500' : '']"
       @click="selectInvoice(invoice.id)"
     >
       <div class="px-2">
@@ -44,7 +44,7 @@
         {{ invoice?.table?.name }}
       </div>
       <div class="text-center">
-        <div>{{ invoice.status ? 'Naplacen' : 'Storniran' }}</div>
+        <div>{{ statusText(invoice.status) }}</div>
         <div class="text-sm whitespace-nowrap">{{ invoice.refund_reason }}</div>
       </div>
       <div class="text-center">
@@ -78,6 +78,13 @@
       this.$store.dispatch('getInvoices')
     },
     methods: {
+      statusText(status) {
+        if(status === 0)
+          return 'Refundiran'
+        if(status === 2)
+          return 'Reprezentacija'
+        return 'Naplaćen'
+      },
       selectInvoice(id) {
         this.$store.commit('setActiveInvoice', id)
       },

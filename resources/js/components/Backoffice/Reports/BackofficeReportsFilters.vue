@@ -41,6 +41,7 @@
         <option value="" selected>All</option>
         <option value="0">Refunded</option>
         <option value="1">Payed</option>
+        <option value="2">On the house</option>
       </select>
     </div>
     <div class="w-full sm:w-64 relative text-sm">

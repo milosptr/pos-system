@@ -39,7 +39,8 @@ trait Revenue
     {
         $builder->selectRaw('sum(total) as total')
             ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
-            ->selectRaw('sum(total) - sum(case when status = 0 then total else 0 end) as income');
+            ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
+            ->selectRaw('sum(total) - sum(case when status = 0 then total else 0 end) - sum(case when status = 2 then total else 0 end) as income');
 
         foreach($request->all() as $filter => $value)
         {

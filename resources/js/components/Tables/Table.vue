@@ -119,8 +119,8 @@
           this.showCacheOutModal = true
         }
       },
-      charge() {
-        this.$store.dispatch('cashOut', { table_id: this.$route.params.id, status: 1 })
+      charge(status) {
+        this.$store.dispatch('cashOut', { table_id: this.$route.params.id, status })
         this.$router.push('/')
       },
       handleTableMenu(item) {

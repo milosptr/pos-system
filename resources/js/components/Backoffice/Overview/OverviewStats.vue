@@ -1,7 +1,10 @@
 <template>
     <div v-if="$store.getters.stats" class="">
-        <dl class="mt-5 grid grid-cols-1 rounded-lg bg-white overflow-hidden shadow divide-y divide-gray-200 md:grid-cols-4 md:divide-y-0 md:divide-x">
-          <div v-for="item in $store.getters.stats" :key="item.name" class="px-4 py-5 sm:p-6">
+        <dl
+          class="mt-5 grid grid-cols-1 rounded-lg bg-white overflow-hidden shadow divide-y divide-gray-200 md:divide-y-0 md:divide-x"
+          :class="gridCols"
+        >
+          <div v-for="item in filteredStats" :key="item.name" class="px-4 py-5 sm:p-6">
             <dt class="text-base font-normal text-gray-900">
               {{ item.name }}
             </dt>
@@ -25,6 +28,17 @@ export default {
     name: "OverviewStats",
     components: {
       ArrowSmDownIcon, ArrowSmUpIcon
+    },
+    computed: {
+      filteredStats() {
+        return this.$store.getters.stats.filter((s) => (s.stat !== 0 || s.name !== 'On the house'))
+      },
+      gridCols() {
+        const len = this.filteredStats.length
+        if(len === 5)
+          return 'md:grid-cols-5'
+        return 'md:grid-cols-4'
+      },
     },
     methods: {
       copyToClipBoard(text){

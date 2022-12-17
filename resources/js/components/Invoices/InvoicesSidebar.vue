@@ -17,7 +17,7 @@
           :showOrderLine="false"
           :boxBackground="false"
           :still="true"
-          :class="{'text-red-500': invoice.status === 0}"
+          :class="[invoice.status === 0 ? 'text-red-500' : '', invoice.status === 2 ? 'text-indigo-500' : '']"
         />
       </div>
     </div>
