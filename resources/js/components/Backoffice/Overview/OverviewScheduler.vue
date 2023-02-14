@@ -16,7 +16,7 @@
               v-for="schedule in getFilteredEmployees(index+1, 1)"
               :key="schedule.id"
               class="relative w-full rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-              :style="'background: ' + schedule.employee.color"
+              :style="`background: ${schedule.employee.color}; order: ${schedule.order}`"
             >
               {{ schedule.employee.name }}
               <span v-if="schedule.time"> ({{ schedule.time }})</span>
@@ -36,7 +36,7 @@
               v-for="schedule in getFilteredEmployees(index+1, 0)"
               :key="schedule.id"
               class="relative w-full rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-              :style="'background: ' + schedule.employee.color"
+              :style="`background: ${schedule.employee.color}; order: ${schedule.order}`"
             >
               {{ schedule.employee.name }}
               <span v-if="schedule.time"> ({{ schedule.time }})</span>
@@ -55,7 +55,7 @@
       schedules: [],
     }),
     mounted() {
-      fetch("http://192.168.200.30:81/public/today")
+      fetch("http://scheduler.test/public/today")
         .then(response => response.json())
         .then(result => { this.schedules = result.data })
         .catch(error => console.log('error', error))
