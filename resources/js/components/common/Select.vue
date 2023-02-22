@@ -38,10 +38,19 @@ export default {
       type: Array,
       default: () => [],
     },
+    preselected: {
+      type: Number,
+      default: () => null
+    }
   },
   data: () => ({
     selected: null,
   }),
+  mounted() {
+    if(this.preselected !== null) {
+      this.selected = this.list.find((l) => l.id === this.preselected)
+    }
+  },
   methods: {
     selectItem(selected) {
       this.selected = selected

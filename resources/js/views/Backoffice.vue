@@ -178,7 +178,8 @@ import {
   BellIcon,
   RefreshIcon,
   WifiIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  ClockIcon
 } from '@heroicons/vue/outline'
 
 const navigation = [
@@ -190,6 +191,7 @@ const navigation = [
   { name: 'Tables', href: 'tables', icon: ViewGridIcon, current: false },
   { name: 'Tasks', href: 'tasks', icon: BellIcon, current: false },
   { name: 'Clients', href: 'clients', icon: UserGroupIcon, current: false },
+  { name: 'Arrivals', href: 'arrivals', icon: ClockIcon, current: false },
   { name: 'Connections Log', href: 'connection-logs', icon: WifiIcon, current: false },
   { name: 'Settings', href: 'settings', icon: CogIcon, current: false },
 ]

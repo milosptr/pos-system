@@ -20,6 +20,11 @@
             >
               {{ schedule.employee.name }}
               <span v-if="schedule.time"> ({{ schedule.time }})</span>
+              <div v-if="schedule.employee.lastCheckin" class="flex justify-center gap-2">
+                <div v-if="schedule.employee.lastCheckin.check_in">{{ formatDate(schedule.employee.lastCheckin.check_in) }}</div>
+                <div> - </div>
+                <div v-if="schedule.employee.lastCheckin.check_out">{{ formatDate(schedule.employee.lastCheckin.check_out) }}</div>
+              </div>
             </div>
          </div>
         </div>
@@ -40,6 +45,11 @@
             >
               {{ schedule.employee.name }}
               <span v-if="schedule.time"> ({{ schedule.time }})</span>
+              <div v-if="schedule.employee.lastCheckin" class="flex justify-center gap-2">
+                <div v-if="schedule.employee.lastCheckin.check_in">{{ formatDate(schedule.employee.lastCheckin.check_in) }}</div>
+                <div> - </div>
+                <div v-if="schedule.employee.lastCheckin.check_out">{{ formatDate(schedule.employee.lastCheckin.check_out) }}</div>
+              </div>
             </div>
            </div>
         </div>
@@ -49,13 +59,20 @@
 </template>
 
 <script>
+  const dateFormatOptions = {
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric'
+  }
+
   export default {
     data: () => ({
       shifts: ['I', 'M', 'II'],
       schedules: [],
     }),
     mounted() {
-      fetch("http://192.168.200.30:81/public/today")
+      // fetch("http://192.168.200.30:81/public/today")
+      fetch("http://scheduler.test/public/today")
         .then(response => response.json())
         .then(result => { this.schedules = result.data })
         .catch(error => console.log('error', error))
@@ -63,6 +80,12 @@
     methods: {
       getFilteredEmployees(shift, occupation) {
         return this.schedules.filter((s) => s.shift === shift && s.occupation === occupation)
+      },
+      formatDate(date) {
+        if(date) {
+          return new Intl.DateTimeFormat('default', dateFormatOptions).format(new Date(date))
+        }
+        return ''
       }
     }
   }
