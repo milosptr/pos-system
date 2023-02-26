@@ -25,7 +25,7 @@
           <table class="min-w-full border-separate" style="border-spacing: 0">
             <thead class="bg-gray-50">
               <tr>
-                <th v-for="(emlpoyee, idx) in numberOfColumns" :key="idx" scope="col" class="sticky top-0 z-10 whitespace-nowrap border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">{{ emlpoyee.name }}</th>
+                <th v-for="(emlpoyee, idx) in numberOfColumns" :key="idx" scope="col" class="sticky top-0 z-10 whitespace-nowrap border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-base font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">{{ emlpoyee.name }}</th>
               </tr>
             </thead>
             <tbody class="bg-white">
@@ -35,7 +35,7 @@
                 class="hover:bg-orange-50 cursor-pointer"
               >
                 <td v-for="(key, jdx) in numberOfColumns" :key="jdx" :class="['border-b border-gray-200 whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8']">
-                  <div v-html="printRow(key.name, date)" class="text-gray-600 text-xs"></div>
+                  <div v-html="printRow(key.name, date)" class="text-gray-600 text-sm"></div>
                 </td>
               </tr>
               <tr>
@@ -88,7 +88,7 @@ export default {
     },
     numberOfRows() {
       if(this.arrivals?.data)
-        return Object.keys(this.arrivals.data)
+        return Object.keys(this.arrivals.data).reverse()
       return []
     }
   },
@@ -119,7 +119,7 @@ export default {
     },
     printRow(key, date) {
       if(key === 'Date')
-        return `${date}`
+        return `${dayjs(date).format("ddd DD. MMM 'YY")}`
       try {
         const checkins = this.arrivals.data[date][key]
         if(checkins) {
