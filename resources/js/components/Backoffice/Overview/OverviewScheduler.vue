@@ -70,6 +70,7 @@
   const dateFormatOptions = {
     hour: 'numeric',
     minute: 'numeric',
+    hour12: false,
   }
 
   export default {
