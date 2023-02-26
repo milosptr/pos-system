@@ -109,9 +109,6 @@ export default {
       }
       this.getArrivals(filterQuery)
     },
-    formatDate(date) {
-      return dayjs(date).format('DD. MMM YYYY')
-    },
     formatTime(date) {
       if(date)
         return dayjs(date, 'HH:mm:ss').format('HH:mm')
@@ -119,7 +116,7 @@ export default {
     },
     printRow(key, date) {
       if(key === 'Date')
-        return `${dayjs(date).format("ddd DD. MMM 'YY")}`
+        return `${dayjs(date).format("DD.MM.YY ddd")}`
       try {
         const checkins = this.arrivals.data[date][key]
         if(checkins) {
