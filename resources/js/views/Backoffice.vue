@@ -138,7 +138,7 @@
       </div>
       <main class="flex-1">
         <div class="py-6">
-          <div class="max-w-7xl flex justify-between items-center mx-4 sm:mx-auto">
+          <div class="max-w-[90%] flex justify-between items-center mx-4 sm:mx-auto">
             <h1 class="text-2xl font-semibold text-gray-900 capitalize">{{ currentRoute.replace('-', ' ') }}</h1>
             <div v-if="showButton" class="ml-4 mt-2 flex-shrink-0" @click="handleAddButton">
               <button type="button" class="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
