@@ -146,7 +146,7 @@
               </button>
             </div>
           </div>
-          <div class="max-w-7xl mx-auto">
+          <div class="max-w-[90%] mx-auto">
             <!-- Replace with your content -->
             <div class="py-4">
               <router-view />
