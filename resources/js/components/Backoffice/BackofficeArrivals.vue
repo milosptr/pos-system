@@ -123,9 +123,8 @@ export default {
           return checkins.map((c) => {
             if(c.check_out)
               return `
-                <div class="flex gap-2 items-center ${c.auto_checkout ? 'text-orange-500' : ''}">
+                <div class="${c.auto_checkout ? 'text-orange-500' : ''}">
                   <div>${c.total} <span class="text-gray-400 ${c.auto_checkout ? 'text-orange-500' : ''}">(${this.formatTime(c.check_in)} - ${this.formatTime(c.check_out)})</span></div>
-                  ${ c.auto_checkout ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" height="16" width="16"><g><rect x="0.5" y="2" width="13" height="9" rx="0.5" fill="none" stroke="#ff8400" stroke-linecap="round" stroke-linejoin="round"></rect><line x1="6" y1="11" x2="5" y2="13.5" fill="none" stroke="#ff8400" stroke-linecap="round" stroke-linejoin="round"></line><line x1="8" y1="11" x2="9" y2="13.5" fill="none" stroke="#ff8400" stroke-linecap="round" stroke-linejoin="round"></line><line x1="4" y1="13.5" x2="10" y2="13.5" fill="none" stroke="#ff8400" stroke-linecap="round" stroke-linejoin="round"></line><polyline points="4.5 7 6.5 8.5 10 4.5" fill="none" stroke="#ff8400" stroke-linecap="round" stroke-linejoin="round"></polyline></g></svg>' : '' }
                 </div>`
             return `<div>${c.total} <span class="text-red-400">(${this.formatTime(c.check_in)} - ?)</span></div>`
           })
