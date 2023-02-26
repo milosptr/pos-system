@@ -4,8 +4,8 @@ namespace Services;
 
 use Pusher\Pusher as PusherPackage;
 
-class Pusher {
-
+class Pusher
+{
     private $pusher;
 
     public function __construct()

@@ -11,7 +11,7 @@
           <div class="text-center font-semibold text-lg mb-3 border-b border-gray-200">
             {{ shift }}
           </div>
-         <div class="w-full h-full flex flex-col justify-center items-center gap-2">
+         <div class="w-full h-full flex flex-col justify-center items-center gap-2.5">
            <div
               v-for="schedule in getFilteredEmployees(index+1, 1)"
               :key="schedule.id"
@@ -25,6 +25,10 @@
                 <div> - </div>
                 <div v-if="schedule.employee.lastCheckin.check_out">{{ formatDate(schedule.employee.lastCheckin.check_out) }}</div>
               </div>
+              <div
+                v-if="!(!!schedule.employee?.lastCheckin?.check_out || schedule.employee.lastCheckin === null)"
+                class="absolute -top-2.5 -right-1 w-[16px] h-[16px] rounded-full bg-[#0BDA51] border-2 border-solid border-white"
+              />
             </div>
          </div>
         </div>
@@ -36,7 +40,7 @@
           <div class="text-center font-semibold text-lg mb-3 border-b border-gray-200">
             {{ shift }}
           </div>
-           <div class="w-full h-full flex flex-col justify-center items-center gap-2">
+           <div class="w-full h-full flex flex-col justify-center items-center gap-2.5">
             <div
               v-for="schedule in getFilteredEmployees(index+1, 0)"
               :key="schedule.id"
@@ -50,6 +54,10 @@
                 <div> - </div>
                 <div v-if="schedule.employee.lastCheckin.check_out">{{ formatDate(schedule.employee.lastCheckin.check_out) }}</div>
               </div>
+              <div
+                v-if="!(!!schedule.employee?.lastCheckin?.check_out || schedule.employee.lastCheckin === null)"
+                class="absolute -top-2.5 -right-1 w-[16px] h-[16px] rounded-full bg-[#0BDA51] border-2 border-solid border-white"
+              />
             </div>
            </div>
         </div>
@@ -62,7 +70,6 @@
   const dateFormatOptions = {
     hour: 'numeric',
     minute: 'numeric',
-    second: 'numeric'
   }
 
   export default {
@@ -71,13 +78,26 @@
       schedules: [],
     }),
     mounted() {
-      // fetch("http://192.168.200.30:81/public/today")
+      this.pusherInit()
+      this.fetchSchedules()
+    },
+    methods: {
+      pusherInit() {
+        const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, { 'cluster' : import.meta.env.VITE_PUSHER_APP_CLUSTER })
+        console.log(pusher)
+        pusher.subscribe('broadcasting')
+        pusher.bind('employee-checkin', (data) => {
+          console.log('fetching new info')
+          this.fetchSchedules()
+        })
+      },
+      fetchSchedules() {
+        // fetch("http://192.168.200.30:81/public/today")
       fetch("http://192.168.200.30:81/public/today")
         .then(response => response.json())
         .then(result => { this.schedules = result.data })
         .catch(error => console.log('error', error))
-    },
-    methods: {
+      },
       getFilteredEmployees(shift, occupation) {
         return this.schedules.filter((s) => s.shift === shift && s.occupation === occupation)
       },

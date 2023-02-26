@@ -94,6 +94,7 @@ export default {
   },
   methods: {
     getArrivals(filters = null) {
+      // fetch(`http://192.168.200.30:81/public/arrivals?${filters ? filters : 'occupation=0'}`)
       fetch(`http://192.168.200.30:81/public/arrivals?${filters ? filters : 'occupation=0'}`)
         .then(response => response.json())
         .then(result => { this.arrivals = result })
@@ -113,7 +114,7 @@ export default {
     },
     formatTime(date) {
       if(date)
-        return dayjs(date).format('HH:mm:ss')
+        return dayjs(date, 'HH:mm:ss').format('HH:mm')
       return ''
     },
     printRow(key, date) {
@@ -124,8 +125,8 @@ export default {
         if(checkins) {
           return checkins.map((c) => {
             if(c.check_out)
-              return `<div>${c.total} <span class="text-gray-400">(${c.check_in} - ${c.check_out})</span></div>`
-            return `<div>${c.total} <span class="text-red-400">(${c.check_in} - ?)</span></div>`
+              return `<div>${c.total} <span class="text-gray-400">(${this.formatTime(c.check_in)} - ${this.formatTime(c.check_out)})</span></div>`
+            return `<div>${c.total} <span class="text-red-400">(${this.formatTime(c.check_in)} - ?)</span></div>`
           })
           .join('')
         }
@@ -133,7 +134,7 @@ export default {
         console.log(key,date)
         return 'Error here'
       }
-      return '/'
+      return ''
     },
     printTotal(key) {
       if(key === 'Date')
@@ -148,13 +149,13 @@ export default {
           })
           const totalInMinutes = checkins.filter((c) => c.check_out).reduce((accumulator, currentValue) => this.parseMinutes(currentValue.total) + accumulator, 0)
           if(!fullDays.length)
-            return '/'
+            return ''
           return `${this.toHoursAndMinutes(totalInMinutes)} (${fullDays.length}-d)`
         }
       } catch(e) {
         console.log(e)
       }
-      return '/'
+      return ''
     },
     duration(arrival) {
       if(arrival.check_in && arrival.check_out) {
@@ -169,7 +170,7 @@ export default {
         const sDisplay = s > 0 ? (s + " sec") : "";
         return hDisplay + mDisplay + sDisplay;
       }
-      return '/'
+      return ''
     },
     parseMinutes(time) {
       const hours = time.split(':')[0]
