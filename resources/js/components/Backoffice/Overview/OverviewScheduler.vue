@@ -70,7 +70,7 @@
   const dateFormatOptions = {
     hour: 'numeric',
     minute: 'numeric',
-    hour12: false,
+    hourCycle: 'h23',
   }
 
   export default {
