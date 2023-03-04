@@ -64,8 +64,8 @@
       </div>
       <div v-if="nonScheduled.length" class="pt-4 border-t">
         <div class="text-lg font-semibold px-4 sm:px-6">Prijavljeni van rasporeda</div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 divide-x divide-gray-200">
-          <div class="grid grid-cols-3 gap-x-10 px-4 sm:px-6 py-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 divide-y lg:divide-y-0 divide-x divide-gray-200">
+          <div class="grid gird-cols-1 sm:grid-cols-3 gap-y-3 sm:gap-y-0 gap-x-10 px-4 sm:px-6 py-4">
             <div
             v-for="schedule in nonScheduled.filter((e) => e.occupation === 1)"
             :key="schedule.id"
@@ -84,7 +84,7 @@
               />
               </div>
           </div>
-          <div class="grid grid-cols-3 gap-x-10 px-4 sm:px-6 py-4">
+          <div class="grid gird-cols-1 sm:grid-cols-3 gap-y-3 sm:gap-y-0 gap-x-10 px-4 sm:px-6 py-4">
             <div
             v-for="schedule in nonScheduled.filter((e) => e.occupation === 0)"
             :key="schedule.id"
