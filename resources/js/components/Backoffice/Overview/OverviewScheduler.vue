@@ -25,6 +25,7 @@
                 <div> - </div>
                 <div v-if="schedule.employee.lastCheckin.check_out">{{ formatDate(schedule.employee.lastCheckin.check_out) }}</div>
               </div>
+              <div v-if="schedule.from_checkin" className='absolute -top-1 -left-0.5 w-3 h-3 rounded-full bg-red-500 text-[8px] flex items-center justify-center'>A</div>
               <div
                 v-if="!(!!schedule.employee?.lastCheckin?.check_out || schedule.employee.lastCheckin === null)"
                 class="absolute -top-2.5 -right-1 w-[16px] h-[16px] rounded-full bg-[#0BDA51] border-2 border-solid border-white"
@@ -54,55 +55,13 @@
                 <div> - </div>
                 <div v-if="schedule.employee.lastCheckin.check_out">{{ formatDate(schedule.employee.lastCheckin.check_out) }}</div>
               </div>
+              <div v-if="schedule.from_checkin" className='absolute -top-1 -left-0.5 w-3 h-3 rounded-full bg-red-500 text-[8px] flex items-center justify-center'>A</div>
               <div
                 v-if="!(!!schedule.employee?.lastCheckin?.check_out || schedule.employee.lastCheckin === null)"
                 class="absolute -top-2.5 -right-1 w-[16px] h-[16px] rounded-full bg-[#0BDA51] border-2 border-solid border-white"
               />
             </div>
            </div>
-        </div>
-      </div>
-      <div v-if="nonScheduled.length" class="pt-4 border-t">
-        <div class="text-lg font-semibold px-4 sm:px-6">Prijavljeni van rasporeda</div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 divide-y lg:divide-y-0 divide-x divide-gray-200">
-          <div class="grid gird-cols-1 sm:grid-cols-3 gap-y-3 sm:gap-y-0 gap-x-10 px-4 sm:px-6 py-4">
-            <div
-            v-for="schedule in nonScheduled.filter((e) => e.occupation === 1)"
-            :key="schedule.id"
-            class="relative w-full rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-            :style="`background: ${schedule.color};`"
-            >
-            {{ schedule.name }}
-              <div v-if="schedule.lastCheckin" class="flex justify-center gap-2">
-                <div v-if="schedule.lastCheckin.check_in">{{ formatDate(schedule.lastCheckin.check_in) }}</div>
-                <div> - </div>
-                <div v-if="schedule.lastCheckin.check_out">{{ formatDate(schedule.lastCheckin.check_out) }}</div>
-              </div>
-              <div
-              v-if="!(!!schedule?.lastCheckin?.check_out || schedule.lastCheckin === null)"
-              class="absolute -top-2.5 -right-1 w-[16px] h-[16px] rounded-full bg-[#0BDA51] border-2 border-solid border-white"
-              />
-              </div>
-          </div>
-          <div class="grid gird-cols-1 sm:grid-cols-3 gap-y-3 sm:gap-y-0 gap-x-10 px-4 sm:px-6 py-4">
-            <div
-            v-for="schedule in nonScheduled.filter((e) => e.occupation === 0)"
-            :key="schedule.id"
-            class="relative w-full rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-            :style="`background: ${schedule.color};`"
-            >
-            {{ schedule.name }}
-              <div v-if="schedule.lastCheckin" class="flex justify-center gap-2">
-                <div v-if="schedule.lastCheckin.check_in">{{ formatDate(schedule.lastCheckin.check_in) }}</div>
-                <div> - </div>
-                <div v-if="schedule.lastCheckin.check_out">{{ formatDate(schedule.lastCheckin.check_out) }}</div>
-              </div>
-              <div
-              v-if="!(!!schedule?.lastCheckin?.check_out || schedule.lastCheckin === null)"
-              class="absolute -top-2.5 -right-1 w-[16px] h-[16px] rounded-full bg-[#0BDA51] border-2 border-solid border-white"
-              />
-              </div>
-          </div>
         </div>
       </div>
     </div>
@@ -120,12 +79,10 @@
     data: () => ({
       shifts: ['I', 'M', 'II'],
       schedules: [],
-      nonScheduled: [],
     }),
     mounted() {
       this.pusherInit()
       this.fetchSchedules()
-      this.fetchNonScheduledEmployees()
     },
     methods: {
       pusherInit() {
@@ -139,15 +96,9 @@
       },
       fetchSchedules() {
         // fetch("http://192.168.200.30:81/public/today")
-        fetch("http://192.168.200.30:81/public/today")
+        fetch("http://scheduler.test/public/today")
           .then(response => response.json())
           .then(result => { this.schedules = result.data })
-          .catch(error => console.log('error', error))
-      },
-      fetchNonScheduledEmployees() {
-        fetch("http://192.168.200.30:81/public/checkinsToday")
-          .then(response => response.json())
-          .then(result => { this.nonScheduled = result.data })
           .catch(error => console.log('error', error))
       },
       getFilteredEmployees(shift, occupation) {
