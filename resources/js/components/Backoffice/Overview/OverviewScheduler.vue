@@ -64,24 +64,45 @@
       </div>
       <div v-if="nonScheduled.length" class="pt-4 border-t">
         <div class="text-lg font-semibold px-4 sm:px-6">Prijavljeni van rasporeda</div>
-        <div class="grid grid-cols-6 gap-x-10 px-4 sm:px-6 py-4">
-          <div
-              v-for="schedule in nonScheduled"
-              :key="schedule.id"
-              class="relative w-full rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
-              :style="`background: ${schedule.color};`"
+        <div class="grid grid-cols-1 sm:grid-cols-2 divide-x divide-gray-200">
+          <div class="grid grid-cols-3 gap-x-10 px-4 sm:px-6 py-4">
+            <div
+            v-for="schedule in nonScheduled.filter((e) => e.occupation === 1)"
+            :key="schedule.id"
+            class="relative w-full rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
+            :style="`background: ${schedule.color};`"
             >
-              {{ schedule.name }}
+            {{ schedule.name }}
               <div v-if="schedule.lastCheckin" class="flex justify-center gap-2">
                 <div v-if="schedule.lastCheckin.check_in">{{ formatDate(schedule.lastCheckin.check_in) }}</div>
                 <div> - </div>
                 <div v-if="schedule.lastCheckin.check_out">{{ formatDate(schedule.lastCheckin.check_out) }}</div>
               </div>
               <div
-                v-if="!(!!schedule?.lastCheckin?.check_out || schedule.lastCheckin === null)"
-                class="absolute -top-2.5 -right-1 w-[16px] h-[16px] rounded-full bg-[#0BDA51] border-2 border-solid border-white"
+              v-if="!(!!schedule?.lastCheckin?.check_out || schedule.lastCheckin === null)"
+              class="absolute -top-2.5 -right-1 w-[16px] h-[16px] rounded-full bg-[#0BDA51] border-2 border-solid border-white"
               />
-            </div>
+              </div>
+          </div>
+          <div class="grid grid-cols-3 gap-x-10 px-4 sm:px-6 py-4">
+            <div
+            v-for="schedule in nonScheduled.filter((e) => e.occupation === 0)"
+            :key="schedule.id"
+            class="relative w-full rounded-xl py-1 px-1 lg:px-2 text-center select-none tracking-wide text-sm text-white"
+            :style="`background: ${schedule.color};`"
+            >
+            {{ schedule.name }}
+              <div v-if="schedule.lastCheckin" class="flex justify-center gap-2">
+                <div v-if="schedule.lastCheckin.check_in">{{ formatDate(schedule.lastCheckin.check_in) }}</div>
+                <div> - </div>
+                <div v-if="schedule.lastCheckin.check_out">{{ formatDate(schedule.lastCheckin.check_out) }}</div>
+              </div>
+              <div
+              v-if="!(!!schedule?.lastCheckin?.check_out || schedule.lastCheckin === null)"
+              class="absolute -top-2.5 -right-1 w-[16px] h-[16px] rounded-full bg-[#0BDA51] border-2 border-solid border-white"
+              />
+              </div>
+          </div>
         </div>
       </div>
     </div>
