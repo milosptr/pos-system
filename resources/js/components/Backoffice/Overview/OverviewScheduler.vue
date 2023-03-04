@@ -118,13 +118,13 @@
       },
       fetchSchedules() {
         // fetch("http://192.168.200.30:81/public/today")
-        fetch("http://scheduler.test/public/today")
+        fetch("http://192.168.200.30:81/public/today")
           .then(response => response.json())
           .then(result => { this.schedules = result.data })
           .catch(error => console.log('error', error))
       },
       fetchNonScheduledEmployees() {
-        fetch("http://scheduler.test/public/checkinsToday")
+        fetch("http://192.168.200.30:81/public/checkinsToday")
           .then(response => response.json())
           .then(result => { this.nonScheduled = result.data })
           .catch(error => console.log('error', error))
