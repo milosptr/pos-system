@@ -95,7 +95,7 @@ export default {
   methods: {
     getArrivals(filters = null) {
       // fetch(`http://192.168.200.30:81/public/arrivals?${filters ? filters : 'occupation=0'}`)
-      fetch(`http://192.168.200.30:81/public/arrivals?${filters ? filters : 'occupation=0'}`)
+      fetch(`http://scheduler.test/public/arrivals?${filters ? filters : 'occupation=0'}`)
         .then(response => response.json())
         .then(result => { this.arrivals = result })
         .catch(error => console.log('error', error))
@@ -143,11 +143,10 @@ export default {
         const checkins = this.arrivals?.data ? Object.values(this.arrivals.data).map((t) => t[key]).filter((c) => c !== undefined).flat() : []
         if(checkins.length) {
           const fullDays = checkins
-          .filter((c) => c.check_out)
           .filter((value, index, self) => {
             return self.findIndex(v => v.created_date === value.created_date) === index;
           })
-          const totalInMinutes = checkins.filter((c) => c.check_out).reduce((accumulator, currentValue) => this.parseMinutes(currentValue.total) + accumulator, 0)
+          const totalInMinutes = checkins.reduce((accumulator, currentValue) => this.parseMinutes(currentValue.total) + accumulator, 0)
           if(!fullDays.length)
             return ''
           return `${this.toHoursAndMinutes(totalInMinutes)} (${fullDays.length}-d)`
