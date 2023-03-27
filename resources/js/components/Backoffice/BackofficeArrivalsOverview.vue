@@ -98,7 +98,7 @@ export default {
   methods: {
     getArrivals(filters = null) {
       // fetch(`http://192.168.200.30:81/public/arrivals?${filters ? filters : 'occupation=0'}`)
-      fetch(`http://scheduler.test/public/arrivals?${filters ? filters : 'occupation=0'}`)
+      fetch(`http://192.168.200.30:81/public/arrivals?${filters ? filters : 'occupation=0'}`)
         .then(response => response.json())
         .then(result => { this.arrivals = result })
         .catch(error => console.log('error', error))
