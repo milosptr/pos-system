@@ -21,7 +21,7 @@
     </div>
     <div class="mt-8 flow-root">
       <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
-        <div class="inline-block min-w-full py-2 align-middle">
+        <div class="inline-block min-w-full py-2 align-middle relative">
           <table class="min-w-full border-separate border-spacing-0">
             <thead>
               <tr>
@@ -39,9 +39,12 @@
                 </td>
               </tr>
               <tr>
-                <th v-for="(emlpoyee, idx) in numberOfColumns" :key="idx" scope="col" class="sticky bottom-0 z-10 border-t border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
+                <th v-for="(emlpoyee, idx) in numberOfColumns" :key="idx" scope="col" class="sticky bottom-5 z-10 border-t border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
                   {{ printTotal(emlpoyee.name) }}
                 </th>
+              </tr>
+              <tr>
+                <th colspan="10" class="bg-gray-100 sticky bottom-0 z-[9] w-full h-5"></th>
               </tr>
             </tbody>
           </table>
