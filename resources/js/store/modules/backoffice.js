@@ -4,7 +4,8 @@ const backoffice = {
     state: () => ({
         reports: null,
         reportFilters: {
-          date: ''
+          date: '',
+          sort: '',
         },
         stats: null,
         activeTableOrders: [],
@@ -108,6 +109,10 @@ const backoffice = {
     mutations: {
         setReports(state, reports) {
             state.reports = reports
+        },
+        setReportsSortBy(state, column) {
+          const direction = state.reportFilters.sort?.includes('asc') ? 'desc' : 'asc'
+          state.reportFilters.sort = column + '.' + direction
         },
         setReportFilters(state, filter) {
           state.reportFilters[filter.key] = filter.value

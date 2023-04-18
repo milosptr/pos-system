@@ -21,21 +21,21 @@ class InventoryController extends Controller
      */
     public function all(Request $request)
     {
-      $inventory = Cache::remember('inventory-all', 60, function() use($request){
-        return Inventory::filter($request)->get();
-      });
-      return InventoryResource::collection($inventory);
+        $inventory = Cache::remember('inventory-all', 60, function () use ($request) {
+            return Inventory::filter($request)->get();
+        });
+        return InventoryResource::collection($inventory);
     }
 
     public function allBackoffice(Request $request)
     {
-      return InventoryBackofficeResource::collection(Inventory::filter($request)->get());
+        return InventoryBackofficeResource::collection(Inventory::with('category')->filter($request)->get());
     }
 
     public function index(Request $request)
     {
-        $inventory = Cache::remember('inventory', 60, function() use($request){
-          return Inventory::filter($request)->get();
+        $inventory = Cache::remember('inventory', 60, function () use ($request) {
+            return Inventory::filter($request)->get();
         });
         return InventoryResource::collection($inventory);
     }
@@ -115,6 +115,6 @@ class InventoryController extends Controller
 
     public function export()
     {
-      return Excel::download(new InventoryExport, 'inventory.xlsx');
+        return Excel::download(new InventoryExport, 'inventory.xlsx');
     }
 }

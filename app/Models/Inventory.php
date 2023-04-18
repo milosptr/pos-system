@@ -10,9 +10,9 @@ class Inventory extends Model
 {
     use HasFactory, InventoryFilters;
 
-    CONST SOLD_BY_PIECE = 0;
-    CONST SOLD_BY_HALF_PORTION = 1;
-    CONST SOLD_BY_GRAMS = 2;
+    const SOLD_BY_PIECE = 0;
+    const SOLD_BY_HALF_PORTION = 1;
+    const SOLD_BY_GRAMS = 2;
 
     protected $table = 'inventory';
     protected $fillable = ['category_id', 'name', 'description', 'active', 'sold_by', 'price', 'sku', 'qty', 'color', 'order'];
@@ -23,11 +23,16 @@ class Inventory extends Model
 
     public function category()
     {
-      return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class);
     }
 
     public function pricing()
     {
-      return $this->hasMany(InventoryPricing::class);
+        return $this->hasMany(InventoryPricing::class);
+    }
+
+    public static function skuMask($sku)
+    {
+        return str_pad($sku, 6, '0', STR_PAD_LEFT);
     }
 }

@@ -16,6 +16,7 @@ import BackofficeReports from './components/Backoffice/Reports/BackofficeReports
 import BackofficeClients from './components/Backoffice/BackofficeClients.vue'
 import BackofficeClientsNew from './components/Backoffice/BackofficeClientsNew.vue'
 import BackofficeArrivals from './components/Backoffice/BackofficeArrivals.vue'
+import BackofficeImportedSales from './components/Backoffice/Reports/BackofficeImportedSales.vue'
 
 const routes = [
     {
@@ -76,6 +77,11 @@ const routes = [
                 path: '/reports',
                 name: 'reports',
                 component: BackofficeReports
+            },
+            {
+                path: '/sales-imports',
+                name: 'sales-imports',
+                component: BackofficeImportedSales
             },
             {
                 path: '/tasks',

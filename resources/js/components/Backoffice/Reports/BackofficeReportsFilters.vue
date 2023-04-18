@@ -1,6 +1,5 @@
 <template>
   <div>
-  <div class="text-right underline text-indigo-500 -mt-4 cursor-pointer" @click="clearIncome">Clear income</div>
   <div class="flex flex-col sm:flex-row justify-end gap-4">
     <div v-if="!tabInvoices">
       <label for="inventory" class="block text-sm font-medium text-gray-700">Inventory search</label>
@@ -218,12 +217,6 @@ import axios from 'axios';
         })
     },
     methods: {
-      clearIncome() {
-        axios.delete('/api/sales/clear')
-          .then((res) => {
-            this.$store.dispatch('getReports')
-          })
-      },
       updateReportFilters(key, value) {
         this.$store.commit('setReportFilters', { key, value })
         if(this.type === 'reports')

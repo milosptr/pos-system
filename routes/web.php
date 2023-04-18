@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\Stockroom;
+use Illuminate\Http\Request;
+use App\Imports\InventoryImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,13 +18,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-  return view('app');
+    return view('app');
 });
 
+
 Route::group(['middleware' => ['administrator', 'auth']], function () {
-  Route::get('/backoffice/', function () {
-      return view('backoffice');
-  })->name('backoffice');
+    Route::get('/backoffice/', function () {
+        return view('backoffice');
+    })->name('backoffice');
 });
 
 

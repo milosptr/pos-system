@@ -1,5 +1,5 @@
 <template>
-<div class="flex flex-col w-full">
+<div class="flex flex-col w-full relative">
     <OverviewStats />
     <div class="flex flex-col md:flex-col-reverse">
       <OverviewActiveOrders />
@@ -7,8 +7,6 @@
     </div>
     <OverviewSlideoverSidebar />
 </div>
-
-
 
 </template>
 <script>
@@ -21,11 +19,11 @@ import OverviewScheduler from './Overview/OverviewScheduler.vue'
 export default {
     name: "BackofficeOverview",
     components: {
-        OverviewStats,
-        OverviewActiveOrders,
-        OverviewSlideoverSidebar,
-        OverviewScheduler,
-    },
+    OverviewStats,
+    OverviewActiveOrders,
+    OverviewSlideoverSidebar,
+    OverviewScheduler,
+},
     mounted() {
         this.$store.dispatch('getStats')
         this.$store.dispatch('getActiveTableOrders')

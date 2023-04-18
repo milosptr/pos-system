@@ -10,6 +10,11 @@ class Sales extends Model
 {
     use HasFactory, SalesRevenue;
 
+    const TYPE_EPOS = 1;
+    const TYPE_EBAR = 2;
+
+    const STATUS_ACTIVE = 1;
+
     protected $fillable = [
       'invoice_id',
       'table_id',
@@ -22,6 +27,9 @@ class Sales extends Model
       'sku',
       'status',
       'total',
+      'type',
+      'batch_id',
+      'created_at',
     ];
 
     public $timestamps = true;

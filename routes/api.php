@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ClientController;
@@ -19,7 +20,7 @@ use App\Http\Controllers\ValidatePinController;
 use App\Http\Controllers\RefundReasonController;
 use App\Http\Controllers\ConnectionsLogController;
 use App\Http\Controllers\InventoryPricingController;
-use App\Http\Controllers\SalesController;
+use App\Http\Controllers\SalesImportDetaisController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,7 +73,9 @@ Route::post('invoices/one/{orderId}', [InvoiceController::class, 'store']);
 Route::post('invoices/{id}/refund', [InvoiceController::class, 'refund']);
 
 // Sales
+Route::get('sales/imports', [SalesImportDetaisController::class, 'index']);
 Route::post('sales/import', [SalesController::class, 'import'])->name('import');
+Route::delete('sales/imports/{id}', [SalesImportDetaisController::class, 'destroy']);
 Route::delete('sales/clear', [SalesController::class, 'clear']);
 
 // Waiters

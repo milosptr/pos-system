@@ -64,6 +64,7 @@ export default {
       const key = 'paginate'
       const value = true
       this.$store.commit('setReportFilters', { key, value })
+      this.$store.commit('setReportsActiveTab', 0)
       this.$store.dispatch('getInvoices')
     },
     methods: {
