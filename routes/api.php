@@ -1,28 +1,25 @@
 <?php
 
-use App\Exports\InventoryExport;
-use App\Models\Invoice;
 use Services\WorkingDay;
 use Illuminate\Http\Request;
-use App\Models\ConnectionLog;
-use App\Models\InventoryPricing;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DBBackupController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\StockroomController;
 use App\Http\Controllers\ValidatePinController;
 use App\Http\Controllers\RefundReasonController;
 use App\Http\Controllers\ConnectionsLogController;
 use App\Http\Controllers\InventoryPricingController;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
+use App\Http\Controllers\SalesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +71,10 @@ Route::post('invoices', [InvoiceController::class, 'store']);
 Route::post('invoices/one/{orderId}', [InvoiceController::class, 'store']);
 Route::post('invoices/{id}/refund', [InvoiceController::class, 'refund']);
 
+// Sales
+Route::post('sales/import', [SalesController::class, 'import'])->name('import');
+Route::delete('sales/clear', [SalesController::class, 'clear']);
+
 // Waiters
 Route::get('waiters', [UsersController::class, 'waiters']);
 
@@ -96,39 +97,39 @@ Route::get('active-orders', [DashboardController::class, 'activeOrders']);
 Route::get('users', [UsersController::class, 'index']);
 
 // Working day
-Route::get('working-day', function() {
-  return WorkingDay::getWorkingDay();
+Route::get('working-day', function () {
+    return WorkingDay::getWorkingDay();
 });
 
 //Backoffice
-Route::prefix('/backoffice')->group(function() {
-  Route::get('/inventory/all', [InventoryController::class, 'allBackoffice']);
-  Route::get('/inventory/export', [InventoryController::class, 'export']);
-  Route::post('/inventory', [InventoryController::class, 'store']);
-  Route::post('/inventory-pricing', [InventoryPricingController::class, 'store']);
-  Route::put('/inventory/{id}', [InventoryController::class, 'update']);
-  Route::delete('/inventory/{id}', [InventoryController::class, 'destroy']);
+Route::prefix('/backoffice')->group(function () {
+    Route::get('/inventory/all', [InventoryController::class, 'allBackoffice']);
+    Route::get('/inventory/export', [InventoryController::class, 'export']);
+    Route::post('/inventory', [InventoryController::class, 'store']);
+    Route::post('/inventory-pricing', [InventoryPricingController::class, 'store']);
+    Route::put('/inventory/{id}', [InventoryController::class, 'update']);
+    Route::delete('/inventory/{id}', [InventoryController::class, 'destroy']);
 
-  Route::post('/categories', [CategoryController::class, 'store']);
-  Route::put('/categories/{id}', [CategoryController::class, 'update']);
-  Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
 
-  Route::put('/tables/{id}', [TableController::class, 'update']);
+    Route::put('/tables/{id}', [TableController::class, 'update']);
 
-  Route::get('users/{id}', [UsersController::class, 'show']);
-  Route::post('users/{id}', [UsersController::class, 'update']);
-  Route::delete('users/{id}', [UsersController::class, 'destroy']);
+    Route::get('users/{id}', [UsersController::class, 'show']);
+    Route::post('users/{id}', [UsersController::class, 'update']);
+    Route::delete('users/{id}', [UsersController::class, 'destroy']);
 
-  // Clients
-  Route::get('clients', [ClientController::class, 'show']);
-  Route::post('clients', [ClientController::class, 'create']);
-  Route::post('clients/{id}', [ClientController::class, 'update']);
-  Route::delete('clients/{id}', [ClientController::class, 'destroy']);
+    // Clients
+    Route::get('clients', [ClientController::class, 'show']);
+    Route::post('clients', [ClientController::class, 'create']);
+    Route::post('clients/{id}', [ClientController::class, 'update']);
+    Route::delete('clients/{id}', [ClientController::class, 'destroy']);
 
-  Route::get('reports/{type}', [ReportsController::class, 'index']);
+    Route::get('reports/{type}', [ReportsController::class, 'index']);
 
-  Route::get('connections-log', [ConnectionsLogController::class, 'index']);
+    Route::get('connections-log', [ConnectionsLogController::class, 'index']);
 
-  Route::get('db-backup', [DBBackupController::class, 'backup']);
+    Route::get('db-backup', [DBBackupController::class, 'backup']);
 });
