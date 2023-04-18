@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Carbon\Carbon;
 use Services\Pusher;
 use App\Models\Order;
+use App\Models\Sales;
 use App\Models\Invoice;
 use Services\WorkingDay;
 use Services\SalesService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Resources\InvoiceResource;
 use App\Http\Requests\InvoiceStoreRequest;
-use Exception;
-use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
@@ -24,20 +25,21 @@ class InvoiceController extends Controller
      */
     public function all(Request $request)
     {
-      $invoices = Invoice::filter($request)->orderBy('id', 'DESC');
-      if($request->get('paginate'))
-        return InvoiceResource::collection($invoices->paginate(20));
-      return InvoiceResource::collection($invoices->get());
+        $invoices = Invoice::filter($request)->orderBy('id', 'DESC');
+        if($request->get('paginate')) {
+            return InvoiceResource::collection($invoices->paginate(20));
+        }
+        return InvoiceResource::collection($invoices->get());
     }
 
     public function allForToday()
     {
-      return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
+        return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
     }
 
     public function dailyMaximum()
     {
-      return Invoice::selectRaw('sum(case when status = 1 then total else 0 end) as total')->groupBy(DB::raw('Date(created_at)'))->orderBy('total', 'desc')->first();
+        return Invoice::selectRaw('sum(case when status = 1 then total else 0 end) as total')->groupBy(DB::raw('Date(created_at)'))->orderBy('total', 'desc')->first();
     }
 
     /**
@@ -58,18 +60,22 @@ class InvoiceController extends Controller
      */
     public function store(InvoiceStoreRequest $request, $orderID = null)
     {
-      $invoice = Invoice::create($request->all());
-      if ($invoice) {
-        if($orderID) Order::where('id', $orderID)->delete();
-        if(!$orderID) Order::where('table_id', $request->get('table_id'))->delete();
-        SalesService::parseAndSaveOrder($request->get('order'), $invoice);
-        try {
-          app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
-        } catch(Exception $e) {
-          Log::error($e->getMessage());
+        $invoice = Invoice::create($request->all());
+        if ($invoice) {
+            if($orderID) {
+                Order::where('id', $orderID)->delete();
+            }
+            if(!$orderID) {
+                Order::where('table_id', $request->get('table_id'))->delete();
+            }
+            SalesService::parseAndSaveOrder($request->get('order'), $invoice);
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+            } catch(Exception $e) {
+                Log::error($e->getMessage());
+            }
         }
-      }
-      return new InvoiceResource($invoice);
+        return new InvoiceResource($invoice);
     }
 
     /**
@@ -79,22 +85,28 @@ class InvoiceController extends Controller
      */
     public function refund($id, Request $request)
     {
-      $invoice = Invoice::find($id);
-      if($invoice)
-        $invoice->update($request->all());
-      return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
+        $invoice = Invoice::find($id);
+        if($invoice) {
+            $invoice->update($request->all());
+            try {
+                Sales::where('invoice_id', $invoice->id)->delete();
+            } catch(Exception $e) {
+                Log::error($e->getMessage());
+            }
+        }
+        return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
     }
 
     public function todayTransactions()
     {
-      return Invoice::selectRaw('sum(total) AS total')
-        ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
-        ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
-        ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) - sum(case when status = 2 then total else 0 end) as income')
-        ->selectRaw('70000 as maximum')
-        ->whereBetween('created_at', WorkingDay::getWorkingDay())
-        ->get()
-        ->first();
+        return Invoice::selectRaw('sum(total) AS total')
+          ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
+          ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
+          ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) - sum(case when status = 2 then total else 0 end) as income')
+          ->selectRaw('70000 as maximum')
+          ->whereBetween('created_at', WorkingDay::getWorkingDay())
+          ->get()
+          ->first();
     }
 
     /**
