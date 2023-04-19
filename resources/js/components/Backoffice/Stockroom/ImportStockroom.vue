@@ -51,7 +51,8 @@ export default {
     },
     handleSubmit() {
       const formData = new FormData();
-      formData.append("date", this.date);
+      const date = this.date + ' 08:00:00'
+      formData.append("date", date);
       formData.append("file", this.file);
       fetch("/api/sales/import", {
         method: "POST",
