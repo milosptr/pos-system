@@ -16,6 +16,9 @@
               Content</th>
             <th scope="col"
               class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">
+              For date</th>
+            <th scope="col"
+              class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">
               Import date</th>
             <th scope="col"
               class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">
@@ -45,7 +48,10 @@
               </td>
               <td
               :class="[idx !== imports.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
-              {{ formatDate(item.created_at) }}</td>
+              {{ item.sales && item.sales.length ? formatDate(item.sales[0].created_at) : '' }}</td>
+              <td
+              :class="[idx !== imports.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
+              {{ formatDateTime(item.created_at) }}</td>
             <td
               :class="[idx !== imports.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-right']">
               <div class="text-red-500 hover:underline" @click="handleDelete(item)">Delete</div>
@@ -116,10 +122,14 @@ export default {
     },
     formatDate(dateString) {
       const date = new Date(dateString);
+      const formatter = new Intl.DateTimeFormat('sr-RS', {  day: '2-digit', month: '2-digit', year: 'numeric'});
+      return formatter.format(date);
+    },
+    formatDateTime(dateString) {
+      const date = new Date(dateString);
       const formatter = new Intl.DateTimeFormat('sr-RS', options);
       return formatter.format(date);
-
-    }
+    },
   }
 }
 </script>
