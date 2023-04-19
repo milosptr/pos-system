@@ -28,7 +28,7 @@ class SalesImport implements ToCollection, WithHeadingRow
             $sku = Inventory::skuMask($row['sifra']);
             $inventory = Inventory::where('sku', $sku)->first();
             if($inventory) {
-                $price = (int) $row['ukupno'] / (int) $row['kolicina'];
+                $price = floatval($row['ukupno']) / floatval($row['kolicina']);
                 Sales::create([
                   'inventory_id' => $inventory->id,
                   'sku' => $inventory->sku,

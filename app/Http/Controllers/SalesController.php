@@ -28,9 +28,8 @@ class SalesController extends Controller
             ]);
             Excel::import(new SalesImport($date, $saleDetails), $file);
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             Log::error($th->getMessage());
-            return redirect()->back()->with('error', 'Something went wrong!');
+            return response($th->getMessage(), 422);
         }
         return response('Success', 200);
     }

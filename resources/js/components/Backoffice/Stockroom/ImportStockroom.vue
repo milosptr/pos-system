@@ -23,12 +23,14 @@
       </div>
     </div>
     <ImportSuccessFlash v-if="success" />
+    <ImportErrorFlash v-if="error" :error="error" />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import ImportSuccessFlash from './ImportSuccessFlash.vue';
+import ImportErrorFlash from './ImportErrorFlash.vue';
 
 export default {
   name: "ImportStockroom",
@@ -37,6 +39,7 @@ export default {
     success: false,
     date: null,
     file: null,
+    error: null,
   }),
   mounted() {
     axios.get('/api/working-day')
@@ -54,17 +57,18 @@ export default {
       const date = this.date + ' 08:00:00'
       formData.append("date", date);
       formData.append("file", this.file);
-      fetch("/api/sales/import", {
-        method: "POST",
-        body: formData,
-      })
+      axios.post('/api/sales/import', formData)
         .then((data) => {
           this.success = true
           this.showModal = false
           this.$emit('imported')
-        });
+        })
+        .catch((error) => {
+          this.showModal = false
+          this.error = error.response.data
+        })
     },
   },
-  components: { ImportSuccessFlash }
+  components: { ImportSuccessFlash, ImportErrorFlash }
 };
 </script>
