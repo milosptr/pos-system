@@ -1,11 +1,15 @@
 <template>
   <div>
     <div class="flex items-center justify-end gap-4 -mt-12 mb-12">
-      <div class="bg-gray-200 px-4 py-2 rounded-md" :class="{'bg-indigo-500 text-white': !activeTab}" @click="changeTab(0)">Overview</div>
-      <div class="bg-gray-200 px-4 py-2 rounded-md" :class="{'bg-indigo-500 text-white': activeTab === 1}" @click="changeTab(1)">Inventory</div>
-      <div class="bg-gray-200 px-4 py-2 rounded-md" :class="{'bg-indigo-500 text-white': activeTab === 2}" @click="changeTab(2)">Imports</div>
+      <div class="bg-gray-200 px-4 py-2 rounded-md" :class="{'bg-indigo-500 text-white': activeTab === 2}" @click="changeTab(2)">Uvoz</div>
     </div>
-    <BackofficeReportsFilters v-if="activeTab !== 2" />
+    <div class="flex items-end justify-between">
+      <div class="flex items-end justify-end gap-4">
+        <div class="bg-gray-200 px-4 py-2 rounded-md" :class="{'bg-indigo-500 text-white': !activeTab}" @click="changeTab(0)">Promet po danima</div>
+        <div class="bg-gray-200 px-4 py-2 rounded-md" :class="{'bg-indigo-500 text-white': activeTab === 1}" @click="changeTab(1)">Promet artikala</div>
+      </div>
+      <BackofficeReportsFilters v-if="activeTab !== 2" />
+    </div>
     <BackofficeReportsStats v-if="activeTab !== 2" />
     <div v-if="!activeTab">
       <BackofficeReportsTable />

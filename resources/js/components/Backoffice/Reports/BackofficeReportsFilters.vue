@@ -2,33 +2,33 @@
   <div>
   <div class="flex flex-col sm:flex-row justify-end gap-4">
     <div v-if="!tabInvoices">
-      <label for="inventory" class="block text-sm font-medium text-gray-700">Inventory search</label>
+      <label for="inventory" class="block text-sm font-medium text-gray-700">Pretraga artikla</label>
       <div class="relative flex items-center">
-        <input  @input="debounceInput" type="text" name="search" id="search" placeholder="Search" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 sm:text-sm border-gray-300 rounded-md" />
+        <input  @input="debounceInput" type="text" name="search" id="search" placeholder="Pretraga" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 sm:text-sm border-gray-300 rounded-md" />
         <div class="absolute inset-y-0 left-0 flex py-1.5 pr-1.5">
           <div class="inline-flex items-center px-2 text-sm font-sans font-medium text-gray-400"> <SearchIcon class="h-4 w-4" /> </div>
         </div>
       </div>
     </div>
     <div v-if="!tabInvoices">
-      <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+      <label for="category" class="block text-sm font-medium text-gray-700">Kategorija</label>
       <select
         name="category"
         class="block w-full sm:w-48 pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
         @change="updateReportFilters('category', $event.target.value)"
       >
-        <option value="" selected>All</option>
+        <option value="" selected>Sve</option>
         <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
       </select>
     </div>
     <div v-if="tabInvoices">
-      <label for="waiters" class="block text-sm font-medium text-gray-700">Waiter</label>
+      <label for="waiters" class="block text-sm font-medium text-gray-700">Konobar</label>
       <select
         name="waiters"
         class="block w-full pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
         @change="updateReportFilters('waiter', $event.target.value)"
       >
-        <option value="" selected>All</option>
+        <option value="" selected>Svi</option>
         <option v-for="waiter in waiters" :key="waiter.id" :value="waiter.id">{{ waiter.name }}</option>
       </select>
     </div>
@@ -39,14 +39,14 @@
         class="block w-full pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
         @change="updateReportFilters('status', $event.target.value)"
       >
-        <option value="" selected>All</option>
-        <option value="0">Refunded</option>
-        <option value="1">Payed</option>
-        <option value="2">On the house</option>
+        <option value="" selected>Sve</option>
+        <option value="0">Stornirano</option>
+        <option value="1">Naplaćeno</option>
+        <option value="2">Na račun kuće</option>
       </select>
     </div>
     <div class="w-full sm:w-64 relative text-sm">
-      <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+      <label for="date" class="block text-sm font-medium text-gray-700">Datum</label>
       <litepie-datepicker
         i18n="sr"
         use-range

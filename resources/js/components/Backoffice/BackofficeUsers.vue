@@ -1,14 +1,14 @@
 <template>
   <div class="shadow sm:rounded-md sm:overflow-hidden">
     <div class="bg-white py-6 px-4 sm:p-6">
-      <h2 id="payment-details-heading" class="text-lg leading-6 font-medium text-gray-900">Users</h2>
+      <h2 id="payment-details-heading" class="text-lg leading-6 font-medium text-gray-900">Korisnici/Zaposleni</h2>
         <table class="min-w-full divide-y divide-gray-300 mt-5">
           <thead>
             <tr>
               <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">ID</th>
-              <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Name</th>
-              <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Username</th>
-              <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Updated at</th>
+              <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Ime</th>
+              <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Korisničko ime</th>
+              <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Poslednja promena</th>
               <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6 md:pr-0">
                 <span class="sr-only">Edit</span>
               </th>

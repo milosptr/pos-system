@@ -139,7 +139,7 @@
       <main class="flex-1">
         <div class="py-6">
           <div class="max-w-[90%] flex justify-between items-center mx-4 sm:mx-auto">
-            <h1 class="text-2xl font-semibold text-gray-900 capitalize">{{ currentRoute.replace('-', ' ') }}</h1>
+            <h1 class="text-2xl font-semibold text-gray-900 capitalize">{{ pageTitle }}</h1>
             <div v-if="showButton" class="ml-4 mt-2 flex-shrink-0" @click="handleAddButton">
               <button type="button" class="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 {{ buttonName }}
@@ -183,17 +183,17 @@ import {
 } from '@heroicons/vue/outline'
 
 const navigation = [
-  { name: 'Dashboard', href: 'overview', icon: HomeIcon, current: true },
-  { name: 'Invoices', href: 'invoices', icon: ClipboardListIcon, current: false },
-  { name: 'Reports', href: 'reports', icon: ChartPieIcon, current: false },
-  { name: 'Inventory', href: 'inventory', icon: CubeIcon, current: false },
-  { name: 'Categories', href: 'categories', icon: FolderIcon, current: false },
-  { name: 'Tables', href: 'tables', icon: ViewGridIcon, current: false },
-  { name: 'Tasks', href: 'tasks', icon: BellIcon, current: false },
-  { name: 'Clients', href: 'clients', icon: UserGroupIcon, current: false },
-  { name: 'Arrivals', href: 'arrivals', icon: ClockIcon, current: false },
-  { name: 'Connections Log', href: 'connection-logs', icon: WifiIcon, current: false },
-  { name: 'Settings', href: 'settings', icon: CogIcon, current: false },
+  { name: 'Početna', href: 'overview', icon: HomeIcon, current: true },
+  { name: 'Računi', href: 'invoices', icon: ClipboardListIcon, current: false },
+  { name: 'Pregled prometa', href: 'reports', icon: ChartPieIcon, current: false },
+  { name: 'Artikli', href: 'inventory', icon: CubeIcon, current: false },
+  { name: 'Kategorije', href: 'categories', icon: FolderIcon, current: false },
+  // { name: 'Tables', href: 'tables', icon: ViewGridIcon, current: false },
+  { name: 'Obaveštenja', href: 'tasks', icon: BellIcon, current: false },
+  { name: 'Klijenti', href: 'clients', icon: UserGroupIcon, current: false },
+  { name: 'Dolasci', href: 'arrivals', icon: ClockIcon, current: false },
+  // { name: 'Connections Log', href: 'connection-logs', icon: WifiIcon, current: false },
+  { name: 'Podešavanja', href: 'settings', icon: CogIcon, current: false },
 ]
 
 export default {
@@ -204,8 +204,8 @@ export default {
     navigation,
     sidebarOpen: false,
     bottomNavigation: [
-      { name: 'Waiters Application', href: '/', icon: DesktopComputerIcon, blank: false },
-      { name: 'Scheduler Application', href: 'http://192.168.200.30:81/dashboard', icon: CalendarIcon, blank: true },
+      { name: 'Konobari aplikacija', href: '/', icon: DesktopComputerIcon, blank: false },
+      { name: 'Raspored aplikacija', href: 'http://192.168.200.30:81/dashboard', icon: CalendarIcon, blank: true },
     ]
   }),
   computed: {
@@ -215,16 +215,21 @@ export default {
     currentPath() {
        return this.$route.path
     },
+    pageTitle() {
+      return this.navigation.find((item) => item.href === this.currentRoute)?.name ?? ''
+    },
     showButton() {
       const paths = ['/inventory', '/categories', '/clients']
       return paths.includes(this.$route.path)
     },
     buttonName() {
       if(this.$route.name === 'inventory')
-        return 'Add item'
+        return 'Dodaj artikal'
       if(this.$route.name === 'clients')
-        return 'Add client'
-      return 'Add ' + this.$route.name
+        return 'Dodaj klijenta'
+      if(this.$route.name === 'categories')
+        return 'Dodaj kategoriju'
+      return 'Dodaj ' + this.$route.name
     },
   },
   mounted() {

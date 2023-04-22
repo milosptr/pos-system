@@ -31,7 +31,7 @@ export default {
     },
     computed: {
       filteredStats() {
-        return this.$store.getters.stats.filter((s) => (s.stat !== 0 || s.name !== 'On the house'))
+        return this.$store.getters.stats.filter((s) => (s.stat !== 0 || s.name !== 'Na račun kuće'))
       },
       gridCols() {
         const len = this.filteredStats.length

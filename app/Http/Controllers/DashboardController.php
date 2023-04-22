@@ -32,21 +32,21 @@ class DashboardController extends Controller
 
     public function stats()
     {
-      $today = ReportsService::getRevenueForDate(WorkingDay::getWorkingDay());
-      $activeTablesTotal = Order::selectRaw('sum(total) as total')->groupBy('table_id')->get()->sum('total');
+        $today = ReportsService::getRevenueForDate(WorkingDay::getWorkingDay());
+        $activeTablesTotal = Order::selectRaw('sum(total) as total')->groupBy('table_id')->get()->sum('total');
 
-      return [
-        ReportsService::parseStats($today, 'Total', 'total'),
-        [
-          "name" => 'Active Orders',
-          "stat" => (int) $activeTablesTotal,
-          "primary" => false,
-        ],
-        ReportsService::parseStats($today, 'Refund', 'refund'),
-        ReportsService::parseStats($today, 'On the house', 'onthehouse'),
-        ReportsService::parseStats($today, 'Income', 'income', true, $activeTablesTotal),
+        return [
+          ReportsService::parseStats($today, 'Ukupno', 'total'),
+          [
+            "name" => 'Aktivne narudžbe',
+            "stat" => (int) $activeTablesTotal,
+            "primary" => false,
+          ],
+          ReportsService::parseStats($today, 'Stornirano', 'refund'),
+          ReportsService::parseStats($today, 'Na račun kuće', 'onthehouse'),
+          ReportsService::parseStats($today, 'Prihod', 'income', true, $activeTablesTotal),
 
-      ];
+        ];
 
     }
 }

@@ -2,11 +2,11 @@
   <div class="flex flex-col">
     <div class="flex justify-end items-center gap-5">
       <div>
-        <label for="date" class="block text-sm font-medium text-gray-700">Occupation</label>
+        <label for="date" class="block text-sm font-medium text-gray-700">Šank ili kuhinja</label>
         <Select :preselected="occupation" :list="occupations" @select="filterOccupation" />
       </div>
       <div class="w-full sm:w-64 relative text-sm">
-        <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+        <label for="date" class="block text-sm font-medium text-gray-700">Datum</label>
         <litepie-datepicker
           i18n="sr"
           use-range

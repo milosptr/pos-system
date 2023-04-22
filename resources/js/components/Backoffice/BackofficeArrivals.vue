@@ -1,8 +1,8 @@
 <template>
   <div class="-mt-10">
     <div class="flex justify-end items-center gap-4 mb-10">
-      <div class="bg-gray-200 px-4 py-2 rounded-md cursor-pointer" :class="[{'bg-indigo-500 text-white': page === 1}]" @click="chnagePage(1)">Overview</div>
-      <div class="bg-gray-200 px-4 py-2 rounded-md cursor-pointer" :class="[{'bg-indigo-500 text-white': page === 2}]" @click="chnagePage(2)">Individual</div>
+      <div class="bg-gray-200 px-4 py-2 rounded-md cursor-pointer" :class="[{'bg-indigo-500 text-white': page === 1}]" @click="chnagePage(1)">Pregled</div>
+      <div class="bg-gray-200 px-4 py-2 rounded-md cursor-pointer" :class="[{'bg-indigo-500 text-white': page === 2}]" @click="chnagePage(2)">Individualni</div>
     </div>
     <div>
       <BackofficeArrivalsOverview v-show="page === 1" />

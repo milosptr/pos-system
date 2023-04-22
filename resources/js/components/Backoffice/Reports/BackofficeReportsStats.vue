@@ -6,7 +6,7 @@
       >
         <div v-if="tabInvoices" class="px-4 py-5 sm:px-6">
           <dt class="text-base font-normal text-gray-900">
-            Total
+            Ukupno
           </dt>
           <dd class="flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
             <div
@@ -19,7 +19,7 @@
         </div>
         <div v-if="tabInvoices && reportsStat?.onthehouse && parseInt(reportsStat.onthehouse)" class="px-4 py-5 sm:px-6">
           <dt class="text-base font-normal text-gray-900">
-            On the house
+            Na račun kuće
           </dt>
           <dd class="flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
             <div
@@ -32,7 +32,7 @@
         </div>
         <div v-if="tabInvoices" class="px-4 py-5 sm:px-6">
           <dt class="text-base font-normal text-gray-900">
-            Refunded
+            Stornirano
           </dt>
           <dd class="flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
             <div
@@ -45,7 +45,7 @@
         </div>
         <div class="px-4 py-5 sm:px-6">
           <dt class="text-base font-normal text-gray-900">
-            Income
+            Prihod
           </dt>
           <dd class="flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
             <div
