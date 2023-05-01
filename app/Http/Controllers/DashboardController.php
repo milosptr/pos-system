@@ -38,7 +38,7 @@ class DashboardController extends Controller
         return [
           ReportsService::parseStats($today, 'Ukupno', 'total'),
           [
-            "name" => 'Aktivne narudžbe',
+            "name" => 'Aktivni stolovi',
             "stat" => (int) $activeTablesTotal,
             "primary" => false,
           ],

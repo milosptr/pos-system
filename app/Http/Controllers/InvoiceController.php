@@ -68,7 +68,9 @@ class InvoiceController extends Controller
             if(!$orderID) {
                 Order::where('table_id', $request->get('table_id'))->delete();
             }
-            SalesService::parseAndSaveOrder($request->get('order'), $invoice);
+            if($invoice->status !== Invoice::STATUS_REFUNDED) {
+                SalesService::parseAndSaveOrder($request->get('order'), $invoice);
+            }
             try {
                 app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
             } catch(Exception $e) {

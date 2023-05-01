@@ -3,10 +3,10 @@
     <div class="flex items-center justify-end gap-4 -mt-12 mb-12">
       <div class="bg-gray-200 px-4 py-2 rounded-md" :class="{'bg-indigo-500 text-white': activeTab === 2}" @click="changeTab(2)">Uvoz</div>
     </div>
-    <div class="flex items-end justify-between">
-      <div class="flex items-end justify-end gap-4">
-        <div class="bg-gray-200 px-4 py-2 rounded-md" :class="{'bg-indigo-500 text-white': !activeTab}" @click="changeTab(0)">Promet po danima</div>
-        <div class="bg-gray-200 px-4 py-2 rounded-md" :class="{'bg-indigo-500 text-white': activeTab === 1}" @click="changeTab(1)">Promet artikala</div>
+    <div class="flex flex-col lg:flex-row items-end justify-between gap-4 lg:gap-0">
+      <div class="flex items-end justify-end gap-4 w-full lg:w-auto">
+        <div class="bg-gray-200 px-4 py-2 rounded-md w-full whitespace-nowrap text-center lg:w-auto" :class="{'bg-indigo-500 text-white': !activeTab}" @click="changeTab(0)">Promet po danima</div>
+        <div class="bg-gray-200 px-4 py-2 rounded-md w-full whitespace-nowrap text-center lg:w-auto" :class="{'bg-indigo-500 text-white': activeTab === 1}" @click="changeTab(1)">Promet artikala</div>
       </div>
       <BackofficeReportsFilters v-if="activeTab !== 2" />
     </div>

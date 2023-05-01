@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="w-full">
   <div class="flex flex-col sm:flex-row justify-end gap-4">
     <div v-if="!tabInvoices">
       <label for="inventory" class="block text-sm font-medium text-gray-700">Pretraga artikla</label>
