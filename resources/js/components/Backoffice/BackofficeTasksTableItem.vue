@@ -6,7 +6,7 @@
     <td :class="[idx !== tasks.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-2 px-3 text-sm text-gray-900']">{{ item.price }} {{ item.price ? 'RSD' : '' }}</td>
     <td :class="[idx !== tasks.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-pre-wrap py-2 px-3 text-sm text-gray-900']">{{ item.message }}</td>
     <td :class="[idx !== tasks.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-2 px-3 text-sm font-medium text-gray-900 text-center']">
-      <div class="h-3.5 w-3.5 rounded-full bg-red-500 mx-auto" :class="{'bg-green-500': item.done}"></div>
+      <div class="h-3.5 w-3.5 rounded-full mx-auto" :class="[item.done ? 'bg-green-500' : 'bg-red-500']"></div>
     </td>
     <td :class="[idx !== tasks.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm text-gray-500']">
       <div class="text-red-500" @click="showDeleteModal = true">Delete</div>
