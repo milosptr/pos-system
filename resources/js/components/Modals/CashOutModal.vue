@@ -85,7 +85,7 @@
           </div>
           <div
             class="bg-green-500 w-1/2 py-5 rounded-sm text-2xl uppercase font-bold text-center text-white"
-            @click="cacheOut"
+            @click="cashOut"
           >
             Naplati
           </div>
@@ -156,7 +156,7 @@
         this.$store.commit('setSelectedWaiterId', id)
         this.showError = false
       },
-      cacheOut() {
+      cashOut() {
         if(this.selectedWaiterId === null) {
           this.showError = true
           return

@@ -45,23 +45,23 @@
         </div>
       </div>
     </div>
-    <CacheOutModal v-if="showCacheOutModal" @close="showCacheOutModal = false" @charge="charge" />
+    <CashOutModal v-if="showCashOutModal" @close="showCashOutModal = false" @charge="charge" />
     <MoveTableModal v-if="showMoveTableModal" @close="showMoveTableModal = false" />
     <RefundReasonModal v-if="showRefundReasonModal" @close="showRefundReasonModal = false" />
   </div>
 </template>
 
 <script>
-  import CacheOutModal from '../Modals/CacheOutModal.vue'
+  import CashOutModal from '../Modals/CashOutModal.vue'
   import MoveTableModal from '../Modals/MoveTableModal.vue'
   import RefundReasonModal from '../Modals/RefundReasonModal.vue'
   import SingleOrder from './SingleOrder.vue'
   import TableMenu from './TableMenu.vue'
 
   export default {
-    components: { SingleOrder, TableMenu, CacheOutModal, MoveTableModal, RefundReasonModal },
+    components: { SingleOrder, TableMenu, CashOutModal, MoveTableModal, RefundReasonModal },
     data: () => ({
-     showCacheOutModal: false,
+     showCashOutModal: false,
      showMoveTableModal: false,
      showRefundReasonModal: false,
      showTableMenu: false,
@@ -112,11 +112,11 @@
         if(this.order.order.length) {
           this.$store.dispatch('storeOrder', this.$route.params.id)
             .then(() => {
-              this.showCacheOutModal = true
+              this.showCashOutModal = true
             })
         }
         if(this.orders.length) {
-          this.showCacheOutModal = true
+          this.showCashOutModal = true
         }
       },
       charge(status) {

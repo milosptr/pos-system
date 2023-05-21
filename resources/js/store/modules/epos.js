@@ -140,8 +140,12 @@ const general = {
         ...data
       })
         .then((res) => {
+          if(res.data.data?.table_id) {
+            const table = parseInt(res.data.data.table_id)
+            commit('clearBilledTable', table)
+          }
           if(res.data.data.status)
-          dispatch('setPrintingInvoice', res.data.data, { root: true })
+            dispatch('setPrintingInvoice', res.data.data, { root: true })
           dispatch('getTables')
           commit('setDiscount', 0)
         })
@@ -222,6 +226,15 @@ const general = {
     },
     setDiscount(state, value) {
       state.discount = parseFloat(value)
+    },
+    clearBilledTable(state, table) {
+      state.tables = state.tables.map((t) => {
+        if(t.id === table) {
+          t.orders = []
+          t.total = 0
+        }
+        return t
+      })
     }
   },
 

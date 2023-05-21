@@ -21,17 +21,17 @@
       @refund="refundItem(o)"
     />
     <SingleOrderMenu v-if="showSingleOrderMenu" @selected="handleTableMenu"  @close="showSingleOrderMenu = false" />
-    <CacheOutModal v-if="showCacheOutModal" @close="showCacheOutModal = false" @charge="charge" />
+    <CashOutModal v-if="showCashOutModal" @close="showCashOutModal = false" @charge="charge" />
   </div>
 </template>
 
 <script>
-  import CacheOutModal from '../Modals/CacheOutModal.vue'
+  import CashOutModal from '../Modals/CashOutModal.vue'
   import SingleOrderItem from './SingleOrderItem.vue'
   import SingleOrderMenu from './SingleOrderMenu.vue'
 
   export default {
-  components: { SingleOrderItem, SingleOrderMenu, CacheOutModal },
+  components: { SingleOrderItem, SingleOrderMenu, CashOutModal },
     props: {
       order: {
         type: Object,
@@ -68,7 +68,7 @@
     },
     data: () => ({
       showSingleOrderMenu: false,
-      showCacheOutModal: false,
+      showCashOutModal: false,
     }),
     computed: {
       orders() {
@@ -91,7 +91,7 @@
         let total = this.order.order.reduce((a, val) => a + (val.refund ? 0 : (val.qty * val.price)), 0)
         axios.post('/api/invoices/one/' + this.order.id, { ...this.order, user_id: this.selectedWaiterId, total })
           .then((res) => {
-            this.showCacheOutModal = false
+            this.showCashOutModal = false
             this.$store.dispatch('getTableOrders')
             this.$store.dispatch('getTables')
             this.$store.dispatch('setPrintingInvoice', res.data.data)
@@ -99,7 +99,7 @@
       },
       handleTableMenu(item) {
         if(item === 'cashout') {
-          this.showCacheOutModal = true
+          this.showCashOutModal = true
         }
         if(item === 'reprint') {
           if(this.order.order.some((i) => i.should_print))
