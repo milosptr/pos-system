@@ -1,23 +1,27 @@
 <template>
   <div
     v-click-outside="() => $emit('close')"
-    class="absolute top-0 left-0 bg-white shadow-lg border border-gray-200 z-10 rounded-sm text-lg uppercase font-semibold">
-    <div class="py-3 px-5 border-b border-gray-200" @click="handleClick('reprint')">
+    class="absolute left-0 top-0 z-10 rounded-sm border border-gray-200 bg-white text-lg font-semibold uppercase shadow-lg">
+    <div
+      class="border-b border-gray-200 px-5 py-3"
+      @click="handleClick('reprint')">
       Ponovno štampanje
     </div>
-    <div class="py-3 px-5 border-b border-gray-200" @click="handleClick('cashout')">
+    <div
+      class="border-b border-gray-200 px-5 py-3"
+      @click="handleClick('cashout')">
       Naplati porudžbinu
     </div>
   </div>
 </template>
 
 <script>
-  export default {
-    methods: {
-      handleClick(type) {
-        this.$emit('selected', type)
-        this.$emit('close')
-      }
+export default {
+  methods: {
+    handleClick(type) {
+      this.$emit('selected', type)
+      this.$emit('close')
     }
   }
+}
 </script>

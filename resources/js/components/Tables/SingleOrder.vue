@@ -1,10 +1,11 @@
 <template>
-  <div v-if="order.order.length" class="mb-3 mt-1 relative">
+  <div
+    v-if="order.order.length"
+    class="relative mb-3 mt-1">
     <div
       v-if="showOrderLine"
-      class="bg-gray-500 flex justify-between items-center text-white px-2"
-      @click="showSingleOrderMenu = true"
-    >
+      class="flex items-center justify-between bg-gray-500 px-2 text-white"
+      @click="showSingleOrderMenu = true">
       <div v-if="title">{{ title }}</div>
       <div v-else>Porudzbina #{{ index }}</div>
       <div v-if="order.created_at">{{ order.created_at }}</div>
@@ -14,102 +15,107 @@
       :key="o.id"
       :order="o"
       :disableRefund="order.disableRefund"
-      :class="{'bg-gray-100': boxBackground}"
+      :class="{ 'bg-gray-100': boxBackground }"
       :saved="saved"
       :still="still"
-      class="py-1 px-2 text-xl my-1"
-      @refund="refundItem(o)"
-    />
-    <SingleOrderMenu v-if="showSingleOrderMenu" @selected="handleTableMenu"  @close="showSingleOrderMenu = false" />
-    <CashOutModal v-if="showCashOutModal" @close="showCashOutModal = false" @charge="charge" />
+      class="my-1 px-2 py-1 text-xl"
+      @refund="refundItem(o)" />
+    <SingleOrderMenu
+      v-if="showSingleOrderMenu"
+      @selected="handleTableMenu"
+      @close="showSingleOrderMenu = false" />
+    <CashOutModal
+      v-if="showCashOutModal"
+      @close="showCashOutModal = false"
+      @charge="charge" />
   </div>
 </template>
 
 <script>
-  import CashOutModal from '../Modals/CashOutModal.vue'
-  import SingleOrderItem from './SingleOrderItem.vue'
-  import SingleOrderMenu from './SingleOrderMenu.vue'
+import CashOutModal from '../Modals/CashOutModal.vue'
+import SingleOrderItem from './SingleOrderItem.vue'
+import SingleOrderMenu from './SingleOrderMenu.vue'
 
-  export default {
+export default {
   components: { SingleOrderItem, SingleOrderMenu, CashOutModal },
-    props: {
-      order: {
-        type: Object,
-        default: () => {}
-      },
-      index: {
-        type: Number,
-        default: () => 1
-      },
-      saved: {
-        type: Boolean,
-        default: () => true
-      },
-      still: {
-        type: Boolean,
-        default: () => false
-      },
-      showOrderLine: {
-        type: Boolean,
-        default: () => true
-      },
-      boxBackground: {
-        type: Boolean,
-        default: () => true
-      },
-      backoffice: {
-        type: Boolean,
-        default: () => false
-      },
-      title: {
-        type: String,
-        default: () => ''
-      },
+  props: {
+    order: {
+      type: Object,
+      default: () => {}
     },
-    data: () => ({
-      showSingleOrderMenu: false,
-      showCashOutModal: false,
-    }),
-    computed: {
-      orders() {
-        return [...this.order.order].reverse()
-      },
-      selectedWaiterId() {
-        return this.$store.getters.selectedWaiterId
-      },
+    index: {
+      type: Number,
+      default: () => 1
     },
-    methods: {
-      refundItem(item) {
-        if(this.saved) {
-          this.$store.commit('refundItem', { order: this.order, item})
-          this.$store.dispatch('storeRefundItem', this.order)
-          return
-        }
-        this.$store.commit('removeItemFromOrder', item.id)
-      },
-      charge() {
-        let total = this.order.order.reduce((a, val) => a + (val.refund ? 0 : (val.qty * val.price)), 0)
-        axios.post('/api/invoices/one/' + this.order.id, { ...this.order, user_id: this.selectedWaiterId, total })
-          .then((res) => {
-            this.showCashOutModal = false
-            this.$store.dispatch('getTableOrders')
-            this.$store.dispatch('getTables')
-            this.$store.dispatch('setPrintingInvoice', res.data.data)
-          })
-      },
-      handleTableMenu(item) {
-        if(item === 'cashout') {
-          this.showCashOutModal = true
-        }
-        if(item === 'reprint') {
-          if(this.order.order.some((i) => i.should_print))
-            this.$store.dispatch('setPrintingOrder', this.order)
-        }
+    saved: {
+      type: Boolean,
+      default: () => true
+    },
+    still: {
+      type: Boolean,
+      default: () => false
+    },
+    showOrderLine: {
+      type: Boolean,
+      default: () => true
+    },
+    boxBackground: {
+      type: Boolean,
+      default: () => true
+    },
+    backoffice: {
+      type: Boolean,
+      default: () => false
+    },
+    title: {
+      type: String,
+      default: () => ''
+    }
+  },
+  data: () => ({
+    showSingleOrderMenu: false,
+    showCashOutModal: false
+  }),
+  computed: {
+    orders() {
+      return [...this.order.order].reverse()
+    },
+    selectedWaiterId() {
+      return this.$store.getters.selectedWaiterId
+    }
+  },
+  methods: {
+    refundItem(item) {
+      if (this.saved) {
+        this.$store.commit('refundItem', { order: this.order, item })
+        this.$store.dispatch('storeRefundItem', this.order)
+        return
+      }
+      this.$store.commit('removeItemFromOrder', item.id)
+    },
+    charge() {
+      let total = this.order.order.reduce((a, val) => a + (val.refund ? 0 : val.qty * val.price), 0)
+      axios
+        .post('/api/invoices/one/' + this.order.id, { ...this.order, user_id: this.selectedWaiterId, total })
+        .then((res) => {
+          this.showCashOutModal = false
+          this.$store.dispatch('getTableOrders')
+          this.$store.dispatch('getTables')
+          this.$store.dispatch('setPrintingInvoice', res.data.data)
+        })
+    },
+    handleTableMenu(item) {
+      if (item === 'cashout') {
+        this.showCashOutModal = true
+      }
+      if (item === 'reprint') {
+        if (this.order.order.some((i) => i.should_print)) this.$store.dispatch('setPrintingOrder', this.order)
+      }
 
-        if(item === 'refund') {
-          this.showRefundReasonModal = true
-        }
+      if (item === 'refund') {
+        this.showRefundReasonModal = true
       }
     }
   }
+}
 </script>

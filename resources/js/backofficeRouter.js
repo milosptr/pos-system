@@ -19,114 +19,112 @@ import BackofficeArrivals from './components/Backoffice/BackofficeArrivals.vue'
 import BackofficeImportedSales from './components/Backoffice/Reports/BackofficeImportedSales.vue'
 
 const routes = [
-    {
+  {
+    path: '/',
+    component: Backoffice,
+    children: [
+      {
         path: '/',
-        component: Backoffice,
-        children: [
-            {
-                path: '/',
-                name: 'overview',
-                component: BackofficeOverview
-            },
-            {
-                path: '/categories',
-                name: 'categories',
-                component: BackofficeCategories,
-            },
-            {
-                path: '/categories/new',
-                name: 'categories-new',
-                component: BackofficeCategoriesNew,
-            },
-            {
-                path: '/inventory',
-                name: 'inventory',
-                component: BackofficeInventory,
-            },
-            {
-              path: '/inventory/new',
-              name: 'inventory-new',
-              component: BackofficeInventoryNew,
-            },
-            {
-                path: '/users',
-                name: 'users',
-                component: BackofficeInventoryNew
-            },
-            {
-                path: '/tables',
-                name: 'tables',
-                component: BackofficeTables
-            },
-            {
-                path: '/orders',
-                name: 'orders',
-                component: BackofficeOrders
-            },
-            {
-                path: '/invoices',
-                name: 'invoices',
-                component: BackofficeInvoices
-            },
-            {
-                path: '/settings',
-                name: 'settings',
-                component: BackofficeInvoices
-            },
-            {
-                path: '/reports',
-                name: 'reports',
-                component: BackofficeReports
-            },
-            {
-                path: '/sales-imports',
-                name: 'sales-imports',
-                component: BackofficeImportedSales
-            },
-            {
-                path: '/tasks',
-                name: 'tasks',
-                component: BackofficeTasks
-            },
-            {
-                path: '/users',
-                name: 'users',
-                component: BackofficeUsers
-            },
-            {
-                path: '/clients',
-                name: 'clients',
-                component: BackofficeClients
-            },
-            {
-                path: '/arrivals',
-                name: 'arrivals',
-                component: BackofficeArrivals
-            },
-            {
-                path: '/clients/new',
-                name: 'clients-new',
-                component: BackofficeClientsNew
-            },
-            {
-                path: '/settings',
-                name: 'settings',
-                component: BackofficeSettings
-            },
-            {
-                path: '/connection-logs',
-                name: 'connection-logs',
-                component: BackofficeConnectionsLog
-            },
-        ]
-    },
-
+        name: 'overview',
+        component: BackofficeOverview
+      },
+      {
+        path: '/categories',
+        name: 'categories',
+        component: BackofficeCategories
+      },
+      {
+        path: '/categories/new',
+        name: 'categories-new',
+        component: BackofficeCategoriesNew
+      },
+      {
+        path: '/inventory',
+        name: 'inventory',
+        component: BackofficeInventory
+      },
+      {
+        path: '/inventory/new',
+        name: 'inventory-new',
+        component: BackofficeInventoryNew
+      },
+      {
+        path: '/users',
+        name: 'users',
+        component: BackofficeInventoryNew
+      },
+      {
+        path: '/tables',
+        name: 'tables',
+        component: BackofficeTables
+      },
+      {
+        path: '/orders',
+        name: 'orders',
+        component: BackofficeOrders
+      },
+      {
+        path: '/invoices',
+        name: 'invoices',
+        component: BackofficeInvoices
+      },
+      {
+        path: '/settings',
+        name: 'settings',
+        component: BackofficeInvoices
+      },
+      {
+        path: '/reports',
+        name: 'reports',
+        component: BackofficeReports
+      },
+      {
+        path: '/sales-imports',
+        name: 'sales-imports',
+        component: BackofficeImportedSales
+      },
+      {
+        path: '/tasks',
+        name: 'tasks',
+        component: BackofficeTasks
+      },
+      {
+        path: '/users',
+        name: 'users',
+        component: BackofficeUsers
+      },
+      {
+        path: '/clients',
+        name: 'clients',
+        component: BackofficeClients
+      },
+      {
+        path: '/arrivals',
+        name: 'arrivals',
+        component: BackofficeArrivals
+      },
+      {
+        path: '/clients/new',
+        name: 'clients-new',
+        component: BackofficeClientsNew
+      },
+      {
+        path: '/settings',
+        name: 'settings',
+        component: BackofficeSettings
+      },
+      {
+        path: '/connection-logs',
+        name: 'connection-logs',
+        component: BackofficeConnectionsLog
+      }
+    ]
+  }
 ]
 
-
 const backofficeRouter = createRouter({
-    history: createWebHashHistory(),
-    routes
+  history: createWebHashHistory(),
+  routes
 })
 
 export default backofficeRouter
