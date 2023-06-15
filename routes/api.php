@@ -2,6 +2,7 @@
 
 use Services\WorkingDay;
 use Illuminate\Http\Request;
+use App\Models\ClientInvoice;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\OrderController;
@@ -18,8 +19,10 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\StockroomController;
 use App\Http\Controllers\ValidatePinController;
 use App\Http\Controllers\RefundReasonController;
+use App\Http\Controllers\ClientInvoiceController;
 use App\Http\Controllers\ConnectionsLogController;
 use App\Http\Controllers\InventoryPricingController;
+use App\Http\Controllers\ClientBankAccountController;
 use App\Http\Controllers\SalesImportDetaisController;
 
 /*
@@ -71,6 +74,14 @@ Route::get('invoices/daily-maximum', [InvoiceController::class, 'dailyMaximum'])
 Route::post('invoices', [InvoiceController::class, 'store']);
 Route::post('invoices/one/{orderId}', [InvoiceController::class, 'store']);
 Route::post('invoices/{id}/refund', [InvoiceController::class, 'refund']);
+
+// Bank Accounts
+Route::get('bank-accounts', [ClientBankAccountController::class, 'index']);
+Route::post('bank-accounts', [ClientBankAccountController::class, 'store']);
+// Bank Invoices
+Route::get('bank-invoices', [ClientInvoiceController::class, 'index']);
+Route::post('bank-invoices', [ClientInvoiceController::class, 'store']);
+Route::put('bank-invoices/{id}', [ClientInvoiceController::class, 'update']);
 
 // Sales
 Route::get('sales/imports', [SalesImportDetaisController::class, 'index']);
