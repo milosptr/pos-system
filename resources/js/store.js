@@ -5,11 +5,11 @@ import printing from './store/modules/printing'
 
 const store = createStore({
   namespaced: true,
-	modules: {
+  modules: {
     general,
     epos,
-    printing,
-	}
-});
+    printing
+  }
+})
 
 export default store

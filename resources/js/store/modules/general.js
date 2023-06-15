@@ -8,39 +8,36 @@ const general = {
 
   actions: {
     getInvoices({ commit }) {
-      axios.get('/api/invoices/today')
-        .then((res) => {
-          commit('setInvoices', res.data.data)
-        })
+      axios.get('/api/invoices/today').then((res) => {
+        commit('setInvoices', res.data.data)
+      })
     },
-    refundInvoice( {commit, state }, data) {
-      axios.post(`/api/invoices/${state.activeInvoice.id}/refund`, data)
-        .then((res) => {
-          commit('setInvoices', res.data.data)
-          commit('setActiveInvoice', state.activeInvoice.id)
-        })
+    refundInvoice({ commit, state }, data) {
+      axios.post(`/api/invoices/${state.activeInvoice.id}/refund`, data).then((res) => {
+        commit('setInvoices', res.data.data)
+        commit('setActiveInvoice', state.activeInvoice.id)
+      })
     },
     getTasks({ commit }) {
-      axios.get('/api/tasks/today')
-        .then( (res) => {
-            commit('setTasks', res.data.data)
-        })
-    },
+      axios.get('/api/tasks/today').then((res) => {
+        commit('setTasks', res.data.data)
+      })
+    }
   },
 
   mutations: {
-    setInvoices( state, invoices ) {
+    setInvoices(state, invoices) {
       state.invoices = invoices
     },
-    setActiveInvoice( state, id ) {
+    setActiveInvoice(state, id) {
       state.activeInvoice = state.invoices.find((i) => i.id === id)
     },
-    setOpenedDeleteButton( state, btn ) {
+    setOpenedDeleteButton(state, btn) {
       state.openedDeleteButton = btn
     },
     setTasks(state, tasks) {
       state.tasks = tasks
-    },
+    }
   },
 
   getters: {
@@ -53,7 +50,7 @@ const general = {
     openedDeleteButton(state) {
       return state.openedDeleteButton
     },
-    tasks: (state) => state.tasks,
+    tasks: (state) => state.tasks
   }
 }
 

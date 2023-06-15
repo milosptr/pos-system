@@ -3,10 +3,10 @@ import backoffice from './store/modules/backoffice'
 import printing from './store/modules/printing'
 
 const backofficeStore = createStore({
-    modules: {
-        backoffice,
-        printing,
-    }
+  modules: {
+    backoffice,
+    printing
+  }
 })
 
 export default backofficeStore

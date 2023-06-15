@@ -10,7 +10,7 @@ const routes = [
   {
     path: '/',
     name: 'app',
-    component: App,
+    component: App
   },
   {
     path: '/table',
@@ -21,7 +21,7 @@ const routes = [
         path: ':id',
         components: {
           main: InventoryOverview,
-          sidebar: Table,
+          sidebar: Table
         }
       }
     ]
@@ -32,7 +32,7 @@ const routes = [
     component: SidebarLayout,
     children: [
       {
-        name: "invoice",
+        name: 'invoice',
         path: '',
         components: {
           main: InvoicesOverview,
@@ -40,8 +40,7 @@ const routes = [
         }
       }
     ]
-  },
-
+  }
 ]
 const router = createRouter({
   history: createWebHashHistory(),

@@ -3,6 +3,4 @@
   <portal-target name="portal" />
 </template>
 
-<script setup>
-
-</script>
+<script setup></script>

@@ -4,145 +4,149 @@
       <div
         v-for="parent in parentCategories"
         :key="parent.id"
-        class="w-48 px-6 py-3 bg-primary rounded-sm text-white text-lg uppercase font-medium"
+        class="w-48 rounded-sm bg-primary px-6 py-3 text-lg font-medium uppercase text-white"
         :class="[parent.id === activeParentCategoryId ? 'opacity-100' : 'opacity-70']"
-        @click="setParentCategory(parent.id)"
-      >
+        @click="setParentCategory(parent.id)">
         {{ parent.name }}
       </div>
-      <div class="flex ml-auto gap-2">
+      <div class="ml-auto flex gap-2">
         <div
           v-if="canDivideInHalf"
-          class="bg-gray-500 flex items-center justify-center text-lg uppercase font-medium OneHalf ml-auto"
-          @click="halfPortion"
-        >
-          <img :src="$filters.imgUrl('onehalf.svg')" alt="half" width="35"/>
+          class="OneHalf ml-auto flex items-center justify-center bg-gray-500 text-lg font-medium uppercase"
+          @click="halfPortion">
+          <img
+            :src="$filters.imgUrl('onehalf.svg')"
+            alt="half"
+            width="35" />
         </div>
-        <router-link to="/"
-          class="w-32 px-6 py-3 bg-red-600 text-center text-white text-lg uppercase font-medium"
-        >
+        <router-link
+          to="/"
+          class="w-32 bg-red-600 px-6 py-3 text-center text-lg font-medium uppercase text-white">
           Nazad
         </router-link>
       </div>
     </div>
-    <div v-if="showCategories" class="grid grid-cols-5 gap-2 mt-4">
+    <div
+      v-if="showCategories"
+      class="mt-4 grid grid-cols-5 gap-2">
       <div
         v-for="category in categories"
         :key="category.id"
         @click="setActiveCategory(category.id)"
         class="InventoryBox InventoryItem flex items-center justify-center rounded-sm"
         :class="'order-' + category.order"
-        :style="[category.color ? `color: ${category.color};` : '']"
-        >
+        :style="[category.color ? `color: ${category.color};` : '']">
         <div class="text-center font-bold uppercase">
           {{ category.name }}
         </div>
       </div>
     </div>
-    <div v-if="!showCategories" class="grid grid-cols-5 gap-2 mt-4">
+    <div
+      v-if="!showCategories"
+      class="mt-4 grid grid-cols-5 gap-2">
       <div
         v-for="item in inventory"
         :key="item.id"
         class="InventoryBox InventoryItem flex items-center justify-center rounded-sm"
-        :class="['order-' + item.order, {'line-through text-gray-900 text-opacity-40 InactiveItem': !item.active}]"
+        :class="['order-' + item.order, { 'InactiveItem text-gray-900 text-opacity-40 line-through': !item.active }]"
         :style="[item.color ? `color: ${item.color};` : '']"
-        @click="addToOrder(item)"
-        >
+        @click="addToOrder(item)">
         <div class="text-center font-bold">
           {{ item.name }}
         </div>
       </div>
     </div>
-    <QuantityModal v-if="showQuantityModal" @close="showQuantityModal = false" />
+    <QuantityModal
+      v-if="showQuantityModal"
+      @close="showQuantityModal = false" />
   </div>
 </template>
 
 <script>
-  import QuantityModal from '../Modals/QuantityModal.vue'
+import QuantityModal from '../Modals/QuantityModal.vue'
 
-  export default {
+export default {
   components: { QuantityModal },
-    data: () => ({
-      showCategories: true,
-      showQuantityModal: false,
-      customQty: null,
-    }),
-    computed: {
-      activeParentCategoryId() {
-        return this.$store.getters.activeParentCategoryId
-      },
-      parentCategories() {
-        return this.$store.getters.parentCategories
-      },
-      categories() {
-        return this.$store.getters.filteredCategories
-      },
-      inventory() {
-        return this.$store.getters.inventoryForCategory
-      },
-      canDivideInHalf() {
-        return this.$store.getters.lastItemInOrder && this.$store.getters.lastItemInOrder.sold_by === 1
-      },
-      canSelectGrams() {
-        return this.$store.getters.lastItemInOrder && this.$store.getters.lastItemInOrder.sold_by === 2
-      },
+  data: () => ({
+    showCategories: true,
+    showQuantityModal: false,
+    customQty: null
+  }),
+  computed: {
+    activeParentCategoryId() {
+      return this.$store.getters.activeParentCategoryId
     },
-    mounted() {
-      this.setParentCategory(0)
+    parentCategories() {
+      return this.$store.getters.parentCategories
     },
-    methods: {
-      setParentCategory(id) {
-        this.$store.commit('setActiveParentCategoryId', id)
-        this.showCategories = true
-      },
-      setActiveCategory(id) {
-        this.$store.commit('setActiveCategory', id)
-        this.showCategories = false
-      },
-      halfPortion() {
-        this.$store.commit('lastOrderHalfPortion')
-      },
-      addToOrder(item) {
-        if(item.active) {
-          this.$store.commit('setOrder', {...item, table_id: this.$route.params.id, timestamp: dayjs().valueOf()})
-          if(item.sold_by === 2)
-            this.showQuantityModal = true
-        }
+    categories() {
+      return this.$store.getters.filteredCategories
+    },
+    inventory() {
+      return this.$store.getters.inventoryForCategory
+    },
+    canDivideInHalf() {
+      return this.$store.getters.lastItemInOrder && this.$store.getters.lastItemInOrder.sold_by === 1
+    },
+    canSelectGrams() {
+      return this.$store.getters.lastItemInOrder && this.$store.getters.lastItemInOrder.sold_by === 2
+    }
+  },
+  mounted() {
+    this.setParentCategory(0)
+  },
+  methods: {
+    setParentCategory(id) {
+      this.$store.commit('setActiveParentCategoryId', id)
+      this.showCategories = true
+    },
+    setActiveCategory(id) {
+      this.$store.commit('setActiveCategory', id)
+      this.showCategories = false
+    },
+    halfPortion() {
+      this.$store.commit('lastOrderHalfPortion')
+    },
+    addToOrder(item) {
+      if (item.active) {
+        this.$store.commit('setOrder', { ...item, table_id: this.$route.params.id, timestamp: dayjs().valueOf() })
+        if (item.sold_by === 2) this.showQuantityModal = true
       }
     }
   }
+}
 </script>
 
 <style scoped>
-  .InventoryBox {
-    padding: 0 8px;
-    aspect-ratio: 5/3;
-    background: #d5d5d5;
-    font-size: 23px;
-    font-weight: 500;
-    line-height: 1.2em;
-  }
+.InventoryBox {
+  padding: 0 8px;
+  aspect-ratio: 5/3;
+  background: #d5d5d5;
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1.2em;
+}
 
-  .InventoryBox:active {
-    background: #777;
-  }
+.InventoryBox:active {
+  background: #777;
+}
 
-  .InventoryBox.InactiveItem:active {
-    background: #d5d5d5;
-  }
+.InventoryBox.InactiveItem:active {
+  background: #d5d5d5;
+}
 
+.InventoryBox.InventoryItem {
+  font-size: 20px;
+}
+
+@media (max-width: 1024px) {
   .InventoryBox.InventoryItem {
-    font-size: 20px;
+    font-size: 18px;
   }
+}
 
-  @media (max-width: 1024px) {
-    .InventoryBox.InventoryItem {
-      font-size: 18px;
-    }
-  }
-
-  .OneHalf {
-    height: 52px;
-    width: 72px;
-  }
+.OneHalf {
+  height: 52px;
+  width: 72px;
+}
 </style>

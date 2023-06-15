@@ -1,5 +1,5 @@
-import _ from 'lodash';
-window._ = _;
+import _ from 'lodash'
+window._ = _
 
 import dayjs from 'dayjs'
 window.dayjs = dayjs
@@ -9,12 +9,11 @@ window.dayjs = dayjs
  * CSRF token as a header based on the value of the "XSRF" token cookie.
  */
 
-import axios from 'axios';
-window.axios = axios;
+import axios from 'axios'
+window.axios = axios
 
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-window.axios.defaults.headers.get['Access-Control-Allow-Origin'] = '*';
-
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+window.axios.defaults.headers.get['Access-Control-Allow-Origin'] = '*'
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

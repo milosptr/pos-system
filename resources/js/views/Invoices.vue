@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full h-screen">
+  <div class="relative h-screen w-full">
     Invoices
     <BottomNavigation />
   </div>
@@ -7,13 +7,11 @@
 
 <script>
 import BottomNavigation from '../components/BottomNavigation.vue'
-  export default {
+export default {
   components: { BottomNavigation },
-    data: () => ({
-      invoices: []
-    }),
-    mounted() {
-
-    }
-  }
+  data: () => ({
+    invoices: []
+  }),
+  mounted() {}
+}
 </script>

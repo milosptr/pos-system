@@ -1,12 +1,23 @@
 <template>
   <div class="flex flex-col">
-    <div class="flex justify-end items-center gap-5">
+    <div class="flex items-center justify-end gap-5">
       <div>
-        <label for="date" class="block text-sm font-medium text-gray-700">Radnik</label>
-        <Select :preselected="employee" :list="employees" @select="filterOccupation" />
+        <label
+          for="date"
+          class="block text-sm font-medium text-gray-700"
+          >Radnik</label
+        >
+        <Select
+          :preselected="employee"
+          :list="employees"
+          @select="filterOccupation" />
       </div>
-      <div class="w-full sm:w-64 relative text-sm">
-        <label for="date" class="block text-sm font-medium text-gray-700">Datum</label>
+      <div class="relative w-full text-sm sm:w-64">
+        <label
+          for="date"
+          class="block text-sm font-medium text-gray-700"
+          >Datum</label
+        >
         <litepie-datepicker
           i18n="sr"
           use-range
@@ -15,31 +26,48 @@
           :auto-apply="false"
           readonly
           aria-readonly="true"
-          v-model="date"
-        />
+          v-model="date" />
       </div>
     </div>
-    <div class="w-full sm:w-auto overflow-x-scroll lg:overflow-x-auto">
+    <div class="w-full overflow-x-scroll sm:w-auto lg:overflow-x-auto">
       <div class="inline-block min-w-full py-2 align-middle">
         <div class="shadow-sm ring-1 ring-black ring-opacity-5">
-          <table class="min-w-full border-separate" style="border-spacing: 0">
+          <table
+            class="min-w-full border-separate"
+            style="border-spacing: 0">
             <thead class="bg-gray-50">
               <tr>
-                <th v-for="(emlpoyee, idx) in numberOfColumns" :key="idx" scope="col" class="sticky top-0 z-10 whitespace-nowrap border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-base font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">{{ emlpoyee.name }}</th>
+                <th
+                  v-for="(emlpoyee, idx) in numberOfColumns"
+                  :key="idx"
+                  scope="col"
+                  class="sticky top-0 z-10 whitespace-nowrap border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-base font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
+                  {{ emlpoyee.name }}
+                </th>
               </tr>
             </thead>
             <tbody class="bg-white">
               <tr
                 v-for="(date, idx) in numberOfRows"
                 :key="idx"
-                class="hover:bg-orange-50 cursor-pointer"
-              >
-                <td v-for="(key, jdx) in numberOfColumns" :key="jdx" :class="['border-b border-gray-200 whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8']">
-                  <div v-html="printRow(key.name, date)" class="text-gray-600 text-sm"></div>
+                class="cursor-pointer hover:bg-orange-50">
+                <td
+                  v-for="(key, jdx) in numberOfColumns"
+                  :key="jdx"
+                  :class="[
+                    'whitespace-nowrap border-b border-gray-200 py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                  ]">
+                  <div
+                    v-html="printRow(key.name, date)"
+                    class="text-sm text-gray-600"></div>
                 </td>
               </tr>
               <tr>
-                <th v-for="(emlpoyee, idx) in numberOfColumns" :key="idx" scope="col" class="sticky top-0 z-10 whitespace-nowrap border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
+                <th
+                  v-for="(emlpoyee, idx) in numberOfColumns"
+                  :key="idx"
+                  scope="col"
+                  class="sticky top-0 z-10 whitespace-nowrap border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
                   {{ printTotal(emlpoyee.name) }}
                 </th>
               </tr>
@@ -52,7 +80,7 @@
 </template>
 
 <script>
-import Select from '../common/Select.vue';
+import Select from '../common/Select.vue'
 
 export default {
   components: { Select },
@@ -64,12 +92,12 @@ export default {
     formatter: {
       date: 'YYYY-MM-DD',
       month: 'MMM'
-    },
+    }
   }),
   watch: {
     date(val) {
       let filterQuery = ''
-      if(val.length) {
+      if (val.length) {
         const dates = val.split(' to ')
         filterQuery = `from=${dates[0]}&to=${dates[1]}&occupation=${this.occupation}`
       }
@@ -77,19 +105,17 @@ export default {
       this.getArrivals(filterQuery)
     }
   },
-  mounted(){
+  mounted() {
     this.getArrivals()
     this.getEmployees()
   },
   computed: {
     numberOfColumns() {
-      if(this.arrivals?.employees)
-        return [{ name: 'Date' }, ...this.arrivals.employees]
+      if (this.arrivals?.employees) return [{ name: 'Date' }, ...this.arrivals.employees]
       return [{}]
     },
     numberOfRows() {
-      if(this.arrivals?.data)
-        return Object.keys(this.arrivals.data).reverse()
+      if (this.arrivals?.data) return Object.keys(this.arrivals.data).reverse()
       return []
     }
   },
@@ -97,86 +123,96 @@ export default {
     getArrivals(filters = null) {
       // fetch(`http://192.168.200.30:81/public/arrivals?${filters ? filters : 'occupation=0'}`)
       fetch(`http://192.168.200.30:81/public/arrivals?${filters ? filters : 'occupation=0'}`)
-        .then(response => response.json())
-        .then(result => { this.arrivals = result })
-        .catch(error => console.log('error', error))
+        .then((response) => response.json())
+        .then((result) => {
+          this.arrivals = result
+        })
+        .catch((error) => console.log('error', error))
     },
     getEmployees(filters = null) {
       // fetch(`http://192.168.200.30:81/public/arrivals?${filters ? filters : 'occupation=0'}`)
       fetch(`http://192.168.200.30:81/public/employees`)
-        .then(response => response.json())
-        .then(result => { this.employees = result.data })
-        .catch(error => console.log('error', error))
+        .then((response) => response.json())
+        .then((result) => {
+          this.employees = result.data
+        })
+        .catch((error) => console.log('error', error))
     },
-    filterOccupation({id}) {
+    filterOccupation({ id }) {
       this.occupation = id
       let filterQuery = `occupation=${id}`
-      if(this.date.length) {
+      if (this.date.length) {
         const dates = this.date.split(' to ')
         filterQuery += `&from=${dates[0]}&to=${dates[1]}`
       }
       this.getArrivals(filterQuery)
     },
     formatTime(date) {
-      if(date)
-        return dayjs(date, 'HH:mm:ss').format('HH:mm')
+      if (date) return dayjs(date, 'HH:mm:ss').format('HH:mm')
       return ''
     },
     printRow(key, date) {
-      if(key === 'Date')
-        return `${dayjs(date).format("DD.MM.YY ddd")}`
+      if (key === 'Date') return `${dayjs(date).format('DD.MM.YY ddd')}`
       try {
         const checkins = this.arrivals.data[date][key]
-        if(checkins) {
-          return checkins.map((c) => {
-            if(c.check_out)
-              return `
+        if (checkins) {
+          return checkins
+            .map((c) => {
+              if (c.check_out)
+                return `
                 <div class="${c.auto_checkout ? 'text-orange-500' : ''}">
-                  <div>${c.total} <span class="text-gray-400 ${c.auto_checkout ? 'text-orange-500' : ''}">(${this.formatTime(c.check_in)} - ${this.formatTime(c.check_out)})</span></div>
+                  <div>${c.total} <span class="text-gray-400 ${
+                  c.auto_checkout ? 'text-orange-500' : ''
+                }">(${this.formatTime(c.check_in)} - ${this.formatTime(c.check_out)})</span></div>
                 </div>`
-            return `<div>${c.total} <span class="text-red-400">(${this.formatTime(c.check_in)} - ?)</span></div>`
-          })
-          .join('')
+              return `<div>${c.total} <span class="text-red-400">(${this.formatTime(c.check_in)} - ?)</span></div>`
+            })
+            .join('')
         }
       } catch (e) {
-        console.log(key,date)
+        console.log(key, date)
         return 'Error here'
       }
       return ''
     },
     printTotal(key) {
-      if(key === 'Date')
-        return 'Total'
+      if (key === 'Date') return 'Total'
       try {
-        const checkins = this.arrivals?.data ? Object.values(this.arrivals.data).map((t) => t[key]).filter((c) => c !== undefined).flat() : []
-        if(checkins.length) {
+        const checkins = this.arrivals?.data
+          ? Object.values(this.arrivals.data)
+              .map((t) => t[key])
+              .filter((c) => c !== undefined)
+              .flat()
+          : []
+        if (checkins.length) {
           const fullDays = checkins
-          .filter((c) => c.check_out)
-          .filter((value, index, self) => {
-            return self.findIndex(v => v.created_date === value.created_date) === index;
-          })
-          const totalInMinutes = checkins.filter((c) => c.check_out).reduce((accumulator, currentValue) => this.parseMinutes(currentValue.total) + accumulator, 0)
-          if(!fullDays.length)
-            return ''
+            .filter((c) => c.check_out)
+            .filter((value, index, self) => {
+              return self.findIndex((v) => v.created_date === value.created_date) === index
+            })
+          const totalInMinutes = checkins
+            .filter((c) => c.check_out)
+            .reduce((accumulator, currentValue) => this.parseMinutes(currentValue.total) + accumulator, 0)
+          if (!fullDays.length) return ''
           return `${this.toHoursAndMinutes(totalInMinutes)} (${fullDays.length}-d)`
         }
-      } catch(e) {
+      } catch (e) {
         console.log(e)
       }
       return ''
     },
     duration(arrival) {
-      if(arrival.check_in && arrival.check_out) {
+      if (arrival.check_in && arrival.check_out) {
         const checkIn = dayjs(arrival.check_in)
         const checkOut = dayjs(arrival.check_out)
         const diff = checkOut.diff(checkIn, 'seconds')
-        const h = Math.floor(diff / 3600);
-        const m = Math.floor(diff % 3600 / 60);
-        const s = Math.floor(diff % 3600 % 60);
-        const hDisplay = h > 0 ? (h + " h, ") : "";
-        const mDisplay = m > 0 ? (m + " min, ") : "";
-        const sDisplay = s > 0 ? (s + " sec") : "";
-        return hDisplay + mDisplay + sDisplay;
+        const h = Math.floor(diff / 3600)
+        const m = Math.floor((diff % 3600) / 60)
+        const s = Math.floor((diff % 3600) % 60)
+        const hDisplay = h > 0 ? h + ' h, ' : ''
+        const mDisplay = m > 0 ? m + ' min, ' : ''
+        const sDisplay = s > 0 ? s + ' sec' : ''
+        return hDisplay + mDisplay + sDisplay
       }
       return ''
     },
@@ -185,9 +221,9 @@ export default {
       return parseInt(time.split(':')[1]) + parseInt(hours) * 60
     },
     toHoursAndMinutes(totalMinutes) {
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
+      const hours = Math.floor(totalMinutes / 60)
+      const minutes = totalMinutes % 60
+      return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`
     }
   }
 }
