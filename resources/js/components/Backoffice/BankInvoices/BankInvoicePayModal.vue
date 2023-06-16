@@ -16,13 +16,13 @@
           </div>
         </div>
         <div>
-          <label for="currency_date" class="block text-sm font-medium leading-6 text-gray-900">Datum valute</label>
+          <label for="payment_deadline" class="block text-sm font-medium leading-6 text-gray-900">Datum valute</label>
           <div class="mt-2">
-            <input type="date" :value="transaction.currency_date" name="currency_date" id="currency_date" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+            <input type="date" :value="transaction.payment_deadline" name="payment_deadline" id="payment_deadline" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
           </div>
         </div>
         <div>
-          <label for="transaction_date" class="block text-sm font-medium leading-6 text-gray-900">Datum transakcije</label>
+          <label for="transaction_date" class="block text-sm font-medium leading-6 text-gray-900">Datum prometa</label>
           <div class="mt-2">
             <input type="date" v-model="transaction.transaction_date" name="transaction_date" id="transaction_date" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
           </div>
@@ -54,8 +54,8 @@
     mounted() {
       this.$nextTick(() => {
         this.transaction.amount = this.invoice.amount
-        this.transaction.currency_date = new Date(this.invoice.currency_date).toISOString().slice(0,10)
-        this.transaction.transaction_date = new Date(this.invoice.transaction_date).toISOString().slice(0,10)
+        this.transaction.payment_deadline = this.invoice.payment_deadline ? new Date(this.invoice.payment_deadline).toISOString().slice(0,10) : new Date().toISOString().slice(0,10)
+        this.transaction.transaction_date = this.invoice.transaction_date ? new Date(this.invoice.transaction_date).toISOString().slice(0,10) : new Date().toISOString().slice(0,10)
       })
     },
     methods: {

@@ -23,10 +23,16 @@ backoffice.config.globalProperties.$filters = {
       return 0
     return parseInt(value).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
   },
-  formatDate(value) {
+  formatDate(value, withTime = false) {
     if(!value)
       return ''
-    return new Date(value).toLocaleDateString('sr-RS', { year: '2-digit', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric' })
+    const config = { year: 'numeric', month: '2-digit', day: '2-digit' }
+    if(withTime) {
+      config.hour = 'numeric'
+      config.minute = 'numeric'
+    }
+
+    return new Date(value).toLocaleDateString('sr-RS', config)
   },
   imgUrl(url) {
     return new URL('/images/' + url, import.meta.env.VITE_APP_URL).href

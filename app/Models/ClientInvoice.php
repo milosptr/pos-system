@@ -14,11 +14,13 @@ class ClientInvoice extends Model
     const STATUS_PAID = 1;
     const STATUS_CANCELLED = 2;
 
+
     protected $fillable = [
       'client_account',
       'reference_number',
-      'currency_date',
-      'transaction_date',
+      'payment_deadline', // datum valute
+      'transaction_date', // datum prometa
+      'processed_at', // datum transakcije
       'amount',
       'status'
     ];

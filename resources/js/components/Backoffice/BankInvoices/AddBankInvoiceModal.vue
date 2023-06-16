@@ -9,13 +9,19 @@
               <div class="w-full">
                 <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Klijenti</label>
                 <select id="clients" v-model="invoice.client_account" name="clients" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                  <option v-for="client in clients" :key="client.id" :value="client.id">{{client.name}} ({{ client.bank_account }})</option>
+                  <option v-for="client in clients" :key="client.id" :value="client.id">{{client.name}}</option>
                 </select>
               </div>
               <div @click="addNewClient = true" class="cursor-pointer">
                 <svg fill="none" stroke="currentColor" class="w-8 h-8 text-gray-500 mb-1" stroke-width="1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
                 </svg>
+              </div>
+            </div>
+            <div v-if="invoice.client_account" class="mt-3">
+              <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Broj računa izabranog klijenta</label>
+              <div class="mt-2">
+                <input type="text" :value="selectedClientBankAccount" readonly disabled name="name" id="name" class="block w-full rounded-md border-0 py-1.5 text-gray-400 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
               </div>
             </div>
           </div>
@@ -47,13 +53,13 @@
             </div>
           </div>
           <div>
-            <label for="currency_date" class="block text-sm font-medium leading-6 text-gray-900">Datum valute</label>
+            <label for="payment_deadline" class="block text-sm font-medium leading-6 text-gray-900">Datum valute</label>
             <div class="mt-2">
-              <input type="date" v-model="invoice.currency_date" name="currency_date" id="currency_date" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+              <input type="date" v-model="invoice.payment_deadline" name="payment_deadline" id="payment_deadline" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
             </div>
           </div>
           <div>
-            <label for="transaction_date" class="block text-sm font-medium leading-6 text-gray-900">Datum transakcije</label>
+            <label for="transaction_date" class="block text-sm font-medium leading-6 text-gray-900">Datum prometa</label>
             <div class="mt-2">
               <input type="date" v-model="invoice.transaction_date" name="transaction_date" id="transaction_date" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
             </div>
@@ -73,7 +79,7 @@ import axios from 'axios';
       clients: [],
       invoice: {
         reference_number: null,
-        currency_date: new Date(),
+        payment_deadline: null,
         transaction_date: null,
         amount: null,
         client_account: null,
@@ -84,7 +90,18 @@ import axios from 'axios';
         bank_account: null,
       }
     }),
+    computed: {
+      selectedClientBankAccount() {
+        if(this.invoice.client_account) {
+          return this.clients.find(client => client.id === this.invoice.client_account).bank_account
+        }
+        return null
+      }
+    },
     mounted() {
+      this.$nextTick(() => {
+        this.invoice.transaction_date = new Date().toISOString().slice(0, 10)
+      })
       axios.get('/api/bank-accounts')
         .then((response) => {
           this.clients = response.data
@@ -92,7 +109,7 @@ import axios from 'axios';
     },
     methods: {
       validate() {
-        if(this.invoice.reference_number && this.invoice.currency_date && this.invoice.amount) {
+        if(this.invoice.transaction_date && this.invoice.payment_deadline && this.invoice.amount) {
           if(this.addNewClient) {
             if(this.newClient.name && this.newClient.bank_account) {
               return true

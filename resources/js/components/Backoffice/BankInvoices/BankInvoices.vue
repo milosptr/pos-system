@@ -2,14 +2,14 @@
   <div>
     <div class="sm:flex sm:items-end">
       <div class="flex flex-col md:flex-row gap-4 w-full">
-        <div class="w-full md:w-72">
+        <div class="w-full md:w-56">
           <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Klijent</label>
           <select id="clients" @change="updateFilterClient" name="clients" class="mt-1 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
             <option value="null">Svi</option>
-            <option v-for="client in bankAccounts" :key="client.id" :value="client.id">{{client.name}} ({{ client.bank_account }})</option>
+            <option v-for="client in bankAccounts" :key="client.id" :value="client.id">{{client.name}}</option>
           </select>
         </div>
-        <div class="w-full md:w-48">
+        <div class="w-full md:w-32">
           <label for="filterStatus" class="block text-sm font-medium leading-6 text-gray-900">Status</label>
           <select id="filterStatus" @change="updateFilterStatus" name="filterStatus" class="mt-1 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
             <option value="null">Sve</option>
@@ -18,7 +18,7 @@
             <option value="2">Otkazano</option>
           </select>
         </div>
-        <div class="w-full md:w-72">
+        <div class="w-full md:w-[240px]">
           <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Datum transakcije</label>
           <litepie-datepicker
             i18n="sr"
@@ -32,15 +32,13 @@
             v-model="filters.date"
           />
         </div>
-        <div class="flex items-end gap-2">
-          <SwitchGroup as="div" class="flex items-center mb-2" @click="showIncoming = !showIncoming">
-            <Switch :value="showIncoming.toString()" :class="[showIncoming ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2']">
-              <span aria-hidden="true" :class="[showIncoming ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
-            </Switch>
-            <SwitchLabel as="span" class="ml-3 text-sm">
-              <span class="font-medium text-gray-900">Prikaži neplaćeno</span>
-            </SwitchLabel>
-          </SwitchGroup>
+        <div class="w-full md:w-48">
+          <label for="sortBy" class="block text-sm font-medium leading-6 text-gray-900">Sortiraj po</label>
+          <select id="sortBy" @change="updateFilterSort" name="sortBy" class="mt-1 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+            <option value="transaction_date" selected>Datum prometa</option>
+            <option value="payment_deadline">Datum valute</option>
+            <option value="processed_at">Datum transakcije</option>
+          </select>
         </div>
       </div>
       <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -57,30 +55,32 @@
           </tr>
         </thead>
         <tbody>
-          <template v-if="showIncoming">
-            <tr v-if="incomingInvoices.length" class="text-sm leading-6 text-gray-900 bg-gray-50 border-b border-t border-gray-200">
+          <template v-if="incomingInvoices.length">
+            <tr class="text-sm leading-6 text-gray-900 bg-gray-50 border-b border-t border-gray-200">
               <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
                 Neplaćeno
               </th>
             </tr>
             <BankInvoiceItem v-for="invoice in incomingInvoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices()" />
-            <tr v-if="incomingInvoices.length" class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200">
+            <tr class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200">
               <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
                 <span class="mr-2">Total:</span>{{ totalIncomingInvoices }} RSD
               </th>
             </tr>
           </template>
-          <tr v-if="historyInvoices.length" class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200 bg-gray-50">
-            <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
-              Istorija
-            </th>
-          </tr>
-          <BankInvoiceItem v-for="invoice in historyInvoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices()" />
-          <tr v-if="historyInvoices.length" class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200">
-            <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
-              <span class="mr-2">Total:</span>{{ totalHistoryInvoices }} RSD
-            </th>
-          </tr>
+          <template v-if="historyInvoices.length">
+            <tr class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200 bg-gray-50">
+              <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
+                Istorija
+              </th>
+            </tr>
+            <BankInvoiceItem v-for="invoice in historyInvoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices()" />
+            <tr class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200">
+              <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
+                <span class="mr-2">Total:</span>{{ totalHistoryInvoices }} RSD
+              </th>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -205,13 +205,13 @@
     data: () => ({
       filters: {
         client_account: null,
+        sort: 'transaction_date',
         date: {
           from: dayjs().startOf('M').format('YYYY-MM-DD'),
           to: dayjs().endOf('M').format('YYYY-MM-DD'),
         },
         status: null,
       },
-      showIncoming: true,
       bankAccounts: [],
       incomingInvoices: [],
       historyInvoices: [],
@@ -261,13 +261,14 @@
         this.fetchInvoices()
         this.addInvoiceModal = false
       },
+      updateFilterSort(event) {
+        this.filters.sort = event.target.value
+      },
       updateFilterStatus(event) {
         if(event.target.value === 'null') {
           this.filters.status = null
-          this.showIncoming = true
         }
         else {
-          this.showIncoming = false
           this.filters.status = event.target.value
         }
       },

@@ -16,8 +16,9 @@ return new class extends Migration {
             $table->uuid('id')->primary();
             $table->uuid('client_account')->references('id')->on('client_bank_accounts');
             $table->text('reference_number')->nullable()->default(null);
-            $table->timestamp('currency_date')->useCurrent();
+            $table->timestamp('payment_deadline')->useCurrent();
             $table->timestamp('transaction_date')->nullable()->default(null);
+            $table->timestamp('processed_at')->nullable()->default(null);
             $table->double('amount');
             $table->integer('status')->default(0);
             $table->timestamps();

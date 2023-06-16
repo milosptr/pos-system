@@ -20,7 +20,7 @@
             <div v-if="invoice.status === 1" class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-green-700 bg-green-50 ring-green-600/20">Plaćeno</div>
             <div v-if="invoice.status === 2" class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-red-700 bg-red-50 ring-red-600/10">Otkazano</div>
           </div>
-          <div class="mt-1 text-xs leading-5 text-gray-400" :class="[invoice.status === 1 && 'text-green-600']">{{ $filters.formatDate(invoice.transaction_date) }}</div>
+          <div class="mt-1 text-xs leading-5 text-gray-400" :class="[invoice.status === 1 && 'text-green-600']">{{ $filters.formatDate(invoice.payment_deadline) }}</div>
         </div>
       </div>
     </td>
@@ -34,9 +34,9 @@
     </td>
     <td class="py-2 px-4 border-b border-gray-200">
       <div class="flex items-center justify-end gap-5">
-        <div>
-          <div class="mt-1 text-xs leading-5 text-gray-900">{{ invoice.created_at !== invoice.updated_at ? $filters.formatDate(invoice.updated_at) : '' }}</div>
-          <div class="mt-1 text-xs leading-5 text-gray-400">#{{ invoice.id.split('-').at(-1) }}</div>
+        <div class="md:w-32">
+          <div class="mt-1 text-xs leading-5 text-gray-900 text-left">{{ invoice.created_at !== invoice.transaction_date ? $filters.formatDate(invoice.transaction_date) : '' }}</div>
+          <div class="mt-1 text-xs leading-5 text-gray-400 text-left">#{{ invoice.id.split('-').at(-1) }}</div>
         </div>
         <div class="relative">
           <svg @click="toggleMenu" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-6 w-5 flex-none text-gray-600">
