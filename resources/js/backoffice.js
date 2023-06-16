@@ -23,6 +23,17 @@ backoffice.config.globalProperties.$filters = {
       return 0
     return parseInt(value).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
   },
+  formatDate(value, withTime = false) {
+    if(!value)
+      return ''
+    const config = { year: 'numeric', month: '2-digit', day: '2-digit' }
+    if(withTime) {
+      config.hour = 'numeric'
+      config.minute = 'numeric'
+    }
+
+    return new Date(value).toLocaleDateString('sr-RS', config)
+  },
   imgUrl(url) {
     return new URL('/images/' + url, import.meta.env.VITE_APP_URL).href
   }
