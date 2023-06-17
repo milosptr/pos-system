@@ -15,7 +15,6 @@
             <option value="null">Sve</option>
             <option value="0">Neplaćeno</option>
             <option value="1">Plaćeno</option>
-            <option value="2">Otkazano</option>
           </select>
         </div>
         <div class="w-full md:w-[240px]">

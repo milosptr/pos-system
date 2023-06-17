@@ -10,7 +10,7 @@ class ClientInvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->has('status') ? [(int) $request->get('status')] : [ClientInvoice::STATUS_PAID, ClientInvoice::STATUS_CANCELLED];
+        $status = $request->has('status') ? [(int) $request->get('status')] : [ClientInvoice::STATUS_PAID];
         $incomingInvoices = ClientInvoice::with('clientAccount');
         $historyInvoices = ClientInvoice::with('clientAccount');
 

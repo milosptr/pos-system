@@ -49,7 +49,7 @@
                   Plati
                 </div>
                 <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="updateInvoiceStatus(2)">
-                  Otkaži
+                  Izbriši
                 </div>
                 <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="updateInvoiceStatus(0)">
                   Vrati na neplaćeno
