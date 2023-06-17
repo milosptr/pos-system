@@ -89,7 +89,11 @@
         this.showPayModal = !this.showPayModal
       },
       clickToCopy(value) {
-        clipboard.writeText(value)
+        try {
+          navigator.clipboard.writeText(value);
+        } catch (err) {
+          console.error('Failed to copy: ', value);
+        }
       },
       updateInvoiceStatus(status) {
         axios.put(`/api/bank-invoices/${this.invoice.id}`, {
