@@ -32,7 +32,7 @@ class ClientInvoiceController extends Controller
             $historyInvoices = $historyInvoices->orderBy($request->get('sort'), 'desc');
         } else {
             $incomingInvoices = $incomingInvoices->orderBy('payment_deadline', 'asc');
-            $historyInvoices = $historyInvoices->orderBy('transaction_date', 'desc');
+            $historyInvoices = $historyInvoices->orderBy('payment_deadline', 'desc');
         }
 
         $incomingInvoices = $incomingInvoices->whereIn('status', [0])->get();
