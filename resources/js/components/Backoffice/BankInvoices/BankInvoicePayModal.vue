@@ -60,7 +60,8 @@
     },
     methods: {
       updateInvoice() {
-        this.transaction.amount = parseFloat(this.transaction.amount)
+        const amount = this.transaction.amount.toString()
+        this.transaction.amount = parseFloat(amount.replace(',', '.'))
         axios.put(`/api/bank-invoices/${this.invoice.id}`, this.transaction)
           .then(() => {
             this.$emit('updateInvoice')
