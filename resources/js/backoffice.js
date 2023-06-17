@@ -18,9 +18,11 @@ const backoffice = createApp(Backoffice)
     .use(VueClipboard)
 
 backoffice.config.globalProperties.$filters = {
-  formatPrice(value) {
+  formatPrice(value, double = false) {
     if(!value)
       return 0
+    if(double)
+      return parseFloat(value).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
     return parseInt(value).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
   },
   formatDate(value, withTime = false) {
