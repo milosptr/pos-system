@@ -90,7 +90,7 @@
       },
       clickToCopy(value) {
         try {
-          navigator.clipboard.writeText(value);
+          this.$copyText(value.toString())
         } catch (err) {
           console.error('Failed to copy: ', value);
         }
