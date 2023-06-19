@@ -3,7 +3,7 @@
     <div class="sm:flex sm:items-end">
       <div class="flex flex-col md:flex-row gap-4 w-full">
         <div class="w-full md:w-56">
-          <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Klijent</label>
+          <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Dobavljač</label>
           <select id="clients" @change="updateFilterClient" name="clients" class="mt-1 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
             <option value="null">Svi</option>
             <option v-for="client in bankAccounts" :key="client.id" :value="client.id">{{client.name}}</option>
@@ -18,7 +18,7 @@
           </select>
         </div>
         <div class="w-full md:w-[240px]">
-          <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Datum transakcije</label>
+          <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Datum valute</label>
           <litepie-datepicker
             i18n="sr"
             use-range
@@ -45,35 +45,46 @@
       </div>
     </div>
     <div class="mx-auto mt-6">
-      <table class="w-full text-left bg-white border-l border-r border-gray-200">
-        <thead class="sr-only">
-          <tr>
-            <th>Amount</th>
-            <th class="hidden sm:table-cell">Client</th>
-            <th>More details</th>
-          </tr>
-        </thead>
+      <table class="w-full text-left bg-white border-l-2 border-r-2 border-gray-200">
         <tbody>
           <template v-if="incomingInvoices.length">
             <tr class="text-sm leading-6 text-gray-900 bg-gray-50 border-b border-t border-gray-200">
-              <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
+              <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold text-base">
                 Neplaćeno
               </th>
             </tr>
-            <BankInvoiceItem v-for="invoice in incomingInvoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices()" />
+            <template v-for="(invoices, idx) in incomingInvoices" :key="idx">
+              <tr class="text-sm leading-0 text-gray-900 border-b border-t border-gray-200 bg-gray-100">
+                <th scope="colgroup" colspan="3" class="relative isolate py-1 px-4 font-semibold text-xs">
+                  {{ $filters.formatDate(invoices[0].payment_deadline)  }}
+                </th>
+              </tr>
+              <BankInvoiceItem v-for="(invoice) in invoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices()" />
+            </template>
             <tr class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200">
               <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
                 <span class="mr-2">Total:</span>{{ totalIncomingInvoices }} RSD
               </th>
             </tr>
           </template>
+        </tbody>
+      </table>
+      <table class="w-full text-left bg-white border-l-2 border-r-2 border-gray-200 mt-6">
+        <tbody>
           <template v-if="historyInvoices.length">
             <tr class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200 bg-gray-50">
-              <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
+              <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold text-base">
                 Istorija
               </th>
             </tr>
-            <BankInvoiceItem v-for="invoice in historyInvoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices()" />
+            <template v-for="(invoices, idx) in historyInvoices" :key="idx">
+              <tr class="text-sm leading-0 text-gray-900 border-b border-t border-gray-200 bg-gray-100">
+                <th scope="colgroup" colspan="3" class="relative isolate py-1 px-4 font-semibold text-xs">
+                  {{ $filters.formatDate(invoices[0].payment_deadline)  }}
+                </th>
+              </tr>
+              <BankInvoiceItem v-for="(invoice) in invoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices()" />
+            </template>
             <tr class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200">
               <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
                 <span class="mr-2">Total:</span>{{ totalHistoryInvoices }} RSD
@@ -214,6 +225,8 @@
       bankAccounts: [],
       incomingInvoices: [],
       historyInvoices: [],
+      totalIncomingInvoices: 0,
+      totalHistoryInvoices: 0,
       addInvoiceModal: false,
       customShortcuts,
       formatter: {
@@ -230,14 +243,6 @@
         deep: true
       }
     },
-    computed: {
-      totalIncomingInvoices() {
-        return this.$filters.formatPrice(this.incomingInvoices.reduce((acc, invoice) => acc + invoice.amount, 0))
-      },
-      totalHistoryInvoices() {
-        return this.$filters.formatPrice(this.historyInvoices.reduce((acc, invoice) => acc + invoice.amount, 0))
-      }
-    },
     mounted() {
       this.fetchInvoices()
       this.fetchBankAccounts()
@@ -252,8 +257,26 @@
       fetchInvoices(filters = null) {
         axios.get(`/api/bank-invoices${filters ? `?${filters}` : ''}`)
           .then((response) => {
-            this.incomingInvoices = response.data.incomingInvoices
-            this.historyInvoices = response.data.historyInvoices
+            if(response?.data?.incomingInvoices) {
+              const incomingInvoices = response.data.incomingInvoices.reduce((result, item) => {
+                let key = item.payment_deadline
+                result[key] = result[key] || []
+                result[key].push(item)
+                return result
+              }, {})
+              this.incomingInvoices = Object.values(incomingInvoices)
+              this.totalIncomingInvoices = this.$filters.formatPrice(response.data.incomingInvoices.reduce((acc, invoice) => acc + invoice.amount, 0), true)
+            }
+            if(response?.data?.historyInvoices) {
+              const historyInvoices = response.data.historyInvoices.reduce((result, item) => {
+                let key = item.payment_deadline
+                result[key] = result[key] || []
+                result[key].push(item)
+                return result
+              }, {})
+              this.totalHistoryInvoices = this.$filters.formatPrice(response.data.historyInvoices.reduce((acc, invoice) => acc + invoice.amount, 0), true)
+              this.historyInvoices = Object.values(historyInvoices)
+            }
           })
       },
       addNewInvoice() {

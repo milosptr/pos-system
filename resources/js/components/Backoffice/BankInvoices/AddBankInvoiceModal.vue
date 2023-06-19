@@ -7,7 +7,7 @@
           <div v-if="!addNewClient">
             <div class="flex items-end gap-3">
               <div class="w-full">
-                <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Klijenti</label>
+                <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Dobavljači</label>
                 <select id="clients" v-model="invoice.client_account" name="clients" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
                   <option v-for="client in clients" :key="client.id" :value="client.id">{{client.name}}</option>
                 </select>
@@ -18,23 +18,11 @@
                 </svg>
               </div>
             </div>
-            <div v-if="invoice.client_account" class="mt-3">
-              <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Broj računa izabranog klijenta</label>
-              <div class="mt-2">
-                <input type="text" :value="selectedClientBankAccount" readonly disabled name="name" id="name" class="block w-full rounded-md border-0 py-1.5 text-gray-400 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-              </div>
-            </div>
           </div>
           <div v-if="addNewClient">
             <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Ime</label>
             <div class="mt-2">
               <input type="text" v-model="newClient.name" name="name" id="name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-            </div>
-          </div>
-          <div v-if="addNewClient">
-            <label for="bank_account" class="block text-sm font-medium leading-6 text-gray-900">Broj računa</label>
-            <div class="mt-2">
-              <input type="text" v-model="newClient.bank_account" name="bank_account" id="bank_account" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
             </div>
           </div>
           <div v-if="addNewClient" class="text-sm font-semibold underline text-red-400 cursor-pointer" @click="addNewClient = false">Otkaži</div>
@@ -90,14 +78,6 @@ import axios from 'axios';
         bank_account: null,
       }
     }),
-    computed: {
-      selectedClientBankAccount() {
-        if(this.invoice.client_account) {
-          return this.clients.find(client => client.id === this.invoice.client_account).bank_account
-        }
-        return null
-      }
-    },
     mounted() {
       this.$nextTick(() => {
         this.invoice.transaction_date = new Date().toISOString().slice(0, 10)
@@ -111,15 +91,15 @@ import axios from 'axios';
       validate() {
         if(this.invoice.transaction_date && this.invoice.payment_deadline && this.invoice.amount) {
           if(this.addNewClient) {
-            if(this.newClient.name && this.newClient.bank_account) {
+            if(this.newClient.name) {
               return true
             } else {
-              return 'Niste uneli sve podatke za novog klijenta'
+              return 'Niste uneli sve podatke za novog dobavljača'
             }
           }
           if(this.invoice.client_account)
             return true
-          return 'Niste uneli klijenta'
+          return 'Niste uneli dobavljača'
         } else {
           return 'Niste uneli sve podatke za fakturu'
         }

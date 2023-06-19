@@ -1,6 +1,6 @@
 <template>
-  <tr>
-    <td class="relative py-2 px-4 border-b border-gray-200">
+  <tr class="w-full grid grid-cols-2 sm:grid-cols-3">
+    <td class="relative col-span-2 sm:col-span-1 w-full py-2 px-4 sm:border-b border-gray-200">
       <div class="flex gap-x-6">
         <svg v-if="invoice.status === 0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="hidden h-6 w-5 flex-none text-gray-400 sm:block">
           <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm.53 5.47a.75.75 0 00-1.06 0l-3 3a.75.75 0 101.06 1.06l1.72-1.72v5.69a.75.75 0 001.5 0v-5.69l1.72 1.72a.75.75 0 101.06-1.06l-3-3z" clip-rule="evenodd" />
@@ -24,18 +24,17 @@
         </div>
       </div>
     </td>
-    <td class="hidden py-2 pr-6 sm:table-cell px-4 border-b border-gray-200">
+    <td class="py-2 pr-6 sm:table-cell px-4 border-b border-gray-200">
       <div class="text-sm leading-6 text-gray-900">{{ invoice?.client_account?.name }}</div>
       <div class="text-sm leading-6 text-gray-900">
-        {{ invoice?.client_account?.bank_account }}
-        <span class="mt-1 text-sm leading-5 text-gray-400" @click="clickToCopy(invoice.reference_number)">{{ invoice?.reference_number ? ` (${invoice.reference_number})` : '' }}</span>
+        <span class="mt-1 text-sm leading-5 text-gray-400" @click="clickToCopy(invoice.reference_number)">{{ invoice?.reference_number ? ` ${invoice.reference_number}` : '' }}</span>
       </div>
 
     </td>
     <td class="py-2 px-4 border-b border-gray-200">
       <div class="flex items-center justify-end gap-5">
         <div class="md:w-32">
-          <div class="mt-1 text-xs leading-5 text-gray-900 text-left" v-if="invoice.created_at !== invoice.transaction_date">Datum transakcije</div>
+          <div class="mt-1 text-xs leading-5 text-gray-900 text-left" v-if="invoice.created_at !== invoice.transaction_date">Datum prometa</div>
           <div class="mt-1 text-xs leading-5 text-gray-400 text-left">{{ invoice.created_at !== invoice.transaction_date ? $filters.formatDate(invoice.transaction_date) : '' }}</div>
         </div>
         <div class="relative">
@@ -46,20 +45,24 @@
             <div class="fixed top-0 left-0 bg-black bg-opacity-[1%] w-full h-screen z-[100]" @click="toggleMenu" />
             <div class="bg-white shadow-sm absolute top-0 right-0 z-[101] w-64 rounded-md border border-gray-200">
               <div class="grid grid-cols-1">
-                <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="showPayModal = true; showMenu = false">
+                <div class="block px-4 py-2 text-sm hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="showPayModal = true; showMenu = false">
                   Plati
                 </div>
-                <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="updateInvoiceStatus(2)">
+                <div class="block px-4 py-2 text-sm hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="updateInvoiceStatus(2)">
                   Izbriši
                 </div>
                 <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="updateInvoiceStatus(0)">
                   Vrati na neplaćeno
+                </div>
+                <div class="block text-indigo-500 border-t px-4 py-2 text-sm hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="showUpdateModal = true; showMenu = false">
+                  Izmeni
                 </div>
               </div>
             </div>
           </div>
         </div>
         <BankInvoicePayModal v-if="showPayModal" @close="showPayModal = false" @updateInvoice="$emit('updateInvoiceStatus')" :invoice="invoice" />
+        <BankInvoiceUpdateModal v-if="showUpdateModal" @close="showUpdateModal = false" @updateInvoice="showUpdateModal = false; $emit('updateInvoiceStatus')" :invoice="invoice" />
       </div>
     </td>
   </tr>
@@ -67,20 +70,23 @@
 
 <script>
   import BankInvoicePayModal from './BankInvoicePayModal.vue'
+import BankInvoiceUpdateModal from './BankInvoiceUpdateModal.vue'
 
   export default {
     props: {
       invoice: {
         type: Object,
         required: true
-      }
+      },
     },
     components: {
-      BankInvoicePayModal,
-    },
+    BankInvoicePayModal,
+    BankInvoiceUpdateModal
+},
     data: () => ({
       showMenu: false,
       showPayModal: false,
+      showUpdateModal: false,
     }),
     methods: {
       toggleMenu() {
