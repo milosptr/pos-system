@@ -107,7 +107,7 @@ import axios from 'axios';
       addInvoice() {
         if(this.validate() === true) {
           const amount = this.invoice.amount.toString()
-          this.invoice.amount = amount.replace(',', '.')
+          this.invoice.amount = amount.replace('.', '').replace(',', '.')
           if(this.addNewClient) {
             axios.post('/api/bank-accounts', this.newClient)
               .then((response) => {

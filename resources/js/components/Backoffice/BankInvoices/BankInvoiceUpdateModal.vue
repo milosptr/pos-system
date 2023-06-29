@@ -65,7 +65,7 @@
     methods: {
       updateInvoice() {
         const amount = this.transaction.amount.toString()
-        this.transaction.amount = parseFloat(amount.replace(',', '.'))
+        this.transaction.amount = parseFloat(this.invoice.amount = amount.replace('.', '').replace(',', '.'))
 
         axios.put(`/api/bank-invoices/${this.invoice.id}`, this.transaction)
           .then(() => {

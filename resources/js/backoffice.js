@@ -22,7 +22,10 @@ backoffice.config.globalProperties.$filters = {
     if(!value)
       return 0
     if(double)
-      return parseFloat(value).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
+      return parseFloat(value).toLocaleString('de-DE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
     return parseInt(value).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
   },
   formatDate(value, withTime = false) {
