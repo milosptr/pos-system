@@ -2,34 +2,19 @@
   <div class="fixed top-0 left-0 w-full h-screen flex items-center justify-center z-[100]">
     <div class="absolute left-0 top-0 w-full h-screen bg-black bg-opacity-50" @click="$emit('close')"></div>
     <div class="bg-white w-full h-screen md:h-auto md:w-1/2 rounded-md px-4 py-6 z-[101]">
-      <div class="font-semibold">
-        {{ invoice.client_account?.name }}
+      <div class="">
+        <h3 class="text-2xl font-semibold leading-6 text-gray-900" id="modal-title">Potvrda plaćanja</h3>
+        <div class="mt-6">
+          <div class="flex items-center text-gray-700"><div class="w-[150px]">Za:</div> <div class="font-semibold">{{ invoice.client_account?.name }}</div></div>
+          <div class="flex items-center text-gray-700"><div class="w-[150px]">Broj računa:</div> <div class="font-semibold">{{ invoice.client_account?.bank_account }}</div></div>
+          <div class="flex items-center text-gray-700"><div class="w-[150px]">Iznos:</div> <div class="font-semibold">{{ $filters.formatPrice(invoice.amount, true) }} rsd</div></div>
+          <div class="flex items-center text-gray-700"><div class="w-[150px]">Datum valute:</div> <div class="font-semibold">{{ $filters.formatDate(invoice.payment_deadline) }}</div></div>
+          <div class="flex items-center text-gray-700"><div class="w-[150px]">Datum prometa:</div> <div class="font-semibold">{{ $filters.formatDate(invoice.transaction_date) }}</div></div>
+        </div>
       </div>
-      <div class="text-sm mb-4">
-        {{ invoice.client_account?.bank_account }} <span class="text-gray-500">{{ invoice?.reference_number ? ` (${invoice.reference_number})` : '' }}</span>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 items-end gap-5">
-        <div>
-          <label for="amount" class="block text-sm font-medium leading-6 text-gray-900">Iznos</label>
-          <div class="mt-2">
-            <input type="text" v-model="transaction.amount" name="amount" id="amount" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-          </div>
-        </div>
-        <div>
-          <label for="payment_deadline" class="block text-sm font-medium leading-6 text-gray-900">Datum valute</label>
-          <div class="mt-2">
-            <input type="date" :value="transaction.payment_deadline" name="payment_deadline" id="payment_deadline" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-          </div>
-        </div>
-        <div>
-          <label for="transaction_date" class="block text-sm font-medium leading-6 text-gray-900">Datum prometa</label>
-          <div class="mt-2">
-            <input type="date" v-model="transaction.transaction_date" name="transaction_date" id="transaction_date" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-          </div>
-        </div>
-        <div @click="$emit('close')" class="cursor-pointer mt-6 md:mt-0 text-center px-4 py-2 border border-gray-400 shadow-sm text-sm font-medium rounded-md text-gray-900 bg-white hover:bg-gray-400 focus:outline-none">Zatvori</div>
-        <div class="hidden md:block"></div>
-        <div @click="updateInvoice" class="cursor-pointer text-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Plati</div>
+      <div class="mt-5 sm:mt-10 flex flex-col sm:flex-row justify-between gap-8">
+        <div class="sm:w-1/2 text-center relative px-4 py-2 border border-gray-400 shadow-sm text-sm font-medium rounded-md text-gray-500 hover:text-white hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 cursor-pointer" @click="$emit('close')">Odustani</div>
+        <div class="sm:w-1/2 text-center relative px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer" @click="payInvoice">Plati</div>
       </div>
     </div>
   </div>
@@ -43,26 +28,9 @@
         required: true,
       },
     },
-    data: () => ({
-      transaction: {
-        currency_date: new Date().toISOString().slice(0,10),
-        transaction_date: new Date().toISOString().slice(0,10),
-        amount: null,
-        status: 1,
-      }
-    }),
-    mounted() {
-      this.$nextTick(() => {
-        this.transaction.amount = this.invoice.amount
-        this.transaction.payment_deadline = this.invoice.payment_deadline ? new Date(this.invoice.payment_deadline).toISOString().slice(0,10) : new Date().toISOString().slice(0,10)
-        this.transaction.transaction_date = this.invoice.transaction_date ? new Date(this.invoice.transaction_date).toISOString().slice(0,10) : new Date().toISOString().slice(0,10)
-      })
-    },
     methods: {
-      updateInvoice() {
-        const amount = this.transaction.amount.toString()
-        this.transaction.amount = parseFloat(amount.replace(',', '.'))
-        axios.put(`/api/bank-invoices/${this.invoice.id}`, this.transaction)
+      payInvoice() {
+        axios.put(`/api/bank-invoices/${this.invoice.id}`, {status: 1})
           .then(() => {
             this.$emit('updateInvoice')
           })
