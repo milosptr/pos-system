@@ -48,7 +48,7 @@
                 <div class="block px-4 py-2 text-sm hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="showPayModal = true; showMenu = false">
                   Plati
                 </div>
-                <div class="block px-4 py-2 text-sm hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="updateInvoiceStatus(2)">
+                <div class="block px-4 py-2 text-sm hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="showDeleteInvoiceModal = true; showMenu = false">
                   Izbriši
                 </div>
                 <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 cursor-pointer" @click="updateInvoiceStatus(0)">
@@ -62,6 +62,7 @@
           </div>
         </div>
         <BankInvoicePayModal v-if="showPayModal" @close="showPayModal = false" @updateInvoice="$emit('updateInvoiceStatus')" :invoice="invoice" />
+        <BankInvoiceDeleteModal v-if="showDeleteInvoiceModal" @close="showDeleteInvoiceModal = false" @updateInvoice="showDeleteInvoiceModal = false; $emit('updateInvoiceStatus')" :invoice="invoice" />
         <BankInvoiceUpdateModal v-if="showUpdateModal" @close="showUpdateModal = false" @updateInvoice="showUpdateModal = false; $emit('updateInvoiceStatus')" :invoice="invoice" />
       </div>
     </td>
@@ -69,6 +70,7 @@
 </template>
 
 <script>
+  import BankInvoiceDeleteModal from './BankInvoiceDeleteModal.vue'
   import BankInvoicePayModal from './BankInvoicePayModal.vue'
 import BankInvoiceUpdateModal from './BankInvoiceUpdateModal.vue'
 
@@ -81,12 +83,14 @@ import BankInvoiceUpdateModal from './BankInvoiceUpdateModal.vue'
     },
     components: {
     BankInvoicePayModal,
-    BankInvoiceUpdateModal
+    BankInvoiceUpdateModal,
+    BankInvoiceDeleteModal,
 },
     data: () => ({
       showMenu: false,
       showPayModal: false,
       showUpdateModal: false,
+      showDeleteInvoiceModal: false,
     }),
     methods: {
       toggleMenu() {

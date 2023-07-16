@@ -6,7 +6,7 @@
           <label for="clients" class="block text-sm font-medium leading-6 text-gray-900">Dobavljač</label>
           <select id="clients" @change="updateFilterClient" name="clients" class="mt-1 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
             <option value="null">Svi</option>
-            <option v-for="client in bankAccounts" :key="client.id" :value="client.id">{{client.name}}</option>
+            <option v-for="client in clients" :key="client.id" :value="client.id">{{client.name}}</option>
           </select>
         </div>
         <div class="w-full md:w-32">
@@ -242,6 +242,11 @@
         },
         deep: true
       }
+    },
+    computed: {
+      clients() {
+        return this.bankAccounts.sort((a, b) => a.name.localeCompare(b.name))
+      },
     },
     mounted() {
       this.fetchInvoices()
