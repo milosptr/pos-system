@@ -96,7 +96,7 @@ const general = {
                 state.printer.addTextStyle(
                     false,
                     false,
-                    false,
+                    true,
                     state.printer.COLOR_1
                 );
                 state.printer.addTextAlign(state.printer.ALIGN_LEFT);
