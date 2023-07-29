@@ -179,7 +179,7 @@ const general = {
                 "   —————————————————————————————————————————————\n"
             );
             state.printer.addText(
-                "   Naziv      Cena      Kol.              Ukupno\n"
+                "   Naziv              Cena      Kol.      Ukupno\n"
             );
             orders.forEach((item) => {
                 if (!item.refund) {
@@ -289,9 +289,9 @@ const printerTextBetween = (left, right) => {
 };
 
 const printerItemPriceText = (price, qty, total) => {
-    const startSpaces = 18 - price.length; // -3 is for trailing zeros
+    const startSpaces = 26 - price.length; // -3 is for trailing zeros
     const afterPriceSpaces = 6;
-    const afterQtySpaces = 24 - qty.length - total.length; // -3 is for trailing zeros
+    const afterQtySpaces = 16 - qty.length - total.length; // -3 is for trailing zeros
     return (
         " ".repeat(startSpaces) +
         price +
