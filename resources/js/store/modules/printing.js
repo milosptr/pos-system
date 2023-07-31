@@ -251,7 +251,7 @@ const general = {
                 printerTextBetween("Vreme:", invoice.created_at)
             );
 
-            const counter = 3323 + invoice.id + "/" + (3561 + invoice.id);
+            const counter = Math.abs(invoice.id - 4677) + "/" + Math.abs(invoice.id - 4439);
             state.printer.addText(
                 printerTextBetween("Brojač računa:", counter)
             );
