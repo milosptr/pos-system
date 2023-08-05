@@ -1,10 +1,7 @@
 <?php
 
-use App\Models\Stockroom;
-use Illuminate\Http\Request;
-use App\Imports\InventoryImport;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SalesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +23,10 @@ Route::group(['middleware' => ['administrator', 'auth']], function () {
     Route::get('/backoffice/', function () {
         return view('backoffice');
     })->name('backoffice');
+});
+
+Route::group(['prefix' => 'public', 'middleware' => ['cors']], function () {
+    Route::post('sales/import', [SalesController::class, 'import']);
 });
 
 
