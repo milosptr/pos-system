@@ -9,7 +9,7 @@ class SalesImportDetaisController extends Controller
 {
     public function index()
     {
-        return SalesImportDetail::with('sales')->orderBy('created_at', 'desc')->get();
+        return SalesImportDetail::orderBy('created_at', 'desc')->paginate(50);
     }
 
     public function destroy($id)
