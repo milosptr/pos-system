@@ -109,6 +109,7 @@ export default {
         })
     },
     changePage(page) {
+      window.scrollTo({top: 0, behavior: 'smooth'});
       this.fetchSalesImports(page)
     },
     fetchSalesImports(page = 1) {
