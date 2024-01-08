@@ -15,7 +15,6 @@ class ClientInvoiceController extends Controller
         $historyInvoices = ClientInvoice::with('clientAccount');
 
         if($request->has('client_account')) {
-            $incomingInvoices = $incomingInvoices->where('client_account', $request->get('client_account'));
             $historyInvoices = $historyInvoices->where('client_account', $request->get('client_account'));
         }
 
@@ -23,17 +22,11 @@ class ClientInvoiceController extends Controller
             $incomingInvoices = $incomingInvoices->whereBetween('payment_deadline', [$request->get('date_from'), $request->get('date_to')]);
             $historyInvoices = $historyInvoices->whereBetween('payment_deadline', [$request->get('date_from'), $request->get('date_to')]);
         } else {
-            $incomingInvoices = $incomingInvoices->whereBetween('payment_deadline', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
             $historyInvoices = $historyInvoices->whereBetween('payment_deadline', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
         }
 
-        if($request->has('sort')) {
-            $incomingInvoices = $incomingInvoices->orderBy($request->get('sort'), 'asc');
-            $historyInvoices = $historyInvoices->orderBy($request->get('sort'), 'desc');
-        } else {
-            $incomingInvoices = $incomingInvoices->orderBy('payment_deadline', 'asc');
-            $historyInvoices = $historyInvoices->orderBy('payment_deadline', 'desc');
-        }
+        $incomingInvoices = $incomingInvoices->orderBy('payment_deadline', 'asc');
+        $historyInvoices = $historyInvoices->orderBy('payment_deadline', 'desc');
 
         $incomingInvoices = $incomingInvoices->whereIn('status', [0])->get();
         $historyInvoices = $historyInvoices->whereIn('status', $status)->get();

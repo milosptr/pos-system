@@ -31,14 +31,6 @@
             v-model="filters.date"
           />
         </div>
-        <div class="w-full md:w-48">
-          <label for="sortBy" class="block text-sm font-medium leading-6 text-gray-900">Sortiraj po</label>
-          <select id="sortBy" @change="updateFilterSort" name="sortBy" class="mt-1 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-            <option value="transaction_date" selected>Datum prometa</option>
-            <option value="payment_deadline">Datum valute</option>
-            <option value="processed_at">Datum transakcije</option>
-          </select>
-        </div>
       </div>
       <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
         <div @click="addInvoiceModal = true" class="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Dodaj račun</div>
@@ -59,7 +51,7 @@
                   {{ $filters.formatDate(invoices[0].payment_deadline)  }}
                 </th>
               </tr>
-              <BankInvoiceItem v-for="(invoice) in invoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices()" />
+              <BankInvoiceItem v-for="(invoice) in invoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices(parseFilters())" />
             </template>
             <tr class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200">
               <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
@@ -83,7 +75,7 @@
                   {{ $filters.formatDate(invoices[0].payment_deadline)  }}
                 </th>
               </tr>
-              <BankInvoiceItem v-for="(invoice) in invoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices()" />
+              <BankInvoiceItem v-for="(invoice) in invoices" :invoice="invoice" :key="invoice.id" @updateInvoiceStatus="fetchInvoices(parseFilters())" />
             </template>
             <tr class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200">
               <th scope="colgroup" colspan="3" class="relative isolate py-2 px-4 font-semibold">
