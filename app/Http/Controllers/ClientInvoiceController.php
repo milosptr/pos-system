@@ -15,6 +15,7 @@ class ClientInvoiceController extends Controller
         $historyInvoices = ClientInvoice::with('clientAccount');
 
         if($request->has('client_account')) {
+            $incomingInvoices = $incomingInvoices->where('client_account', $request->get('client_account'));
             $historyInvoices = $historyInvoices->where('client_account', $request->get('client_account'));
         }
 
