@@ -12,6 +12,7 @@ class SalesImportDetail extends Model
 
     protected $fillable = [
       'filename',
+      'import_date'
     ];
 
     public $timestamps = true;

@@ -4,6 +4,8 @@ namespace Services;
 
 use App\Models\Invoice;
 use App\Models\Sales;
+use App\Models\WarehouseInventory;
+use App\Models\WarehouseStatus;
 use Carbon\Carbon;
 
 class SalesService {
@@ -20,22 +22,38 @@ class SalesService {
       foreach ($orders as $order) {
         if(isset($order['refund']) && $order['refund'])
           continue;
-        array_push($data, [
-          'invoice_id' => $invoice->id,
-          'inventory_id' => $order['id'],
-          'category_id' => $order['category_id'],
-          'table_id' => $order['table_id'],
-          'name' => $order['name'],
-          'category_name' => $order['category_name'],
-          'price' => $order['price'],
-          'total' => $order['price'] * $order['qty'],
-          'sku' => $order['sku'],
-          'qty' => $order['qty'],
-          'created_at' => Carbon::now(),
-          'updated_at' => Carbon::now(),
-        ]);
+          self::populateWarehouse($order);
+          array_push($data, [
+            'invoice_id' => $invoice->id,
+            'inventory_id' => $order['id'],
+            'category_id' => $order['category_id'],
+            'table_id' => $order['table_id'],
+            'name' => $order['name'],
+            'category_name' => $order['category_name'],
+            'price' => $order['price'],
+            'total' => $order['price'] * $order['qty'],
+            'sku' => $order['sku'],
+            'qty' => $order['qty'],
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+          ]);
       }
       return Sales::insert($data);
+    }
+
+    public static function populateWarehouse($order)
+    {
+      $warehouse = WarehouseInventory::where('inventory_id', $order['id']);
+      if($warehouse && $warehouse->first()) {
+        $warehouse = $warehouse->first();
+        WarehouseStatus::create([
+          'warehouse_id' => $warehouse['warehouse_id'],
+          'inventory_id' => $order['id'],
+          'quantity' => (float) $order['qty'] * (float) $warehouse['norm'],
+          'type' => WarehouseStatus::TYPE_OUT,
+          'comment' => 'Sale from ePOS',
+        ]);
+      }
     }
 
 }

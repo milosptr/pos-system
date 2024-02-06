@@ -17,7 +17,9 @@ import BackofficeClients from './components/Backoffice/BackofficeClients.vue'
 import BackofficeClientsNew from './components/Backoffice/BackofficeClientsNew.vue'
 import BackofficeArrivals from './components/Backoffice/BackofficeArrivals.vue'
 import BackofficeImportedSales from './components/Backoffice/Reports/BackofficeImportedSales.vue'
+import BackofficeWarehouse from './components/Backoffice/Warehouse/BackofficeWarehouse.vue'
 import BankInvoices from './components/Backoffice/BankInvoices/BankInvoices.vue'
+import BackofficeWarehouseNew from "@/js/components/Backoffice/Warehouse/BackofficeWarehouseNew.vue";
 
 const routes = [
     {
@@ -113,6 +115,16 @@ const routes = [
                 path: '/clients/new',
                 name: 'clients-new',
                 component: BackofficeClientsNew
+            },
+            {
+                path: '/warehouse',
+                name: 'warehouse',
+                component: BackofficeWarehouse
+            },
+            {
+                path: '/warehouse/new',
+                name: 'warehouse-new',
+                component: BackofficeWarehouseNew
             },
             {
                 path: '/settings',

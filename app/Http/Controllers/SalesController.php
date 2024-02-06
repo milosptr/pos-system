@@ -25,6 +25,7 @@ class SalesController extends Controller
             $fileName = $file->getClientOriginalName();
             $saleDetails = SalesImportDetail::create([
                 'filename' => $fileName,
+                'import_date' => $date,
             ]);
             Excel::import(new SalesImport($date, $saleDetails), $file);
         } catch (\Throwable $th) {

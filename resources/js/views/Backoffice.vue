@@ -180,7 +180,8 @@ import {
   WifiIcon,
   UserGroupIcon,
   ClockIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+    ArchiveIcon
 } from '@heroicons/vue/outline'
 
 const navigation = [
@@ -194,13 +195,14 @@ const navigation = [
   { name: 'Klijenti', href: 'clients', icon: UserGroupIcon, current: false },
   { name: 'Fakture', href: 'bank-invoices', icon: DocumentTextIcon, current: false },
   { name: 'Dolasci', href: 'arrivals', icon: ClockIcon, current: false },
+  { name: 'Magacin', href: 'warehouse', icon: ArchiveIcon, current: false },
   // { name: 'Connections Log', href: 'connection-logs', icon: WifiIcon, current: false },
   { name: 'Podešavanja', href: 'settings', icon: CogIcon, current: false },
 ]
 
 export default {
   components: {
-    Dialog, DialogPanel, TransitionChild, TransitionRoot, XIcon, MenuIcon, ViewBoardsIcon, RefreshIcon, DocumentTextIcon
+    Dialog, DialogPanel, TransitionChild, TransitionRoot, XIcon,ArchiveIcon, MenuIcon, ViewBoardsIcon, RefreshIcon, DocumentTextIcon
   },
   data: () => ({
     navigation,
@@ -221,7 +223,7 @@ export default {
       return this.navigation.find((item) => item.href === this.currentRoute)?.name ?? ''
     },
     showButton() {
-      const paths = ['/inventory', '/categories', '/clients']
+      const paths = ['/inventory', '/categories', '/clients', '/warehouse']
       return paths.includes(this.$route.path)
     },
     buttonName() {
@@ -231,6 +233,8 @@ export default {
         return 'Dodaj klijenta'
       if(this.$route.name === 'categories')
         return 'Dodaj kategoriju'
+      if(this.$route.name === 'warehouse')
+        return 'Dodaj sirovinu'
       return 'Dodaj ' + this.$route.name
     },
   },

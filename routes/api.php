@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\WarehouseInventoryController;
+use App\Http\Controllers\WarehouseStatusController;
 use Services\WorkingDay;
 use Illuminate\Http\Request;
 use App\Models\ClientInvoice;
@@ -24,6 +26,7 @@ use App\Http\Controllers\ConnectionsLogController;
 use App\Http\Controllers\InventoryPricingController;
 use App\Http\Controllers\ClientBankAccountController;
 use App\Http\Controllers\SalesImportDetaisController;
+use App\Http\Controllers\WarehouseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -144,6 +147,27 @@ Route::prefix('/backoffice')->group(function () {
     Route::get('reports/{type}', [ReportsController::class, 'index']);
 
     Route::get('connections-log', [ConnectionsLogController::class, 'index']);
+
+    // Warehouse
+    Route::get('warehouse', [WarehouseController::class, 'index']);
+    Route::post('warehouse', [WarehouseController::class, 'store']);
+    Route::delete('warehouse/{id}', [WarehouseController::class, 'destroy']);
+
+    // WarehouseInventory
+    Route::get('warehouse-inventory', [WarehouseInventoryController::class, 'index']);
+    Route::get('warehouse-inventory/inventory/{id}', [WarehouseInventoryController::class, 'indexForInventory']);
+    Route::post('warehouse-inventory', [WarehouseInventoryController::class, 'store']);
+    Route::patch('warehouse-inventory', [WarehouseInventoryController::class, 'update']);
+    Route::delete('warehouse-inventory/{id}', [WarehouseInventoryController::class, 'destroy']);
+
+    // WarehouseStatus
+    Route::get('warehouse-status', [WarehouseStatusController::class, 'index']);
+    Route::get('warehouse-status/summarized', [WarehouseStatusController::class, 'indexSummarized']);
+    Route::get('warehouse-status/imports', [WarehouseStatusController::class, 'imports']);
+    Route::get('warehouse-status/{id}', [WarehouseStatusController::class, 'show']);
+    Route::post('warehouse-status', [WarehouseStatusController::class, 'store']);
+    Route::put('warehouse-status/imports/{id}', [WarehouseStatusController::class, 'importsUpdate']);
+    Route::delete('warehouse-status/imports/{id}', [WarehouseStatusController::class, 'importsDestroy']);
 
     Route::get('db-backup', [DBBackupController::class, 'backup']);
 });
