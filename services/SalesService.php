@@ -13,8 +13,8 @@ class SalesService {
     * Calculates in percent, the change between 2 numbers.
     * e.g from 1000 to 500 = 50%
     *
-    * @param $orders The orders to be saved
-    * @param $invoice The invoice to be saved
+    * @param $orders - The orders to be saved
+    * @param $invoice - The invoice to be saved
     */
     public static function parseAndSaveOrder($orders, $invoice)
     {
