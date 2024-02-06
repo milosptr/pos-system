@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\WarehouseStatusResource;
 use App\Models\WarehouseStatus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class WarehouseStatusController extends Controller
 {
@@ -43,7 +44,7 @@ class WarehouseStatusController extends Controller
 
     public function indexSummarized(Request $request)
     {
-        $warehouse = WarehouseStatus::select('warehouse_id', \DB::raw('SUM(case when warehouse_status.type = 0 then quantity * 1 else quantity * -1 end) as quantity'))
+        $warehouse = WarehouseStatus::select('warehouse_id', DB::raw('SUM(case when warehouse_status.type = 0 then quantity * 1 else quantity * -1 end) as quantity'))
           ->groupBy('warehouse_id');
         if ($request->has('date')) {
           $warehouse = $warehouse->whereBetween('created_at', ['2000-01-01 00:00:00', $request->get('date') . ' 23:59:59']);

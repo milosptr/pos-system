@@ -18,7 +18,6 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DBBackupController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\StockroomController;
 use App\Http\Controllers\ValidatePinController;
 use App\Http\Controllers\RefundReasonController;
 use App\Http\Controllers\ClientInvoiceController;

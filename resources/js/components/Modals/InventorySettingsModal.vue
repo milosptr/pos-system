@@ -157,7 +157,7 @@ export default {
     deleteWarehouse() {
       axios
         .delete('/api/backoffice/warehouse-inventory/' + this.warehouse_inventory_id)
-        .then((res) => {
+        .then(() => {
           this.$emit('close')
         })
         .catch((err) => {
