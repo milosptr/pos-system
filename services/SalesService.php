@@ -22,7 +22,11 @@ class SalesService {
       foreach ($orders as $order) {
         if(isset($order['refund']) && $order['refund'])
           continue;
-          self::populateWarehouse($order);
+          try {
+            self::populateWarehouse($order);
+          } catch (\Exception $e) {
+            // Log the error
+          }
           array_push($data, [
             'invoice_id' => $invoice->id,
             'inventory_id' => $order['id'],
