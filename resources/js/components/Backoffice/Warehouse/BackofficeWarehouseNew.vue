@@ -70,6 +70,9 @@ export default {
       },
       {
         name: 'KOM.'
+      },
+      {
+        name: 'POR.'
       }
     ]
   }),
