@@ -17,14 +17,14 @@ class WarehouseStatusController extends Controller
       $warehouse = $warehouse->whereDate('date', '<=', $date)
         ->selectRaw(
           'warehouse_id, ' .
-          'SUM(case when warehouse_status.type = 0 then quantity else 0 end) as import_quantity, ' .
-          'SUM(case when warehouse_status.type = 1 then quantity else 0 end) as sale_quantity, ' .
-          'SUM(case when warehouse_status.type = 0 then quantity else -quantity end) as quantity, ' .
+          'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 0 then quantity else 0 end) else 0 end) as import_quantity, ' .
+          'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 1 then quantity else 0 end) else 0 end) as sale_quantity, ' .
+          'SUM(case when warehouse_status.date <= ? then (case when warehouse_status.type = 0 then quantity else -quantity end) else 0 end) as quantity,' .
 //          'SUM(case when warehouse_status.type = 0 and warehouse_status.date = ? then quantity else 0 end) as date_import_quantity, ' .
 //          'SUM(case when warehouse_status.type = 1 and warehouse_status.date = ? then quantity else 0 end) as date_sale_quantity, ' .
 //          'SUM(case when warehouse_status.date = ? then (case when warehouse_status.type = 0 then quantity else -quantity end) else 0 end) as date_quantity, ' .
           'SUM(case when warehouse_status.date < ? then (case when warehouse_status.type = 0 then quantity else -quantity end) else 0 end) as previous_quantity',
-          [$date]
+          [$date, $date, $date, $date]
         )
         ->groupBy('warehouse_id');
 

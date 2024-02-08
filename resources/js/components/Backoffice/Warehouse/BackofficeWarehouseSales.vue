@@ -19,10 +19,10 @@
         <div class="grid grid-cols-5 font-semibold text-sm py-1 border-b border-solid border-gray-300 bg-gray-200">
           <!--          <div class="px-4">Datum</div>-->
           <div class="px-4">Sirovina</div>
+          <div class="px-4 text-center">Prethodno stanje</div>
           <div class="px-4 text-center">Prodato</div>
           <div class="px-4 text-center">Uneto</div>
           <div class="px-4 text-center">Zavrsno stanje</div>
-          <div class="px-4 text-center">Prethodno stanje</div>
         </div>
         <div
           v-for="(item, index) in warehouse"
@@ -31,6 +31,7 @@
           :class="{ 'bg-gray-100': index % 2 === 1 }">
           <!--          <div class="px-4">{{ dayjs(item.date).format('DD.MM.YYYY') }}</div>-->
           <div class="px-4">{{ item.warehouse.name }}</div>
+          <div class="px-4 text-center">{{ item.previous_quantity }}</div>
           <div class="px-4 text-red-600 font-medium text-center">{{ item.sale_quantity }}</div>
           <div class="px-4 text-green-600 font-medium text-center">{{ item.import_quantity }}</div>
           <div
@@ -38,7 +39,6 @@
             :class="item.quantity < 0 && 'text-orange-500 font-medium'">
             {{ item.quantity }}
           </div>
-          <div class="px-4 text-center">{{ item.previous_quantity }}</div>
         </div>
       </div>
     </div>
