@@ -8,6 +8,7 @@ use App\Models\Stockroom;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Services\SalesService;
 
 class SalesImport implements ToCollection, WithHeadingRow
 {
@@ -29,7 +30,7 @@ class SalesImport implements ToCollection, WithHeadingRow
             $inventory = Inventory::where('sku', $sku)->first();
             if($inventory) {
                 $price = floatval($row['ukupno']) / floatval($row['kolicina']);
-                Sales::create([
+                $sale = Sales::create([
                   'inventory_id' => $inventory->id,
                   'sku' => $inventory->sku,
                   'category_id' => $inventory->category->id,
@@ -43,6 +44,11 @@ class SalesImport implements ToCollection, WithHeadingRow
                   'batch_id' => $this->saleDetails->id,
                   'created_at' => $this->date,
                 ]);
+                try {
+                  SalesService::populateWarehouseFromSaleImport($sale, $this->date);
+                } catch (\Exception $e) {
+                  // Log the error
+                }
             }
         }
     }

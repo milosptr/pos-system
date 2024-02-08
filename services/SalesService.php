@@ -60,4 +60,19 @@ class SalesService {
       }
     }
 
+    public static function populateWarehouseFromSaleImport(Sales $sale, $date)
+    {
+      $warehouse = WarehouseInventory::where('inventory_id', $sale->inventory_id);
+      if($warehouse && $warehouse->first()) {
+        $warehouse = $warehouse->first();
+        WarehouseStatus::create([
+          'warehouse_id' => $warehouse['warehouse_id'],
+          'inventory_id' => $sale->inventory_id,
+          'quantity' => (float) $sale->qty * (float) $warehouse['norm'],
+          'type' => WarehouseStatus::TYPE_OUT,
+          'comment' => 'Sale from other system',
+          'created_at' => $date,
+        ]);
+      }
+    }
 }
