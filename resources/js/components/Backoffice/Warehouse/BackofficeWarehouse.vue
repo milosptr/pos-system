@@ -11,10 +11,13 @@
         <select
           id="tabs"
           name="tabs"
-          class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+          class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+          @change="onTabChange($event)">
+          >
           <option
             v-for="tab in tabs"
             :key="tab.name"
+            :value="tab.id"
             :selected="tab.current">
             {{ tab.name }}
           </option>
@@ -65,6 +68,11 @@ export default {
     activeTab: 0,
     showUpdateStateModal: false
   }),
-  mounted() {}
+  mounted() {},
+  methods: {
+    onTabChange(event) {
+      this.activeTab = parseInt(event.target.value)
+    }
+  }
 }
 </script>
