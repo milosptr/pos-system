@@ -75,6 +75,7 @@ class WarehouseStatusController extends Controller
             $ws->quantity = $data['quantity'] ?? 0;
             $ws->type = $data['type'] ?? 0;
             $ws->comment = $data['comment'] ?? null;
+            $ws->date = $data['created_at'] ?? now();
             $ws->created_at = $data['created_at'] ?? now();
             $ws->save();
             return response()->json([
