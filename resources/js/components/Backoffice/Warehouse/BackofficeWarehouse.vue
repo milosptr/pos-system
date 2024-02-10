@@ -62,7 +62,7 @@ export default {
   data: () => ({
     tabs: [
       { id: 0, name: 'Prodaja' },
-      { id: 1, name: 'Uvozi' },
+      { id: 1, name: 'Ulazi' },
       { id: 2, name: 'Sirovine' }
     ],
     activeTab: 0,

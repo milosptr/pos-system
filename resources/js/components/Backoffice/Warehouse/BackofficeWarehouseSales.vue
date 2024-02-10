@@ -30,7 +30,7 @@
           class="grid grid-cols-5 text-sm py-1"
           :class="{ 'bg-gray-100': index % 2 === 1 }">
           <!--          <div class="px-4">{{ dayjs(item.date).format('DD.MM.YYYY') }}</div>-->
-          <div class="px-4">{{ item.warehouse.name }}</div>
+          <div class="px-4">{{ item.warehouse.name }} ({{ item.warehouse.unit }})</div>
           <div class="px-4 text-center">{{ item.previous_quantity }}</div>
           <div class="px-4 text-red-600 font-medium text-center">{{ item.sale_quantity }}</div>
           <div class="px-4 text-green-600 font-medium text-center">{{ item.import_quantity }}</div>

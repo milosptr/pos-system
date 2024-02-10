@@ -1,6 +1,9 @@
 <template>
   <div>
-    <WarehouseStatusModal @update="getWarehouseStatus" />
+    <WarehouseStatusModal
+      :forDate="date"
+      @update="getWarehouseStatus"
+      @dateChange="dateChange" />
     <div class="">
       <div class="text-right flex items-center gap-4">
         <ChevronLeftIcon
@@ -129,6 +132,10 @@ export default {
         .then((response) => {
           this.warehouse = response.data?.data ?? []
         })
+    },
+    dateChange(date) {
+      this.date = dayjs(date).format('YYYY-MM-DD')
+      this.updateDate()
     },
     updateDate() {
       this.getWarehouseStatus()

@@ -30,6 +30,7 @@
           type="date"
           v-model="date"
           :max="new Date().toISOString().split('T')[0]"
+          @change="updateDate"
           class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" />
       </div>
       <button
@@ -44,13 +45,19 @@
 
 <script>
 export default {
+  props: ['forDate'],
   data: () => ({
     warehouse: [],
     selectedWarehouse: null,
-    unit: 0,
+    unit: '',
     type: 0,
     date: new Date()
   }),
+  watch: {
+    forDate() {
+      this.date = this.forDate
+    }
+  },
   mounted() {
     this.getWarehouse()
     this.date = new Date().toISOString().split('T')[0]
@@ -65,6 +72,9 @@ export default {
       let value = e.target.value
       value = parseFloat(value.replaceAll(',', '.')) || 0
       this.unit = value
+    },
+    updateDate() {
+      this.$emit('dateChange', this.date)
     },
     saveWarehouse() {
       axios
