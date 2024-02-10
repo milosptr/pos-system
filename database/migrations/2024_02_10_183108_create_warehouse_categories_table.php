@@ -13,8 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('warehouse_status', function (Blueprint $table) {
-            $table->date('date')->nullable()->after('type');
+        Schema::create('warehouse_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->integer('group_id')->default(0);
+            $table->integer('order')->default(0);
+            $table->integer('is_deleted')->default(0);
+            $table->timestamps();
         });
     }
 
@@ -25,8 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('warehouse_status', function (Blueprint $table) {
-            $table->dropColumn('date');
-        });
+        Schema::dropIfExists('warehouse_categories');
     }
 };

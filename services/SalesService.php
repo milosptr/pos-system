@@ -53,6 +53,7 @@ class SalesService {
         WarehouseStatus::create([
           'warehouse_id' => $warehouse['warehouse_id'],
           'inventory_id' => $order['id'],
+          'date' => Carbon::now()->format('Y-m-d'),
           'quantity' => (float) $order['qty'] * (float) $warehouse['norm'],
           'type' => WarehouseStatus::TYPE_OUT,
           'comment' => 'Sale from ePOS',
@@ -70,6 +71,7 @@ class SalesService {
           'inventory_id' => $sale->inventory_id,
           'quantity' => (float) $sale->qty * (float) $warehouse['norm'],
           'type' => WarehouseStatus::TYPE_OUT,
+          'date' => Carbon::now($date)->format('Y-m-d'),
           'comment' => 'Sale from other system',
           'created_at' => $date,
         ]);

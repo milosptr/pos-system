@@ -21,7 +21,7 @@ class WarehouseResource extends JsonResource
             'unit' => $this->unit,
             'category_id' => $this->category_id,
             'category' => $this->category,
-            'category_parent' => $this->category->parent == 0 ? Category::PARENT_0 : Category::PARENT_1
+            'category_parent' => $this->category->group_id == 0 ? Category::PARENT_0 : Category::PARENT_1
         ];
     }
 }

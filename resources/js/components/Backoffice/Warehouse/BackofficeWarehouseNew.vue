@@ -77,8 +77,8 @@ export default {
     ]
   }),
   mounted() {
-    axios.get('/api/categories').then((res) => {
-      this.categories = res.data.data
+    axios.get('/api/backoffice/warehouse-categories').then((res) => {
+      this.categories = res.data
     })
   },
   methods: {

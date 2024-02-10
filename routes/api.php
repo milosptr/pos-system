@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WarehouseCategoryController;
 use App\Http\Controllers\WarehouseInventoryController;
 use App\Http\Controllers\WarehouseStatusController;
 use Services\WorkingDay;
@@ -151,6 +152,11 @@ Route::prefix('/backoffice')->group(function () {
     Route::get('warehouse', [WarehouseController::class, 'index']);
     Route::post('warehouse', [WarehouseController::class, 'store']);
     Route::delete('warehouse/{id}', [WarehouseController::class, 'destroy']);
+
+    // Warehouse Category
+    Route::get('warehouse-categories', [WarehouseCategoryController::class, 'index']);
+    Route::post('warehouse-categories', [WarehouseCategoryController::class, 'store']);
+    Route::delete('warehouse-categories/{id}', [WarehouseCategoryController::class, 'destroy']);
 
     // WarehouseInventory
     Route::get('warehouse-inventory', [WarehouseInventoryController::class, 'index']);
