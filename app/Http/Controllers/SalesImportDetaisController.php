@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\WarehouseStatus;
 use Illuminate\Http\Request;
 use App\Models\SalesImportDetail;
 
@@ -17,6 +18,12 @@ class SalesImportDetaisController extends Controller
         $salesImportDetail = SalesImportDetail::find($id);
         $salesImportDetail->sales()->delete();
         $salesImportDetail->delete();
+        try {
+            WarehouseStatus::where('batch_id', $id)->delete();
+        } catch (\Exception $e) {
+            // Log the error
+        }
+
         return response('Success', 200);
     }
 }

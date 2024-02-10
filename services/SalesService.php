@@ -72,6 +72,7 @@ class SalesService {
           'quantity' => (float) $sale->qty * (float) $warehouse['norm'],
           'type' => WarehouseStatus::TYPE_OUT,
           'date' => Carbon::now($date)->format('Y-m-d'),
+          'batch_id' => $sale->batch_id,
           'comment' => 'Sale from other system',
           'created_at' => $date,
         ]);
