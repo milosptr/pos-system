@@ -54,7 +54,7 @@ class SalesService {
           WarehouseStatus::create([
             'warehouse_id' => $warehouse['warehouse_id'],
             'inventory_id' => $order['id'],
-            'date' => Carbon::now()->format('Y-m-d'),
+            'date' => WorkingDay::setCorrectDateForWorkingDay(),
             'quantity' => (float)$order['qty'] * (float)$warehouse['norm'],
             'type' => WarehouseStatus::TYPE_OUT,
             'comment' => 'Sale from ePOS',

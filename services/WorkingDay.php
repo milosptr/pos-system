@@ -29,4 +29,10 @@ class WorkingDay
 
       return [$from[0], $to[1]];
     }
+
+    public static function setCorrectDateForWorkingDay($date = null) {
+      $date = $date ? Carbon::parse($date) : Carbon::now();
+      if($date->between("00:00:00", "03:59:59", true)) $date = $date->subDays(1);
+      return $date->format('Y-m-d');
+    }
 }
