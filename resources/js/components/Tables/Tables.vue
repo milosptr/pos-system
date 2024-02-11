@@ -74,6 +74,9 @@ export default {
       if (isTablet && table.table_number === 7) {
         marginTop += 10
       }
+      if (isTablet && table.table_number === 71) {
+        marginTop -= 10
+      }
       if (isTablet && table.table_number === 6) {
         marginTop -= 30
       }
