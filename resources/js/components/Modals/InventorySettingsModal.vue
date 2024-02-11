@@ -126,7 +126,7 @@ export default {
     warehouse: [],
     warehouseInventory: [
       {
-        key: crypto.randomUUID(),
+        key: this.generateUUID(),
         warehouse_id: null,
         norm: null,
         deleted: false
@@ -146,7 +146,7 @@ export default {
     axios.get('/api/backoffice/warehouse-inventory/inventory/' + this.item.id).then((res) => {
       if (res.data) {
         this.warehouseInventory = res.data.map((item) => ({
-          key: crypto.randomUUID(),
+          key: this.generateUUID(),
           id: item.id,
           warehouse_id: item.warehouse_id,
           norm: item.norm,
@@ -156,9 +156,16 @@ export default {
     })
   },
   methods: {
+    generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        let r = (Math.random() * 16) | 0,
+          v = c === 'x' ? r : (r & 0x3) | 0x8
+        return v.toString(16)
+      })
+    },
     addNew() {
       this.warehouseInventory.push({
-        key: crypto.randomUUID(),
+        key: this.generateUUID(),
         warehouse_id: null,
         norm: null,
         deleted: false
