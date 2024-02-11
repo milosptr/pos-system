@@ -52,42 +52,64 @@
         </div>
         <div
           v-if="currentTab === 'Magacin'"
-          class="grid grid-cols-3 gap-4 items-end">
-          <div>
-            <div>Sirovina</div>
-            <select
-              v-model="selectedWarehouse"
-              class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md uppercase">
-              <option
-                v-for="item in warehouse"
-                :key="item.id"
-                :value="item.id">
-                {{ item.name }}
-              </option>
-            </select>
+          class="grid grid-cols-1 gap-4 items-end">
+          <div
+            v-for="wi in warehouseInventory"
+            :key="wi.key"
+            class="grid grid-cols-2 gap-4">
+            <div :class="{ 'opacity-20': wi?.deleted }">
+              <div>Sirovina</div>
+              <select
+                v-model="wi.warehouse_id"
+                :disabled="wi.deleted"
+                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md uppercase">
+                <option
+                  v-for="item in warehouse"
+                  :key="item.id"
+                  :value="item.id">
+                  {{ item.name }}
+                </option>
+              </select>
+            </div>
+            <div class="flex items-end gap-3">
+              <div
+                class="w-full"
+                :class="{ 'opacity-20': wi?.deleted }">
+                <div>Normativ</div>
+                <input
+                  type="text"
+                  @input="updateUnit($event, wi)"
+                  :value="wi.norm"
+                  :disabled="wi.deleted"
+                  class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  placeholder="Normativ" />
+              </div>
+              <div
+                v-if="!wi.deleted"
+                @click="wi.deleted = true"
+                class="text-red-500 px-4 py-1.5 border border-solid border-red-500 rounded-md hover:bg-red-500 hover:text-white">
+                Obriši
+              </div>
+              <div
+                v-if="wi.deleted"
+                @click="wi.deleted = false"
+                class="text-blue-500 px-4 py-1.5 border border-solid border-blue-500 rounded-md hover:bg-blue-500 hover:text-white">
+                Povrati
+              </div>
+            </div>
           </div>
-          <div>
-            <div>Normativ</div>
-            <input
-              type="text"
-              @input="updateUnit"
-              :value="unit"
-              class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-              placeholder="Normativ" />
-          </div>
-          <div class="flex items-center gap-4">
+          <div class="flex items-center justify-between gap-4">
+            <button
+              type="button"
+              class="relative inline-flex items-center px-4 py-0.5 border border-transparent shadow-sm text-2xl rounded-md text-gray-500 hover:text-gray-600 bg-gray-200 hover:bg-gray-300 ring-0"
+              @click="addNew">
+              +
+            </button>
             <button
               type="button"
               class="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               @click="saveWarehouse">
-              Sačuvaj
-            </button>
-            <button
-              v-if="warehouse_inventory_id"
-              type="button"
-              class="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              @click="deleteWarehouse">
-              Obriši
+              Sačuvaj izmene
             </button>
           </div>
         </div>
@@ -102,7 +124,14 @@ export default {
   data: () => ({
     tabs: [{ name: 'Magacin', current: true }],
     warehouse: [],
-    warehouse_inventory_id: null,
+    warehouseInventory: [
+      {
+        key: crypto.randomUUID(),
+        warehouse_id: null,
+        norm: null,
+        deleted: false
+      }
+    ],
     selectedWarehouse: null,
     unit: null
   }),
@@ -118,45 +147,50 @@ export default {
 
     axios.get('/api/backoffice/warehouse-inventory/inventory/' + this.item.id).then((res) => {
       if (res.data) {
-        this.warehouse_inventory_id = res.data.id
-        this.selectedWarehouse = res.data.warehouse_id
-        this.unit = res.data.norm
+        this.warehouseInventory = res.data.map((item) => ({
+          key: crypto.randomUUID(),
+          id: item.id,
+          warehouse_id: item.warehouse_id,
+          norm: item.norm,
+          deleted: false
+        }))
       }
     })
   },
   methods: {
-    updateUnit(e) {
+    addNew() {
+      this.warehouseInventory.push({
+        key: crypto.randomUUID(),
+        warehouse_id: null,
+        norm: null,
+        deleted: false
+      })
+    },
+    updateUnit(e, wi) {
       let value = e.target.value
       value = parseFloat(value.replaceAll(',', '.')) || 0
-      this.unit = value
+      this.warehouseInventory = this.warehouseInventory.map((item) => {
+        if (item.key === wi.key) {
+          item.norm = value
+        }
+        return item
+      })
     },
     changeTab(tab) {
       this.tabs.forEach((tab) => (tab.current = false))
       tab.current = true
     },
     saveWarehouse() {
-      if (!this.selectedWarehouse || !this.unit || !this.item?.id) {
-        alert('Morate popuniti sva polja')
-        return
-      }
-      const data = {
-        inventory_id: this.item.id,
-        warehouse_id: this.selectedWarehouse,
-        norm: this.unit
-      }
+      const data = this.warehouseInventory.map((item) => ({
+        id: item?.id ?? null,
+        warehouse_id: item.warehouse_id,
+        norm: item.norm,
+        deleted: item.deleted,
+        inventory_id: this.item.id
+      }))
+
       axios
         .post('/api/backoffice/warehouse-inventory', data)
-        .then(() => {
-          this.$emit('close')
-        })
-        .catch((err) => {
-          alert('Došlo je do greške')
-          console.log(err)
-        })
-    },
-    deleteWarehouse() {
-      axios
-        .delete('/api/backoffice/warehouse-inventory/' + this.warehouse_inventory_id)
         .then(() => {
           this.$emit('close')
         })

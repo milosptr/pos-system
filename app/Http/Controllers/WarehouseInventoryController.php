@@ -13,7 +13,7 @@ class WarehouseInventoryController extends Controller
     }
     public function indexForInventory($id)
     {
-        return WarehouseInventory::where('inventory_id', $id)->latest()->first();
+        return WarehouseInventory::where('inventory_id', $id)->get();
     }
 
     public function show($id)
@@ -24,15 +24,33 @@ class WarehouseInventoryController extends Controller
     public function store(Request $request)
     {
         try {
-            $wi = new WarehouseInventory();
-            $wi->warehouse_id = $request->get('warehouse_id');
-            $wi->inventory_id = $request->get('inventory_id');
-            $wi->norm = $request->get('norm');
-            $wi->save();
+          $data = $request->all();
+          foreach($data as $d) {
+            if($d['deleted'] === true && $d['id']) {
+              $wi = WarehouseInventory::findOrFail($d['id']);
+              $wi->delete();
+              continue;
+            }
+            if($d['deleted'] === true)
+              continue;
+
+            if($d['id']) {
+              $wi = WarehouseInventory::findOrFail($d['id']);
+              $wi->warehouse_id = $d['warehouse_id'];
+              $wi->inventory_id = $d['inventory_id'];
+              $wi->norm = $d['norm'];
+              $wi->save();
+            } else {
+              $wi = new WarehouseInventory();
+              $wi->warehouse_id = $d['warehouse_id'];
+              $wi->inventory_id = $d['inventory_id'];
+              $wi->norm = $d['norm'];
+              $wi->save();
+            }
+          }
             return response()->json([
                 'status' => 'success',
                 'message' => 'WarehouseInventory created successfully',
-                'data' => $wi
             ], 201);
         } catch (\Exception $e) {
             return response()->json([

@@ -47,9 +47,8 @@ class SalesService {
 
     public static function populateWarehouse($order)
     {
-      $warehouse = WarehouseInventory::where('inventory_id', $order['id']);
-      if($warehouse && $warehouse->first()) {
-        $warehouse = $warehouse->first();
+      $warehouses = WarehouseInventory::where('inventory_id', $order['id'])->get();
+      foreach($warehouses as $warehouse) {
         WarehouseStatus::create([
           'warehouse_id' => $warehouse['warehouse_id'],
           'inventory_id' => $order['id'],
@@ -63,9 +62,9 @@ class SalesService {
 
     public static function populateWarehouseFromSaleImport(Sales $sale, $date)
     {
-      $warehouse = WarehouseInventory::where('inventory_id', $sale->inventory_id);
-      if($warehouse && $warehouse->first()) {
-        $warehouse = $warehouse->first();
+      $warehouses = WarehouseInventory::where('inventory_id', $sale->inventory_id)->get();
+
+      foreach($warehouses as $warehouse) {
         WarehouseStatus::create([
           'warehouse_id' => $warehouse['warehouse_id'],
           'inventory_id' => $sale->inventory_id,
