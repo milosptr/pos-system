@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full TablesWrapper grid grid-cols-6 grid-rows-6 pt-1 sm:py-5">
+  <div class="relative w-full TablesWrapper grid grid-cols-6 grid-rows-6 pt-1 pb-0 sm:pt-5 xl:pb-5">
     <router-link
       v-for="table in tables"
       :key="table.id"
@@ -40,16 +40,23 @@ export default {
       this.$store.commit('resetPrinting')
     },
     tablePosition(table) {
+      let isTablet = window.innerWidth < 1200
       let innerWidth = window.innerWidth
-      let innerHeight = window.innerHeight - 108
+      let innerHeight = window.innerHeight - 100
+      if (isTablet) {
+        innerHeight += 100
+      }
       let colWidth = innerWidth / 6
       let colHeight = innerHeight / 6
       let boxWidth = table.size ? 180 : 120
-      let boxHeight = table.size ? 100 : 120
+      let boxHeight = table.size ? (isTablet ? 120 : 100) : 120
       if (table.rotate) {
         boxWidth = 120
         boxHeight = 180
       }
+
+      console.log(table)
+
       let marginTop = table.size ? 0 : (colHeight - boxHeight) / 2
       marginTop = table.rotate ? marginTop - colHeight / 2 : marginTop
       let marginLeft = (colWidth - boxWidth) / 2
@@ -61,6 +68,20 @@ export default {
 
       if (table.position_y_middle) {
         marginTop = colHeight - boxHeight / 2
+        if (isTablet) marginTop += 10
+      }
+
+      if (isTablet && table.table_number === 7) {
+        marginTop += 10
+      }
+      if (isTablet && table.table_number === 6) {
+        marginTop -= 20
+      }
+      if (isTablet && table.table_number === 5) {
+        marginTop -= 20
+      }
+      if (isTablet && table.table_number === 31) {
+        marginTop -= 20
       }
 
       const margin = `margin: ${marginTop}px 0 0 ${marginLeft}px;`
@@ -85,7 +106,7 @@ export default {
 
 <style scoped>
 .TablesWrapper {
-  height: calc(100vh - 108px);
+  height: calc(100vh - 100px);
 }
 .SingleTable {
   box-sizing: border-box;
@@ -128,7 +149,10 @@ export default {
 
 @media (max-width: 1024px) {
   .SingleTable {
-    transform: scale(0.8) !important;
+    transform: scale(0.75) !important;
+  }
+  .SingleTable.Small {
+    height: 110px;
   }
 }
 
