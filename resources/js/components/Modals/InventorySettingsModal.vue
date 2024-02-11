@@ -131,9 +131,7 @@ export default {
         norm: null,
         deleted: false
       }
-    ],
-    selectedWarehouse: null,
-    unit: null
+    ]
   }),
   computed: {
     currentTab() {
