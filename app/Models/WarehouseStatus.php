@@ -14,6 +14,8 @@ class WarehouseStatus extends Model
     CONST TYPE_IN = 0;
     CONST TYPE_OUT = 1;
 
+    CONST EXCEPTION_TYPE = 'WarehouseStatus::populateWarehouseFromSaleImport';
+
     protected $table = 'warehouse_status';
     protected $fillable = [
         'warehouse_id',
