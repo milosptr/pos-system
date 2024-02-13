@@ -89,13 +89,14 @@ class SalesService {
             'created_at' => $date,
           ]);
         } catch (\Exception $e) {
+          $combinedPayload = array_merge($sale->toArray(), ['date' => $date]);
           ExceptionLog::create([
             'type' => 'WarehouseStatus::populateWarehouseFromSaleImport',
             'message' => $e->getMessage(),
             'stack_trace' => $e->getTraceAsString(),
             'file' => $e->getFile(),
             'method' => $e->getLine(),
-            'payload' => json_encode($sale),
+            'payload' => json_encode($combinedPayload),
             'status_code' => 500
           ]);
         }
