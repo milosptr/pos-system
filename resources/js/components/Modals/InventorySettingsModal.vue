@@ -173,7 +173,8 @@ export default {
     },
     updateUnit(e, wi) {
       let value = e.target.value
-      value = parseFloat(value.replaceAll(',', '.')) || 0
+      value = value.replaceAll(',', '.') || 0
+      value = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
       this.warehouseInventory = this.warehouseInventory.map((item) => {
         if (item.key === wi.key) {
           item.norm = value
@@ -189,7 +190,7 @@ export default {
       const data = this.warehouseInventory.map((item) => ({
         id: item?.id ?? null,
         warehouse_id: item.warehouse_id,
-        norm: item.norm,
+        norm: parseFloat(item.norm) || 0,
         deleted: item.deleted,
         inventory_id: this.item.id
       }))
