@@ -78,7 +78,7 @@ class SalesService {
       $warehouses = WarehouseInventory::where('inventory_id', $sale->inventory_id)->get();
       try {
         $dateValue = $date ? $date : $sale->created_at;
-        $dateInstance = Carbon::parse($dateValue)->timezone('Europe/Belgrade')->format('Y-m-d');
+        $dateInstance = Carbon::parse($dateValue)->timezone('Europe/Belgrade');
         $dateInstance = WorkingDay::setCorrectDateForWorkingDay($dateInstance);
       } catch (\Exception $e) {
         $dateInstance = WorkingDay::setCorrectDateForWorkingDay();
