@@ -76,8 +76,13 @@ class SalesService {
     public static function populateWarehouseFromSaleImport(Sales $sale, $date)
     {
       $warehouses = WarehouseInventory::where('inventory_id', $sale->inventory_id)->get();
-      $dateInstance = $date ? Carbon::parse($date)->timezone('Europe/Belgrade') : WorkingDay::setCorrectDateForWorkingDay();
-
+      try {
+        $dateValue = $date ? $date : $sale->created_at;
+        $dateInstance = Carbon::parse($dateValue)->timezone('Europe/Belgrade')->format('Y-m-d');
+        $dateInstance = WorkingDay::setCorrectDateForWorkingDay($dateInstance);
+      } catch (\Exception $e) {
+        $dateInstance = WorkingDay::setCorrectDateForWorkingDay();
+      }
       foreach($warehouses as $warehouse) {
         try {
           WarehouseStatus::create([
@@ -85,10 +90,9 @@ class SalesService {
             'inventory_id' => $sale->inventory_id,
             'quantity' => (float)$sale->qty * (float)$warehouse['norm'],
             'type' => WarehouseStatus::TYPE_OUT,
-            'date' => $dateInstance->format('Y-m-d'),
+            'date' => $dateInstance,
             'batch_id' => $sale->batch_id,
             'comment' => 'Sale from other system',
-            'created_at' => $dateInstance,
           ]);
         } catch (\Exception $e) {
           $combinedPayload = array_merge($sale->toArray(), ['date' => $date]);
