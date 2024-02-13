@@ -23,6 +23,8 @@ class WarehouseStatus extends Model
         'quantity',
         'type', // 0 = in, 1 = out
         'date',
+        'batch_id',
+        'previous_status',
         'comment',
         'created_at',
     ];
