@@ -16,7 +16,8 @@
           @click="nextDate()" />
       </div>
       <div class="mt-6 border border-solid border-gray-200 bg-white">
-        <div class="grid grid-cols-6 font-semibold text-sm py-1 border-b border-solid border-gray-300 bg-gray-200">
+        <div
+          class="grid grid-cols-5 sm:grid-cols-6 font-semibold text-sm py-1 border-b border-solid border-gray-300 bg-gray-200">
           <!--          <div class="px-4">Datum</div>-->
           <div class="px-4">Sirovina</div>
           <div class="px-4 hidden sm:block">Jedinica</div>
@@ -28,7 +29,7 @@
         <div
           v-for="(item, index) in warehouse"
           :key="item.id"
-          class="grid grid-cols-6 text-sm py-1"
+          class="grid grid-cols-5 sm:grid-cols-6 text-sm py-1"
           :class="{ 'bg-gray-100': index % 2 === 1 }">
           <div class="px-4">{{ item.warehouse.name }}</div>
           <div class="px-4 hidden sm:block">{{ item.warehouse.unit }}</div>
