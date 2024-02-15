@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Sales;
+use App\Models\WarehouseStatus;
 use Illuminate\Console\Command;
 
 class ClearStornoSales extends Command
@@ -28,7 +30,8 @@ class ClearStornoSales extends Command
     public function handle()
     {
         $stornoInvoices = \App\Models\Invoice::where('status', \App\Models\Invoice::STATUS_REFUNDED)->pluck('id');
-        \App\Models\Sales::whereIn('invoice_id', $stornoInvoices)->delete();
+        Sales::whereIn('invoice_id', $stornoInvoices)->delete();
+        WarehouseStatus::whereIn('batch_id', $stornoInvoices)->delete();
         return 0;
     }
 }

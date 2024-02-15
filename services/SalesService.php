@@ -24,7 +24,7 @@ class SalesService {
         if(isset($order['refund']) && $order['refund'])
           continue;
           try {
-            self::populateWarehouse($order);
+            self::populateWarehouse($order, $invoice->id);
           } catch (\Exception $e) {
             // Log the error
           }
@@ -46,7 +46,7 @@ class SalesService {
       return Sales::insert($data);
     }
 
-    public static function populateWarehouse($order)
+    public static function populateWarehouse($order, $invoiceId)
     {
       $warehouses = WarehouseInventory::where('inventory_id', $order['id'])->get();
       foreach($warehouses as $warehouse) {
@@ -54,6 +54,7 @@ class SalesService {
           WarehouseStatus::create([
             'warehouse_id' => $warehouse['warehouse_id'],
             'inventory_id' => $order['id'],
+            'batch_id' => $invoiceId,
             'date' => WorkingDay::setCorrectDateForWorkingDay(),
             'quantity' => (float)$order['qty'] * (float)$warehouse['norm'],
             'type' => WarehouseStatus::TYPE_OUT,

@@ -19,7 +19,7 @@
         <div class="grid grid-cols-6 font-semibold text-sm py-1 border-b border-solid border-gray-300 bg-gray-200">
           <!--          <div class="px-4">Datum</div>-->
           <div class="px-4">Sirovina</div>
-          <div class="px-4">Jedinica</div>
+          <div class="px-4 hidden sm:block">Jedinica</div>
           <div class="px-4 text-center">Prethodno stanje</div>
           <div class="px-4 text-center">Prodato</div>
           <div class="px-4 text-center">Uneto</div>
@@ -30,9 +30,8 @@
           :key="item.id"
           class="grid grid-cols-6 text-sm py-1"
           :class="{ 'bg-gray-100': index % 2 === 1 }">
-          <!--          <div class="px-4">{{ dayjs(item.date).format('DD.MM.YYYY') }}</div>-->
           <div class="px-4">{{ item.warehouse.name }}</div>
-          <div class="px-4">{{ item.warehouse.unit }}</div>
+          <div class="px-4 hidden sm:block">{{ item.warehouse.unit }}</div>
           <div class="px-4 text-center">{{ item.previous_quantity }}</div>
           <div class="px-4 text-red-600 font-medium text-center">{{ item.sale_quantity }}</div>
           <div class="px-4 text-green-600 font-medium text-center">{{ item.import_quantity }}</div>
