@@ -13,6 +13,7 @@ class WarehouseCategory extends Model
       'group_id',
       'name',
       'group',
+      'order',
       'is_deleted'
     ];
     public $timestamps = true;

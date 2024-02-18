@@ -9,7 +9,7 @@ class WarehouseCategoryController extends Controller
 {
     public function index()
     {
-      return WarehouseCategory::where('is_deleted', 0)->get();
+      return WarehouseCategory::where('is_deleted', 0)->orderBy('order', 'asc')->get();
     }
 
     public function store(Request $request)
@@ -20,6 +20,17 @@ class WarehouseCategoryController extends Controller
       $category->order = $request->get('order');
       $category->save();
       return $category;
+    }
+
+    public function updateOrder(Request $request)
+    {
+      foreach ($request->all() as $order) {
+        $category = WarehouseCategory::find($order['id']);
+        $category->update([
+          'order' => $order['order']
+        ]);
+      }
+      return $request;
     }
 
     public function destroy($id)

@@ -25,9 +25,13 @@
         <tr
           v-for="(category, idx) in categories"
           :key="category.id"
-          :class="{ 'bg-gray-50': idx % 2 === 1 }">
-          <td class="px-3 text-sm py-1.5">{{ category.id }}</td>
-          <td class="px-3 text-sm py-1.5">{{ category.name }}</td>
+          :class="{ 'bg-gray-50': idx % 2 === 1 }"
+          draggable="true"
+          @dragstart="dragStart(idx)"
+          @dragover.prevent
+          @drop="drop(idx)">
+          <td class="px-3 text-sm py-1.5">{{ idx + 1 }}</td>
+          <td class="px-3 text-sm py-1.5 cursor-grab">{{ category.name }}</td>
           <td class="px-3 text-sm py-1.5">{{ category.parent_id === 0 ? 'Šank' : 'Kuhinja' }}</td>
           <td class="px-3 text-sm py-1.5 text-right">
             <div
@@ -65,6 +69,27 @@ export default {
     this.getCategories()
   },
   methods: {
+    dragStart(index) {
+      this.draggedIndex = index
+    },
+    drop(dropIndex) {
+      if (window.innerWidth < 768) return
+      const itemToMove = this.categories.splice(this.draggedIndex, 1)[0]
+      this.categories.splice(dropIndex, 0, itemToMove)
+      this.categories = this.categories.map((item, index) => {
+        return {
+          ...item,
+          order: index
+        }
+      })
+      axios.patch(
+        '/api/backoffice/warehouse-categories/order',
+        this.categories.map((item) => ({
+          id: item.id,
+          order: item.order
+        }))
+      )
+    },
     getCategories() {
       axios.get('/api/backoffice/warehouse-categories').then((res) => {
         this.categories = res.data

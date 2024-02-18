@@ -151,11 +151,13 @@ Route::prefix('/backoffice')->group(function () {
     // Warehouse
     Route::get('warehouse', [WarehouseController::class, 'index']);
     Route::post('warehouse', [WarehouseController::class, 'store']);
+    Route::patch('warehouse/order', [WarehouseController::class, 'updateOrder']);
     Route::delete('warehouse/{id}', [WarehouseController::class, 'destroy']);
 
     // Warehouse Category
     Route::get('warehouse-categories', [WarehouseCategoryController::class, 'index']);
     Route::post('warehouse-categories', [WarehouseCategoryController::class, 'store']);
+    Route::patch('warehouse-categories/order', [WarehouseCategoryController::class, 'updateOrder']);
     Route::delete('warehouse-categories/{id}', [WarehouseCategoryController::class, 'destroy']);
 
     // WarehouseInventory

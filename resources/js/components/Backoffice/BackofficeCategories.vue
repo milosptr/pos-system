@@ -12,7 +12,7 @@
             'rounded-md px-3 py-2 text-sm font-medium'
           ]"
           :aria-current="activeTab === tab.id ? 'page' : undefined"
-          @click="activeTab = tab.id">
+          @click="changeTab(tab.id)">
           {{ tab.name }}
         </div>
       </nav>
@@ -97,6 +97,13 @@ export default {
   },
   mounted() {
     this.$store.dispatch('getCategories')
+    this.activeTab = parseInt(this.$route?.query?.tab || 0)
+  },
+  methods: {
+    changeTab(tab) {
+      this.activeTab = parseInt(tab)
+      this.$router.push({ query: { tab } })
+    }
   }
 }
 </script>

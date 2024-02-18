@@ -18,7 +18,6 @@
       <div class="mt-6 border border-solid border-gray-200 bg-white">
         <div
           class="grid grid-cols-5 sm:grid-cols-6 font-semibold text-sm py-1 border-b border-solid border-gray-300 bg-gray-200">
-          <!--          <div class="px-4">Datum</div>-->
           <div class="px-4">Sirovina</div>
           <div class="px-4 hidden sm:block">Jedinica</div>
           <div class="px-4 text-center">Prethodno stanje</div>
@@ -50,11 +49,13 @@
 <script>
 import dayjs from 'dayjs'
 import { ChevronLeftIcon, ChevronRightIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/vue/outline'
+
 export default {
   name: 'WarehouseSales',
   data: () => ({
     warehouse: [],
-    date: dayjs().format('YYYY-MM-DD')
+    date: dayjs().format('YYYY-MM-DD'),
+    draggedIndex: null
   }),
   components: {
     ChevronLeftIcon,

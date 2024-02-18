@@ -15,6 +15,7 @@ class Warehouse extends Model
         'name',
         'unit',
         'category_id',
+        'order'
     ];
 
     public $timestamps = true;

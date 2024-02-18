@@ -10,7 +10,7 @@ class WarehouseController extends Controller
 {
     public function index()
     {
-        $warehouses = Warehouse::all();
+        $warehouses = Warehouse::orderBy('order', 'asc')->get();
         return WarehouseResource::collection($warehouses);
     }
 
@@ -26,6 +26,17 @@ class WarehouseController extends Controller
         } catch (\Throwable $th) {
             return $th;
         }
+    }
+
+    public function updateOrder(Request $request)
+    {
+      foreach ($request->all() as $order) {
+        $warehouse = Warehouse::find($order['id']);
+        $warehouse->update([
+          'order' => $order['order']
+        ]);
+      }
+      return $request;
     }
 
     public function destroy($id)

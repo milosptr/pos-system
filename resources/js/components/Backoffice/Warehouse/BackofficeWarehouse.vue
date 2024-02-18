@@ -12,7 +12,7 @@
           id="tabs"
           name="tabs"
           class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-          @change="onTabChange($event)">
+          @change="onTabChange($event.target.value)">
           >
           <option
             v-for="tab in tabs"
@@ -35,7 +35,7 @@
               'rounded-md px-3 py-2 text-sm font-medium'
             ]"
             :aria-current="activeTab === tab.id ? 'page' : undefined"
-            @click="activeTab = tab.id">
+            @click="onTabChange(tab.id)">
             {{ tab.name }}
           </div>
         </nav>
@@ -68,10 +68,15 @@ export default {
     activeTab: 0,
     showUpdateStateModal: false
   }),
-  mounted() {},
+  mounted() {
+    // Use the "query" property to get the current tab from the URL.
+    this.activeTab = parseInt(this.$route.query.tab) || 0
+  },
   methods: {
-    onTabChange(event) {
-      this.activeTab = parseInt(event.target.value)
+    onTabChange(tab) {
+      this.activeTab = parseInt(tab)
+      // Use the "push" method to change the URL when the user selects a tab.
+      this.$router.push({ query: { tab } })
     }
   }
 }

@@ -13,8 +13,12 @@
         v-for="(item, index) in warehouse"
         :key="item.id"
         class="grid grid-cols-5 gap-4 py-1"
-        :class="{ 'bg-gray-100': index % 2 }">
-        <div class="px-4">{{ item.name }}</div>
+        :class="{ 'bg-gray-100': index % 2 }"
+        draggable="true"
+        @dragstart="dragStart(index)"
+        @dragover.prevent
+        @drop="drop(index)">
+        <div class="px-4 cursor-grab">{{ item.name }}</div>
         <div class="px-4">{{ item.unit }}</div>
         <div class="px-4">{{ item.category_parent }}</div>
         <div class="px-4">{{ item.category?.name }}</div>
@@ -61,6 +65,27 @@ export default {
     }
   },
   methods: {
+    dragStart(index) {
+      this.draggedIndex = index
+    },
+    drop(dropIndex) {
+      if (window.innerWidth < 768) return
+      const itemToMove = this.warehouse.splice(this.draggedIndex, 1)[0]
+      this.warehouse.splice(dropIndex, 0, itemToMove)
+      this.warehouse = this.warehouse.map((item, index) => {
+        return {
+          ...item,
+          order: index
+        }
+      })
+      axios.patch(
+        '/api/backoffice/warehouse/order',
+        this.warehouse.map((item) => ({
+          id: item.id,
+          order: item.order
+        }))
+      )
+    },
     getWharehouse() {
       axios
         .get('/api/backoffice/warehouse')
