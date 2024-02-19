@@ -15,6 +15,7 @@ class WarehouseStatusController extends Controller
       $date = $request->get('date') ?? date('Y-m-d');
 
       $warehouse = $warehouse->whereDate('date', '<=', $date)
+        ->leftJoin('warehouses', 'warehouses.id', '=', 'warehouse_status.warehouse_id')
         ->selectRaw(
           'warehouse_id, ' .
           'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 0 then quantity else 0 end) else 0 end) as import_quantity, ' .
@@ -26,7 +27,8 @@ class WarehouseStatusController extends Controller
           'SUM(case when warehouse_status.date < ? then (case when warehouse_status.type = 0 then quantity else -quantity end) else 0 end) as previous_quantity',
           [$date, $date, $date, $date]
         )
-        ->groupBy('warehouse_id');
+        ->groupBy('warehouse_id')
+        ->orderBy('warehouses.order');
 
       return WarehouseStatusResource::collection($warehouse->get());
     }
