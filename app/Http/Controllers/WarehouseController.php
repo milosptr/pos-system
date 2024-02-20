@@ -14,6 +14,12 @@ class WarehouseController extends Controller
         return WarehouseResource::collection($warehouses);
     }
 
+    public function indexByCategory($id)
+    {
+        $warehouses = Warehouse::where('category_id', $id)->orderBy('order', 'asc')->get();
+        return WarehouseResource::collection($warehouses);
+    }
+
     public function store(Request $request)
     {
         try {

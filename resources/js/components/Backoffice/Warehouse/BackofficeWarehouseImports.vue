@@ -1,23 +1,33 @@
 <template>
   <div>
-    <WarehouseStatusModal
-      :forDate="date"
+    <WarehouseImportModal
+      v-if="showAddModal"
       @update="getWarehouseStatus"
-      @dateChange="dateChange" />
+      @close="showAddModal = false" />
     <div class="">
-      <div class="text-right flex items-center gap-4">
-        <ChevronLeftIcon
-          class="w-6 cursor-pointer"
-          @click="previousDate()" />
-        <input
-          type="date"
-          v-model="date"
-          :max="maxDate"
-          @change="updateDate"
-          class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-48 sm:text-sm border-gray-300 rounded-md" />
-        <ChevronRightIcon
-          class="w-6 cursor-pointer"
-          @click="nextDate()" />
+      <div class="flex flex-col-reverse gap-5 sm:gap-0 sm:flex-row justify-between sm:items-center">
+        <div class="text-right flex items-center gap-4">
+          <ChevronLeftIcon
+            class="w-6 cursor-pointer"
+            @click="previousDate()" />
+          <input
+            type="date"
+            v-model="date"
+            :max="maxDate"
+            @change="updateDate"
+            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-48 sm:text-sm border-gray-300 rounded-md" />
+          <ChevronRightIcon
+            class="w-6 cursor-pointer"
+            @click="nextDate()" />
+        </div>
+        <div>
+          <button
+            type="button"
+            class="relative text-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            @click="showAddModal = true">
+            Dodaj unos
+          </button>
+        </div>
       </div>
       <div class="mt-6 border border-solid border-gray-200 bg-white">
         <div class="grid grid-cols-4 font-semibold text-sm py-1 border-b border-solid border-gray-300 bg-gray-200">
@@ -92,15 +102,18 @@ import {
 } from '@heroicons/vue/outline'
 import WarehouseStatusModal from '@/js/components/Modals/WarehouseStatusModal.vue'
 import DeleteModal from '@/js/components/Modals/DeleteModal.vue'
+import WarehouseImportModal from '@/js/components/Backoffice/Warehouse/WarehouseImportModal.vue'
 export default {
   name: 'BackofficeWarehouseImports',
   data: () => ({
     warehouse: [],
     date: dayjs().format('YYYY-MM-DD'),
     deleteModal: null,
-    editImport: null
+    editImport: null,
+    showAddModal: false
   }),
   components: {
+    WarehouseImportModal,
     DeleteModal,
     WarehouseStatusModal,
     ChevronLeftIcon,

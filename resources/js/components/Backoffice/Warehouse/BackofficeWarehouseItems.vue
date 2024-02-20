@@ -2,9 +2,10 @@
   <div>
     <BackofficeWarehouseNew @saved="getWharehouse" />
     <div class="border border-solid border-gray-200 bg-white">
-      <div class="grid grid-cols-5 gap-4 font-semibold py-1 border-b border-solid border-gray-300 bg-gray-200">
+      <div
+        class="grid grid-cols-4 sm:grid-cols-5 gap-4 font-semibold py-1 border-b border-solid border-gray-300 bg-gray-200">
         <div class="px-4">Ime sirovine</div>
-        <div class="px-4">Jedinica</div>
+        <div class="px-4 hidden sm:block">Jedinica</div>
         <div class="px-4">Kuhinja/Šank</div>
         <div class="px-4">Kategorija</div>
         <div class="px-4"></div>
@@ -12,14 +13,14 @@
       <div
         v-for="(item, index) in warehouse"
         :key="item.id"
-        class="grid grid-cols-5 gap-4 py-1"
+        class="grid grid-cols-4 sm:grid-cols-5 gap-4 py-1"
         :class="{ 'bg-gray-100': index % 2 }"
         draggable="true"
         @dragstart="dragStart(index)"
         @dragover.prevent
         @drop="drop(index)">
         <div class="px-4 cursor-grab">{{ item.name }}</div>
-        <div class="px-4">{{ item.unit }}</div>
+        <div class="px-4 hidden sm:block">{{ item.unit }}</div>
         <div class="px-4">{{ item.category_parent }}</div>
         <div class="px-4">{{ item.category?.name }}</div>
         <div class="px-4 flex justify-end">

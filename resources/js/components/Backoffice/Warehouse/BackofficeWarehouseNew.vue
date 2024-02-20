@@ -1,7 +1,7 @@
 <template>
   <div class="pb-8 mb-8 border-b border-solid border-gray-300 text-sm">
     <h1 class="text-2xl font-bold">Nova Sirovina</h1>
-    <div class="grid grid-cols-4 gap-4 mt-4">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-4">
       <div class="col-span-2">
         <div>Sirovina</div>
         <input
