@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\WarehouseResource;
+use App\Models\WarehouseStatus;
 use Illuminate\Http\Request;
 use App\Models\Warehouse;
 
@@ -43,6 +44,18 @@ class WarehouseController extends Controller
         ]);
       }
       return $request;
+    }
+
+    public function reset($id)
+    {
+        $warehouse = Warehouse::find($id);
+        if($warehouse) {
+          $statuses = WarehouseStatus::where('warehouse_id', $id)->get();
+          foreach ($statuses as $status) {
+            $status->delete();
+          }
+        }
+        return response()->json(['message' => 'Warehouse reset successfully']);
     }
 
     public function destroy($id)

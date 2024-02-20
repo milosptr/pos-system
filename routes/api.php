@@ -153,6 +153,7 @@ Route::prefix('/backoffice')->group(function () {
     Route::get('warehouse/category/{id}', [WarehouseController::class, 'indexByCategory']);
     Route::post('warehouse', [WarehouseController::class, 'store']);
     Route::patch('warehouse/order', [WarehouseController::class, 'updateOrder']);
+    Route::patch('warehouse/{id}/reset', [WarehouseController::class, 'reset']);
     Route::delete('warehouse/{id}', [WarehouseController::class, 'destroy']);
 
     // Warehouse Category

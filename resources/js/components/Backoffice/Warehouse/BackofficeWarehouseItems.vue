@@ -23,13 +23,22 @@
         <div class="px-4 hidden sm:block">{{ item.unit }}</div>
         <div class="px-4">{{ item.category_parent }}</div>
         <div class="px-4">{{ item.category?.name }}</div>
-        <div class="px-4 flex justify-end">
+        <div class="px-4 flex justify-end gap-3">
+          <ReloadIcon
+            class="w-4 h-4 cursor-pointer text-blue-500"
+            @click="resetModal = item" />
           <TrashIcon
             class="w-5 h-5 cursor-pointer text-red-500"
             @click="deleteModal = item" />
         </div>
       </div>
     </div>
+    <DeleteModal
+      :show="!!resetModal"
+      :title="resetModalTitle"
+      :body="resetModalBody"
+      @close="resetModal = null"
+      @delete="resetWarehouseItem" />
     <DeleteModal
       :show="!!deleteModal"
       :title="deleteModalTitle"
@@ -43,16 +52,19 @@
 import { TrashIcon } from '@heroicons/vue/outline'
 import DeleteModal from '@/js/components/Modals/DeleteModal.vue'
 import BackofficeWarehouseNew from '@/js/components/Backoffice/Warehouse/BackofficeWarehouseNew.vue'
+import ReloadIcon from '@/icons/ReloadIcon.vue'
 export default {
   name: 'WarehouseItems',
   components: {
     BackofficeWarehouseNew,
     DeleteModal,
-    TrashIcon
+    TrashIcon,
+    ReloadIcon
   },
   data: () => ({
     warehouse: [],
-    deleteModal: null
+    deleteModal: null,
+    resetModal: null
   }),
   mounted() {
     this.getWharehouse()
@@ -63,11 +75,24 @@ export default {
     },
     deleteModalBody() {
       return 'Da li ste sigurni da želite da obrišete ovu sirovinu?'
+    },
+    resetModalTitle() {
+      return `Resetovanje sirovine ${this.resetModal?.name}`
+    },
+    resetModalBody() {
+      return 'Da li ste sigurni da želite da resetujete ovu sirovinu?'
     }
   },
   methods: {
     dragStart(index) {
       this.draggedIndex = index
+    },
+    resetWarehouseItem() {
+      axios.patch(`/api/backoffice/warehouse/${this.resetModal.id}/reset`).then(() => {
+        this.getWharehouse()
+        this.resetModal = null
+        alert('Sirovina je resetovana')
+      })
     },
     drop(dropIndex) {
       if (window.innerWidth < 768) return
