@@ -36,52 +36,54 @@
         <!--          </select>-->
         <!--        </div>-->
       </div>
-      <div class="mt-6 border border-solid border-gray-200 bg-white overflow-x-scroll">
+      <div class="mt-6 border border-solid border-gray-200 bg-white">
         <div class="w-full">
-          <div class="flex sm:grid sm:grid-cols-6 font-semibold text-sm">
-            <div class="w-64 flex-shrink-0 sm:w-full px-4 py-1 border-b border-solid border-gray-300 bg-gray-200">
+          <div class="grid grid-cols-6 font-semibold text-sm">
+            <div
+              class="col-span-2 sm:col-span-1 w-64 flex-shrink-0 sm:w-full px-4 py-1 border-b border-solid border-gray-300 bg-gray-200">
               <span class="">Sirovina</span>
             </div>
             <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 hidden sm:block py-1 border-b border-solid border-gray-300 bg-gray-200">
+              class="w-full truncate px-2 sm:px-4 hidden sm:block py-1 border-b border-solid border-gray-300 bg-gray-200">
               Jedinica
             </div>
-            <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 text-center py-1 border-b border-solid border-gray-300 bg-gray-200">
+            <div class="w-full px-2 sm:px-4 text-center py-1 border-b border-solid border-gray-300 bg-gray-200">
               <span class="hidden sm:block">Prethodno stanje</span>
-              <span class="block sm:hidden whitespace-nowrap">P. stanje</span>
+              <span class="block truncate sm:hidden whitespace-nowrap">P. stanje</span>
             </div>
             <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 text-center py-1 border-b border-solid border-gray-300 bg-gray-200">
+              class="w-full truncate px-2 sm:px-4 text-center py-1 border-b border-solid border-gray-300 bg-gray-200">
               <span class="">Prodato</span>
             </div>
             <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 text-center py-1 border-b border-solid border-gray-300 bg-gray-200">
+              class="w-full truncate px-2 sm:px-4 text-center py-1 border-b border-solid border-gray-300 bg-gray-200">
               <span class="">Uneto</span>
             </div>
             <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 text-center py-1 border-b border-solid border-gray-300 bg-gray-200">
+              class="w-full truncate px-2 sm:px-4 text-center py-1 border-b border-solid border-gray-300 bg-gray-200">
               <span class="hidden sm:block">Zavrsno stanje</span>
-              <span class="block sm:hidden whitespace-nowrap">Z. stanje</span>
+              <span class="block truncate sm:hidden whitespace-nowrap">Z. stanje</span>
             </div>
           </div>
           <div
             v-for="(item, index) in warehouse"
             :key="item.id"
-            class="flex flex-shrink-0 sm:grid sm:grid-cols-6 text-sm"
+            class="grid grid-cols-6 text-sm"
             :class="{ 'bg-gray-100': index % 2 === 1 }">
             <div
-              class="w-64 flex-shrink-0 sm:w-full px-4 whitespace-nowrap py-1"
+              class="col-span-2 sm:col-span-1 w-full px-4 whitespace-nowrap py-1"
               :class="{ 'bg-gray-100': index % 2 === 1 }">
-              {{ item.warehouse.name }}
+              <div class="w-full truncate">
+                {{ item.warehouse.name }}
+              </div>
             </div>
             <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 hidden sm:block py-1"
+              class="w-full px-4 hidden sm:block py-1"
               :class="{ 'bg-gray-100': index % 2 === 1 }">
               {{ item.warehouse.unit }}
             </div>
             <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 text-center py-1"
+              class="w-full px-4 text-center py-1"
               :class="{ 'bg-gray-100': index % 2 === 1 }">
               <div
                 class="flex items-center gap-3"
@@ -106,11 +108,11 @@
               </div>
               <div
                 v-else
-                class="px-4 flex items-center justify-end gap-3">
-                <div class="hidden sm:flex w-16 justify-center items-center">
+                class="px-4 flex items-center justify-end gap-1 sm:gap-3">
+                <div class="flex sm:w-16 justify-center items-center">
                   <div
                     v-if="parseFloat(item.recalculated_quantity) !== 0"
-                    class="text-xs">
+                    class="text-xs hidden sm:block">
                     {{ item.recalculated_quantity }}
                   </div>
                   <ArrowSmDownIcon
@@ -128,17 +130,17 @@
               </div>
             </div>
             <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 text-red-600 font-medium text-center py-1"
+              class="w-full px-4 text-red-600 font-medium text-center py-1"
               :class="{ 'bg-gray-100': index % 2 === 1 }">
               {{ item.sale_quantity }}
             </div>
             <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 text-green-600 font-medium text-center py-1"
+              class="w-full px-4 text-green-600 font-medium text-center py-1"
               :class="{ 'bg-gray-100': index % 2 === 1 }">
               {{ item.import_quantity }}
             </div>
             <div
-              class="w-24 flex-shrink-0 sm:w-full px-4 text-center py-1"
+              class="w-full px-4 text-center py-1"
               :class="[item.quantity < 0 && 'text-orange-500 font-medium', { 'bg-gray-100': index % 2 === 1 }]">
               {{ item.quantity }}
             </div>

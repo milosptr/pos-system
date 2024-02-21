@@ -74,7 +74,7 @@ class InvoiceController extends Controller
     /**
      *
      * @param  \Illuminate\Http\Request  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function refund($id, Request $request)
     {
