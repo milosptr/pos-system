@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\WarehouseStatus;
 use Exception;
 use Carbon\Carbon;
 use Services\Pusher;
@@ -92,6 +93,7 @@ class InvoiceController extends Controller
             $invoice->update($request->all());
             try {
                 Sales::where('invoice_id', $invoice->id)->delete();
+                WarehouseStatus::whereIn('batch_id', $invoice->id)->delete();
             } catch(Exception $e) {
                 Log::error($e->getMessage());
             }
