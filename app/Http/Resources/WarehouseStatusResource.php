@@ -15,12 +15,13 @@ class WarehouseStatusResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id' => $this->id ?? uniqid('warehouse_status_', true),
             'warehouse_id' => $this->warehouse_id,
             'inventory_id' => $this->inventory_id,
             'import_quantity' => number_format($this->import_quantity, 2, '.'),
             'sale_quantity' => number_format($this->sale_quantity, 2, '.'),
             'previous_quantity' => number_format($this->previous_quantity, 2, '.'),
+            'recalculated_quantity' => number_format($this->recalculated_quantity, 2, '.'),
             'quantity' => number_format($this->quantity, 2, '.'),
             'type' => $this->type,
             'comment' => $this->comment,

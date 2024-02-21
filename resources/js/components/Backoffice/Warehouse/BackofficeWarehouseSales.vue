@@ -83,7 +83,49 @@
             <div
               class="w-24 flex-shrink-0 sm:w-full px-4 text-center py-1"
               :class="{ 'bg-gray-100': index % 2 === 1 }">
-              {{ item.previous_quantity }}
+              <div
+                class="flex items-center gap-3"
+                v-if="editItem && editItem.id === item.id">
+                <input
+                  type="number"
+                  class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-24 sm:text-sm border-gray-300 rounded-md py-0.5"
+                  :value="editItem.previous_quantity"
+                  @input="editItem.recalculated = $event.target.value" />
+                <button
+                  type="button"
+                  class="relative text-center px-4 py-0.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  @click="editStartingQuantity">
+                  Sačuvaj
+                </button>
+                <button
+                  type="button"
+                  @click="editItem = null"
+                  class="relative text-center px-4 py-0.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                  Odustani
+                </button>
+              </div>
+              <div
+                v-else
+                class="px-4 flex items-center justify-end gap-3">
+                <div class="hidden sm:flex w-16 justify-center items-center">
+                  <div
+                    v-if="parseFloat(item.recalculated_quantity) !== 0"
+                    class="text-xs">
+                    {{ item.recalculated_quantity }}
+                  </div>
+                  <ArrowSmDownIcon
+                    v-if="Number(item.recalculated_quantity) < 0"
+                    class="w-5 h-5 text-red-500" />
+                  <ArrowSmUpIcon
+                    v-if="Number(item.recalculated_quantity) > 0"
+                    class="w-5 h-5 text-green-500" />
+                </div>
+                <div
+                  class="cursor-pointer sm:pr-16"
+                  @click="editItem = { ...item }">
+                  {{ item.previous_quantity }}
+                </div>
+              </div>
             </div>
             <div
               class="w-24 flex-shrink-0 sm:w-full px-4 text-red-600 font-medium text-center py-1"
@@ -109,7 +151,15 @@
 
 <script>
 import dayjs from 'dayjs'
-import { ChevronLeftIcon, ChevronRightIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/vue/outline'
+import {
+  ArrowSmUpIcon,
+  ArrowSmDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  PencilIcon
+} from '@heroicons/vue/outline'
 
 export default {
   name: 'WarehouseSales',
@@ -117,13 +167,17 @@ export default {
     warehouse: [],
     warehouseCategories: [],
     date: dayjs().format('YYYY-MM-DD'),
-    draggedIndex: null
+    draggedIndex: null,
+    editItem: null
   }),
   components: {
+    PencilIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
     ArrowUpIcon,
-    ArrowDownIcon
+    ArrowDownIcon,
+    ArrowSmUpIcon,
+    ArrowSmDownIcon
   },
   mounted() {
     this.getWarehouseStatus()
@@ -155,6 +209,19 @@ export default {
         return
       }
       this.getWarehouseStatus()
+    },
+    editStartingQuantity() {
+      console.log('editStartingQuantity', this.editItem)
+      axios
+        .post('/api/backoffice/warehouse-status/recalculate/' + this.editItem.warehouse_id, {
+          quantity: parseFloat(this.editItem.recalculated) - parseFloat(this.editItem.previous_quantity),
+          previous_quantity: parseFloat(this.editItem.previous_quantity),
+          date: this.date
+        })
+        .then(() => {
+          this.editItem = null
+          this.getWarehouseStatus()
+        })
     },
     getWarehouseCategories() {
       axios.get('/api/backoffice/warehouse-categories').then((response) => {

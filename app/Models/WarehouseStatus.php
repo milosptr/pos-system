@@ -13,6 +13,7 @@ class WarehouseStatus extends Model
     use HasFactory;
     CONST TYPE_IN = 0;
     CONST TYPE_OUT = 1;
+    CONST TYPE_RESET = 2;
 
     CONST EXCEPTION_TYPE = 'WarehouseStatus::populateWarehouseFromSaleImport';
 

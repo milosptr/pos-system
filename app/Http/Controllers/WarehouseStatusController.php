@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\WarehouseStatusResource;
 use App\Models\WarehouseStatus;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Services\WorkingDay;
 
 class WarehouseStatusController extends Controller
 {
@@ -20,12 +22,10 @@ class WarehouseStatusController extends Controller
           'warehouse_id, ' .
           'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 0 then quantity else 0 end) else 0 end) as import_quantity, ' .
           'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 1 then quantity else 0 end) else 0 end) as sale_quantity, ' .
-          'SUM(case when warehouse_status.date <= ? then (case when warehouse_status.type = 0 then quantity else -quantity end) else 0 end) as quantity,' .
-//          'SUM(case when warehouse_status.type = 0 and warehouse_status.date = ? then quantity else 0 end) as date_import_quantity, ' .
-//          'SUM(case when warehouse_status.type = 1 and warehouse_status.date = ? then quantity else 0 end) as date_sale_quantity, ' .
-//          'SUM(case when warehouse_status.date = ? then (case when warehouse_status.type = 0 then quantity else -quantity end) else 0 end) as date_quantity, ' .
-          'SUM(case when warehouse_status.date < ? then (case when warehouse_status.type = 0 then quantity else -quantity end) else 0 end) as previous_quantity',
-          [$date, $date, $date, $date]
+          'SUM(case when warehouse_status.date <= ? then (case when warehouse_status.type = 1 then -quantity else quantity end) else 0 end) as quantity,' .
+          'SUM(case when warehouse_status.date < ? then (case when warehouse_status.type = 1 then -quantity else quantity end) else 0 end) as previous_quantity,' .
+          'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 2 then quantity else 0 end) else 0 end) as recalculated_quantity',
+          [$date, $date, $date, $date, $date]
         )
         ->groupBy('warehouse_id')
         ->orderBy('warehouses.order');
@@ -92,6 +92,24 @@ class WarehouseStatusController extends Controller
                 'data' => $e->getMessage()
             ], 400);
         }
+    }
+
+    public function recalculate($id, Request $request)
+    {
+      $quantity = (float) $request->get('quantity');
+      $today = date('Y-m-d');
+      $date = $request->get('date') ?? $today;
+      if($date === $today) {
+        $date = WorkingDay::setCorrectDateForWorkingDay();
+      }
+
+      return WarehouseStatus::create([
+        'warehouse_id' => $id,
+        'type' => WarehouseStatus::TYPE_RESET,
+        'quantity' => round($quantity, 2),
+        'date' => $date,
+        'comment' => 'Recalculated from ' . $request->get('previous_quantity') . ' to ' . $quantity
+      ]);
     }
 
     public function importsUpdate($id, Request $request)

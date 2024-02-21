@@ -175,6 +175,7 @@ Route::prefix('/backoffice')->group(function () {
     Route::get('warehouse-status/imports', [WarehouseStatusController::class, 'imports']);
     Route::get('warehouse-status/{id}', [WarehouseStatusController::class, 'show']);
     Route::post('warehouse-status', [WarehouseStatusController::class, 'store']);
+    Route::post('warehouse-status/recalculate/{id}', [WarehouseStatusController::class, 'recalculate']);
     Route::put('warehouse-status/imports/{id}', [WarehouseStatusController::class, 'importsUpdate']);
     Route::delete('warehouse-status/imports/{id}', [WarehouseStatusController::class, 'importsDestroy']);
 
