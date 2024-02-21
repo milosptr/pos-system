@@ -103,6 +103,15 @@ class WarehouseStatusController extends Controller
         $date = WorkingDay::setCorrectDateForWorkingDay();
       }
 
+      $existingRecalculation = WarehouseStatus::where('type', WarehouseStatus::TYPE_RESET)->where('warehouse_id', $id)->whereDate('date', $date)->first();
+      if ($existingRecalculation) {
+        $existingRecalculation->update([
+          'quantity' => round($quantity, 2),
+          'comment' => 'Recalculated from ' . $request->get('previous_quantity') . ' to ' . $quantity
+        ]);
+        return $existingRecalculation;
+      }
+
       return WarehouseStatus::create([
         'warehouse_id' => $id,
         'type' => WarehouseStatus::TYPE_RESET,
