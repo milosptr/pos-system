@@ -73,7 +73,7 @@
             <div
               class="col-span-2 sm:col-span-1 w-full px-4 whitespace-nowrap py-1"
               :class="{ 'bg-gray-100': index % 2 === 1 }">
-              <div class="w-full truncate">
+              <div class="w-full whitespace-break-spaces">
                 {{ item.warehouse.name }}
               </div>
             </div>
