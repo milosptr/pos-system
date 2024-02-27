@@ -16,25 +16,29 @@
             class="w-6 cursor-pointer"
             @click="nextDate()" />
         </div>
-        <!--        <div>-->
-        <!--          <select-->
-        <!--            class="block w-48 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">-->
-        <!--            <option>Kuhinja</option>-->
-        <!--            <option>Šank</option>-->
-        <!--          </select>-->
-        <!--        </div>-->
-        <!--        <div>-->
-        <!--          <select-->
-        <!--            class="block w-48 rounded-md capitalize border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">-->
-        <!--            <option-->
-        <!--              v-for="category in warehouseCategories"-->
-        <!--              :key="category.id"-->
-        <!--              :value="category.id"-->
-        <!--              class="capitalize">-->
-        <!--              {{ category.name }}-->
-        <!--            </option>-->
-        <!--          </select>-->
-        <!--        </div>-->
+        <div>
+          <select
+            @change="updateFilter('group_id', $event)"
+            class="block w-48 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+            <option value="null">Sve</option>
+            <option value="1">Kuhinja</option>
+            <option value="0">Šank</option>
+          </select>
+        </div>
+        <div>
+          <select
+            @change="updateFilter('category_id', $event)"
+            class="block w-48 rounded-md capitalize border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+            <option value="null">Sve</option>
+            <option
+              v-for="category in warehouseCategories"
+              :key="category.id"
+              :value="category.id"
+              class="capitalize">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
       </div>
       <div class="mt-6 border border-solid border-gray-200 bg-white">
         <div class="w-full">
@@ -66,83 +70,91 @@
             </div>
           </div>
           <div
-            v-for="(item, index) in warehouse"
-            :key="item.id"
-            class="grid grid-cols-6 text-sm"
-            :class="{ 'bg-gray-100': index % 2 === 1 }">
+            v-for="category in warehouse"
+            :key="category">
             <div
-              class="col-span-2 sm:col-span-1 w-full px-4 whitespace-nowrap py-1"
-              :class="{ 'bg-gray-100': index % 2 === 1 }">
-              <div class="w-full whitespace-break-spaces">
-                {{ item.warehouse.name }}
-              </div>
+              class="w-full truncate px-2 sm:px-4 hidden sm:block py-1 border-b border-solid border-gray-300 bg-gray-200 text-sm font-semibold">
+              {{ categoryName(category[0].category_id) }}
             </div>
             <div
-              class="w-full px-4 hidden sm:block py-1"
-              :class="{ 'bg-gray-100': index % 2 === 1 }">
-              {{ item.warehouse.unit }}
-            </div>
-            <div
-              class="w-full px-4 text-center py-1"
+              v-for="(item, index) in category"
+              :key="item.id"
+              class="grid grid-cols-6 text-sm"
               :class="{ 'bg-gray-100': index % 2 === 1 }">
               <div
-                class="flex items-center gap-3"
-                v-if="editItem && editItem.id === item.id">
-                <input
-                  type="number"
-                  class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-24 sm:text-sm border-gray-300 rounded-md py-0.5"
-                  :value="editItem.previous_quantity"
-                  @input="editItem.recalculated = $event.target.value" />
-                <button
-                  type="button"
-                  class="relative text-center px-4 py-0.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  @click="editStartingQuantity">
-                  Sačuvaj
-                </button>
-                <button
-                  type="button"
-                  @click="editItem = null"
-                  class="relative text-center px-4 py-0.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                  Odustani
-                </button>
+                class="col-span-2 sm:col-span-1 w-full px-4 whitespace-nowrap py-1"
+                :class="{ 'bg-gray-100': index % 2 === 1 }">
+                <div class="w-full whitespace-break-spaces">
+                  {{ item.warehouse.name }}
+                </div>
               </div>
               <div
-                v-else
-                class="px-4 flex items-center justify-end gap-1 sm:gap-3">
-                <div class="flex sm:w-16 justify-center items-center">
-                  <div
-                    v-if="parseFloat(item.recalculated_quantity) !== 0"
-                    class="text-xs hidden sm:block">
-                    {{ item.recalculated_quantity }}
-                  </div>
-                  <ArrowSmDownIcon
-                    v-if="Number(item.recalculated_quantity) < 0"
-                    class="w-5 h-5 text-red-500" />
-                  <ArrowSmUpIcon
-                    v-if="Number(item.recalculated_quantity) > 0"
-                    class="w-5 h-5 text-green-500" />
+                class="w-full px-4 hidden sm:block py-1"
+                :class="{ 'bg-gray-100': index % 2 === 1 }">
+                {{ item.warehouse.unit }}
+              </div>
+              <div
+                class="w-full px-4 text-center py-1"
+                :class="{ 'bg-gray-100': index % 2 === 1 }">
+                <div
+                  class="flex items-center gap-3"
+                  v-if="editItem && editItem.id === item.id">
+                  <input
+                    type="number"
+                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-24 sm:text-sm border-gray-300 rounded-md py-0.5"
+                    :value="editItem.previous_quantity"
+                    @input="editItem.recalculated = $event.target.value" />
+                  <button
+                    type="button"
+                    class="relative text-center px-4 py-0.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    @click="editStartingQuantity">
+                    Sačuvaj
+                  </button>
+                  <button
+                    type="button"
+                    @click="editItem = null"
+                    class="relative text-center px-4 py-0.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Odustani
+                  </button>
                 </div>
                 <div
-                  class="cursor-pointer sm:pr-16"
-                  @click="editItem = { ...item }">
-                  {{ item.previous_quantity }}
+                  v-else
+                  class="px-4 flex items-center justify-end gap-1 sm:gap-3">
+                  <div class="flex sm:w-16 justify-center items-center">
+                    <div
+                      v-if="parseFloat(item.recalculated_quantity) !== 0"
+                      class="text-xs hidden sm:block">
+                      {{ item.recalculated_quantity }}
+                    </div>
+                    <ArrowSmDownIcon
+                      v-if="Number(item.recalculated_quantity) < 0"
+                      class="w-5 h-5 text-red-500" />
+                    <ArrowSmUpIcon
+                      v-if="Number(item.recalculated_quantity) > 0"
+                      class="w-5 h-5 text-green-500" />
+                  </div>
+                  <div
+                    class="cursor-pointer sm:pr-16"
+                    @click="editItem = { ...item }">
+                    {{ item.previous_quantity }}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div
-              class="w-full px-4 text-red-600 font-medium text-center py-1"
-              :class="{ 'bg-gray-100': index % 2 === 1 }">
-              {{ item.sale_quantity }}
-            </div>
-            <div
-              class="w-full px-4 text-green-600 font-medium text-center py-1"
-              :class="{ 'bg-gray-100': index % 2 === 1 }">
-              {{ item.import_quantity }}
-            </div>
-            <div
-              class="w-full px-4 text-center py-1"
-              :class="[item.quantity < 0 && 'text-orange-500 font-medium', { 'bg-gray-100': index % 2 === 1 }]">
-              {{ item.quantity }}
+              <div
+                class="w-full px-4 text-red-600 font-medium text-center py-1"
+                :class="{ 'bg-gray-100': index % 2 === 1 }">
+                {{ item.sale_quantity }}
+              </div>
+              <div
+                class="w-full px-4 text-green-600 font-medium text-center py-1"
+                :class="{ 'bg-gray-100': index % 2 === 1 }">
+                {{ item.import_quantity }}
+              </div>
+              <div
+                class="w-full px-4 text-center py-1"
+                :class="[item.quantity < 0 && 'text-orange-500 font-medium', { 'bg-gray-100': index % 2 === 1 }]">
+                {{ item.quantity }}
+              </div>
             </div>
           </div>
         </div>
@@ -169,6 +181,8 @@ export default {
     warehouse: [],
     warehouseCategories: [],
     date: dayjs().format('YYYY-MM-DD'),
+    category_id: null,
+    group_id: null,
     draggedIndex: null,
     editItem: null
   }),
@@ -193,8 +207,16 @@ export default {
   methods: {
     dayjs,
     getWarehouseStatus() {
-      axios.get('/api/backoffice/warehouse-status?date=' + dayjs(this.date).format('YYYY-MM-DD')).then((response) => {
-        this.warehouse = response.data?.data ?? []
+      let filters = `?date=${dayjs(this.date).format('YYYY-MM-DD')}`
+      if (this.category_id) {
+        filters += `&category_id=${this.category_id}`
+      }
+      if (this.group_id) {
+        filters += `&group_id=${this.group_id}`
+      }
+      axios.get('/api/backoffice/warehouse-status' + filters).then((response) => {
+        const data = response.data?.data ?? []
+        this.warehouse = this.groupBy(data, 'category_id')
       })
     },
     updateDate() {
@@ -213,7 +235,6 @@ export default {
       this.getWarehouseStatus()
     },
     editStartingQuantity() {
-      console.log('editStartingQuantity', this.editItem)
       axios
         .post('/api/backoffice/warehouse-status/recalculate/' + this.editItem.warehouse_id, {
           quantity: parseFloat(this.editItem.recalculated) - parseFloat(this.editItem.previous_quantity),
@@ -229,6 +250,23 @@ export default {
       axios.get('/api/backoffice/warehouse-categories').then((response) => {
         this.warehouseCategories = response.data
       })
+    },
+    updateFilter(key, event) {
+      this[key] = event.target.value === 'null' ? null : event.target.value
+      this.getWarehouseStatus()
+    },
+    categoryName(id) {
+      return this.warehouseCategories.find((category) => category.id === id)?.name
+    },
+    groupBy(array, key) {
+      return array.reduce((result, currentValue) => {
+        const group = currentValue[key]
+        if (!result[group]) {
+          result[group] = []
+        }
+        result[group].push(currentValue)
+        return result
+      }, {})
     }
   }
 }

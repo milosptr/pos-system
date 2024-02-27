@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\WarehouseStatusResource;
 use App\Models\WarehouseStatus;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Services\WorkingDay;
@@ -14,10 +13,21 @@ class WarehouseStatusController extends Controller
     public function index(Request $request)
     {
       $warehouse = WarehouseStatus::query();
+      $warehouse = $warehouse->leftJoin('warehouses', 'warehouses.id', '=', 'warehouse_status.warehouse_id');
       $date = $request->get('date') ?? date('Y-m-d');
+      $category_id = $request->get('category_id');
+      $group_id = $request->get('group_id');
+      if ($category_id) {
+        $warehouse = $warehouse->whereHas('warehouse', function ($query) use ($category_id) {
+          $query->where('category_id', $category_id);
+        });
+      }
+      if ($request->has('group_id')) {
+        $warehouse = $warehouse->leftJoin('warehouse_categories', 'warehouse_categories.id', '=', 'warehouses.category_id')
+          ->where('warehouse_categories.group_id', $group_id);
+      }
 
       $warehouse = $warehouse->whereDate('date', '<=', $date)
-        ->leftJoin('warehouses', 'warehouses.id', '=', 'warehouse_status.warehouse_id')
         ->selectRaw(
           'warehouse_id, ' .
           'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 0 then quantity else 0 end) else 0 end) as import_quantity, ' .
