@@ -78,17 +78,17 @@ class InvoiceController extends Controller
      */
     public function refund($id, Request $request)
     {
-        $invoice = Invoice::find($id);
-        if($invoice) {
-            $invoice->update($request->all());
-            try {
-                Sales::where('invoice_id', $invoice->id)->delete();
-                WarehouseStatus::whereIn('batch_id', $invoice->id)->delete();
-            } catch(Exception $e) {
-                Log::error($e->getMessage());
-            }
-        }
-        return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
+      $invoice = Invoice::find($id);
+      if($invoice) {
+          $invoice->update($request->all());
+          try {
+            Sales::where('invoice_id', $invoice->id)->delete();
+            WarehouseStatus::where('batch_id', (string) $invoice->id)->delete();
+          } catch(Exception $e) {
+            Log::error($e->getMessage());
+          }
+      }
+      return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
     }
 
     public function todayTransactions()
