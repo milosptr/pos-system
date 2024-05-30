@@ -13,6 +13,10 @@ class WarehouseStatusController extends Controller
     public function index(Request $request)
     {
       $warehouse = WarehouseStatus::query();
+
+      // If the warehouse has been deleted, remove the warehouse status from query
+      $warehouse = $warehouse->whereHas('warehouse');
+
       $warehouse = $warehouse->leftJoin('warehouses', 'warehouses.id', '=', 'warehouse_status.warehouse_id');
       $date = $request->get('date') ?? date('Y-m-d');
       $category_id = $request->get('category_id');
