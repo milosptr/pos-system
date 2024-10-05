@@ -330,7 +330,8 @@ import {
   UserGroupIcon,
   ClockIcon,
   DocumentTextIcon,
-  ArchiveIcon
+  ArchiveIcon,
+  ServerIcon
 } from '@heroicons/vue/outline'
 
 const navigation = [
@@ -346,6 +347,7 @@ const navigation = [
   { name: 'Dolasci', href: 'arrivals', icon: ClockIcon, current: false },
   { name: 'Magacin', href: 'warehouse', icon: ArchiveIcon, current: false },
   // { name: 'Connections Log', href: 'connection-logs', icon: WifiIcon, current: false },
+  { name: 'Backups', href: 'backups', icon: ServerIcon, current: false },
   { name: 'Podešavanja', href: 'settings', icon: CogIcon, current: false }
 ]
 

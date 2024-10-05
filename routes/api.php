@@ -3,6 +3,7 @@
 use App\Http\Controllers\WarehouseCategoryController;
 use App\Http\Controllers\WarehouseInventoryController;
 use App\Http\Controllers\WarehouseStatusController;
+use App\Models\S3Backup;
 use Services\WorkingDay;
 use Illuminate\Http\Request;
 use App\Models\ClientInvoice;
@@ -178,6 +179,13 @@ Route::prefix('/backoffice')->group(function () {
     Route::post('warehouse-status/recalculate/{id}', [WarehouseStatusController::class, 'recalculate']);
     Route::put('warehouse-status/imports/{id}', [WarehouseStatusController::class, 'importsUpdate']);
     Route::delete('warehouse-status/imports/{id}', [WarehouseStatusController::class, 'importsDestroy']);
+
+    // Backups in the last 14 days
+    Route::get('backups', function () {
+        return response()->json([
+            'backups' => S3Backup::where('created_at', '>=', now()->subDays(14))->get()
+        ]);
+    });
 
     Route::get('db-backup', [DBBackupController::class, 'backup']);
 });
