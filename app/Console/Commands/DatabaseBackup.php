@@ -42,7 +42,7 @@ class DatabaseBackup extends Command
      */
     public function handle()
     {
-      $filename = 'backup-' . Carbon::now()->format('Y-m-d') . '.sql';
+      $filename = 'backup-' . Carbon::now()->format('Y-m-d-H:i:s') . '.sql';
 
       try {
         $localPath = storage_path("app/backups/{$filename}");
@@ -69,7 +69,19 @@ class DatabaseBackup extends Command
         }
 
         $s3Path = 'backups/' . $filename;
-        Storage::disk('s3')->put($s3Path, file_get_contents($localPath));
+        $s3 = Storage::disk('s3')->put($s3Path, file_get_contents($localPath));
+
+        if (!$s3) {
+          Log::error('Failed to upload database backup to S3.');
+          $this->error('Failed to upload database backup to S3.');
+          S3Backup::create([
+            'filename' => $filename,
+            'path' => $s3Path,
+            'size' => filesize($localPath),
+            'is_uploaded' => false,
+          ]);
+          return 1;
+        }
 
         S3Backup::create([
           'filename' => $filename,

@@ -29,4 +29,15 @@ class BackupService
 
       return 'Backup file has been downloaded successfully.';
     }
+
+    public static function deleteFile($filename)
+    {
+      $file = Storage::disk('s3')->delete('backups/' . $filename);
+
+      if (empty($file)) {
+        return 'No backup files found.';
+      }
+
+      return 'Backup file has been deleted successfully.';
+    }
 }
