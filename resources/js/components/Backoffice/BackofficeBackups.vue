@@ -15,7 +15,7 @@
     </thead>
     <tbody>
       <tr
-        v-for="backup in backups"
+        v-for="backup in backups.toReversed()"
         :key="backup.id"
         class="border border-solid border-gray-300"
         :class="[backup.is_uploaded ? 'bg-green-200' : 'bg-red-200']">
