@@ -22,7 +22,7 @@
         <td class="px-4 py-1">{{ backup.id }}</td>
         <td class="px-4 py-1">{{ backup.filename }}</td>
         <td class="px-4 py-1">{{ backup.path }}</td>
-        <td class="px-4 py-1">{{ backup.size }}</td>
+        <td class="px-4 py-1">{{ calculateSizeInMB(backup.size) }} MB</td>
         <td class="px-4 py-1">{{ backup.is_uploaded ? 'Yes' : 'No' }}</td>
         <td class="px-4 py-1">{{ backup.is_deleted ? 'Yes' : 'No' }}</td>
         <td class="px-4 py-1">{{ castDate(backup.created_at) }}</td>
@@ -53,6 +53,9 @@ export default {
   methods: {
     castDate(date) {
       return new Date(date).toLocaleString('sr-RS')
+    },
+    calculateSizeInMB(size) {
+      return (size / 1024 / 1024).toFixed(2)
     }
   }
 }
