@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\ThirdPartyInvoiceController;
+use App\Http\Controllers\ThirdPartyOrderController;
+use App\Http\Controllers\LogViewerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,8 +28,19 @@ Route::group(['middleware' => ['administrator', 'auth']], function () {
     })->name('backoffice');
 });
 
+// Log viewer - protected by auth only (no admin required for debugging)
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/logs', [LogViewerController::class, 'index']);
+    Route::get('/logs/clear', [LogViewerController::class, 'clear']);
+});
+
 Route::group(['prefix' => 'public', 'middleware' => ['cors']], function () {
     Route::post('sales/import', [SalesController::class, 'import']);
+});
+
+Route::group(['prefix' => 'public', 'middleware' => ['cors', 'external.api']], function () {
+    Route::post('third-party-invoice', [ThirdPartyInvoiceController::class, 'store']);
+    Route::post('third-party-order', [ThirdPartyOrderController::class, 'store']);
 });
 
 

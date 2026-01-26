@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'external_invoice' => [
+        'api_key' => env('EXTERNAL_INVOICE_API_KEY'),
+    ],
+
 ];
