@@ -190,6 +190,12 @@ Route::prefix('/backoffice')->group(function () {
     });
 
     Route::get('db-backup', [DBBackupController::class, 'backup']);
+
+    // Third-party invoices
+    Route::get('third-party-invoices', [ThirdPartyInvoiceController::class, 'all']);
+
+    // Third-party orders
+    Route::get('third-party-orders', [ThirdPartyOrderController::class, 'all']);
 });
 
 // Third-party invoice/order import (external API)

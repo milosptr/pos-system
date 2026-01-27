@@ -4,10 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\ThirdPartyOrder;
 use App\Http\Requests\ThirdPartyOrderStoreRequest;
+use App\Http\Resources\ThirdPartyOrderResource;
 use Illuminate\Support\Facades\Log;
 
 class ThirdPartyOrderController extends Controller
 {
+    /**
+     * Get all active third-party orders.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function all()
+    {
+        return ThirdPartyOrderResource::collection(ThirdPartyOrder::all());
+    }
+
     /**
      * Store a third-party order from external system.
      *

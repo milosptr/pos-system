@@ -65,6 +65,7 @@
         return this.$store.getters.activeOrder
       },
       orders() {
+        if (!this.activeOrder || !this.activeOrder.orders) return []
         return this.activeOrder.orders.sort(function(a,b){
           return new Date(b.created_at_full) - new Date(a.created_at_full);
         });

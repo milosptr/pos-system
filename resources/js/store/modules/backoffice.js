@@ -18,12 +18,15 @@ const backoffice = {
         tables: [],
         orders: [],
         invoices: [],
+        thirdPartyInvoices: [],
+        thirdPartyOrders: [],
         tasks: [],
         ordersFilters: {
             date: null
         },
         reportsActiveTab: 0,
         pagination: {},
+        thirdPartyPagination: {},
     }),
 
     actions: {
@@ -98,6 +101,21 @@ const backoffice = {
                     commit('setPagination', { links: res.data.links, meta: res.data.meta })
               })
         },
+        getThirdPartyInvoices({ commit, state }) {
+          const params = new URLSearchParams(state.reportFilters);
+          axios.get('/api/backoffice/third-party-invoices?' + params.toString())
+              .then( (res) => {
+                  commit('setThirdPartyInvoices', res.data.data)
+                  if(res.data.links)
+                    commit('setThirdPartyPagination', { links: res.data.links, meta: res.data.meta })
+              })
+        },
+        getThirdPartyOrders({ commit }) {
+            axios.get('/api/backoffice/third-party-orders')
+                .then( (res) => {
+                    commit('setThirdPartyOrders', res.data.data)
+                })
+        },
         getTasks({ commit }) {
             axios.get('/api/tasks')
                 .then( (res) => {
@@ -153,6 +171,15 @@ const backoffice = {
         setInvoices(state, invoices) {
             state.invoices = invoices
         },
+        setThirdPartyInvoices(state, invoices) {
+            state.thirdPartyInvoices = invoices
+        },
+        setThirdPartyOrders(state, orders) {
+            state.thirdPartyOrders = orders
+        },
+        setThirdPartyPagination(state, pagination) {
+            state.thirdPartyPagination = pagination
+        },
         setTasks(state, tasks) {
             state.tasks = tasks
         },
@@ -178,6 +205,9 @@ const backoffice = {
         tables: (state) => state.tables,
         orders: (state) => state.orders,
         invoices: (state) => state.invoices,
+        thirdPartyInvoices: (state) => state.thirdPartyInvoices,
+        thirdPartyOrders: (state) => state.thirdPartyOrders,
+        thirdPartyPagination: (state) => state.thirdPartyPagination,
         tasks: (state) => state.tasks,
         stats: (state) => state.stats,
         clients: (state) => state.clients,
