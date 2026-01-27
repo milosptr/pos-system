@@ -24,16 +24,7 @@ class ThirdPartyOrderStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            '*' => 'required|array',
-            '*.kolicina' => 'required|numeric',
-            '*.cena' => 'required|numeric',
-            '*.naziv' => 'required|string',
-            '*.datum' => 'required|string',
-            '*.sto' => 'required|string',
-            '*.porudzbinaid' => 'required|integer',
-            '*.jm' => 'nullable|string',
-            '*.stampanjenalogid' => 'nullable|integer',
-            '*.modifikatorslobodan' => 'nullable|string',
+            '*' => 'array',
         ];
     }
 }

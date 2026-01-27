@@ -35,33 +35,33 @@ class ThirdPartyOrderController extends Controller
 
         $firstRow = $rows[0];
 
-        // Extract order-level data from first row
-        $externalOrderId = $firstRow['porudzbinaid'];
-        $tableName = $firstRow['sto'];
+        // Extract order-level data from first row (with safe defaults)
+        $externalOrderId = (int) ($firstRow['porudzbinaid'] ?? 0);
+        $tableName = (string) ($firstRow['sto'] ?? 'Unknown');
 
         // Transform rows into items array
         $items = [];
         $totalCents = 0;
 
         foreach ($rows as $row) {
-            $qty = $row['kolicina'];
-            $price = $row['cena'];
+            $qty = (float) ($row['kolicina'] ?? 0);
+            $price = (float) ($row['cena'] ?? 0);
             $itemTotalCents = (int) round($qty * $price * 100);
             $totalCents += $itemTotalCents;
 
             $item = [
-                'name' => $row['naziv'],
+                'name' => (string) ($row['naziv'] ?? 'Unknown'),
                 'qty' => $qty,
                 'price' => (int) round($price * 100),
-                'unit' => $row['jm'] ?? 'kom',
+                'unit' => (string) ($row['jm'] ?? 'kom'),
             ];
 
             // Add optional fields
             if (isset($row['modifikatorslobodan']) && $row['modifikatorslobodan']) {
-                $item['modifier'] = $row['modifikatorslobodan'];
+                $item['modifier'] = (string) $row['modifikatorslobodan'];
             }
             if (isset($row['stampanjenalogid'])) {
-                $item['print_station_id'] = $row['stampanjenalogid'];
+                $item['print_station_id'] = (int) $row['stampanjenalogid'];
             }
 
             $items[] = $item;

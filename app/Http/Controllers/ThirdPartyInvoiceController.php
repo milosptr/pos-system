@@ -38,11 +38,11 @@ class ThirdPartyInvoiceController extends Controller
 
         $firstRow = $rows[0];
 
-        // Extract invoice-level data from first row
-        $invoiceNumber = $firstRow['brojracuna'];
-        $tableName = $firstRow['sto'] ?? null;
-        $externalOrderId = $firstRow['porudzbinaid'] ?? null;
-        $discount = $firstRow['popust'] ?? 0;
+        // Extract invoice-level data from first row (with safe defaults)
+        $invoiceNumber = (string) ($firstRow['brojracuna'] ?? 'UNKNOWN-' . time());
+        $tableName = isset($firstRow['sto']) ? (string) $firstRow['sto'] : null;
+        $externalOrderId = isset($firstRow['porudzbinaid']) ? (int) $firstRow['porudzbinaid'] : null;
+        $discount = (float) ($firstRow['popust'] ?? 0);
 
         // Detect storno
         $isStorno = isset($firstRow['stornoporudzbine']) && $firstRow['stornoporudzbine'] == 1;
@@ -51,9 +51,9 @@ class ThirdPartyInvoiceController extends Controller
         // Determine payment type
         $paymentType = null;
         if (!$isStorno) {
-            $gotovina = $firstRow['gotovina'] ?? 0;
-            $kartica = $firstRow['kartica'] ?? 0;
-            $prenosNaRacun = $firstRow['prenosnaracun'] ?? 0;
+            $gotovina = (float) ($firstRow['gotovina'] ?? 0);
+            $kartica = (float) ($firstRow['kartica'] ?? 0);
+            $prenosNaRacun = (float) ($firstRow['prenosnaracun'] ?? 0);
 
             if ($gotovina > 0) {
                 $paymentType = ThirdPartyInvoice::PAYMENT_CASH;
@@ -69,21 +69,21 @@ class ThirdPartyInvoiceController extends Controller
         $totalCents = 0;
 
         foreach ($rows as $row) {
-            $qty = $row['kolicina'];
-            $price = $row['cena'];
+            $qty = (float) ($row['kolicina'] ?? 0);
+            $price = (float) ($row['cena'] ?? 0);
             $itemTotalCents = (int) round($qty * $price * 100);
             $totalCents += $itemTotalCents;
 
             $item = [
-                'name' => $row['naziv'],
+                'name' => (string) ($row['naziv'] ?? 'Unknown'),
                 'qty' => $qty,
                 'price' => (int) round($price * 100),
-                'unit' => $row['jm'] ?? 'kom',
+                'unit' => (string) ($row['jm'] ?? 'kom'),
             ];
 
             // Add optional fields for storno invoices
             if ($isStorno && isset($row['originalnacena'])) {
-                $item['original_price'] = (int) round($row['originalnacena'] * 100);
+                $item['original_price'] = (int) round((float) $row['originalnacena'] * 100);
             }
 
             $items[] = $item;

@@ -24,21 +24,7 @@ class ThirdPartyInvoiceStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            '*' => 'required|array',
-            '*.kolicina' => 'required|numeric',
-            '*.cena' => 'required|numeric',
-            '*.naziv' => 'required|string',
-            '*.datum' => 'required|string',
-            '*.brojracuna' => 'required|string',
-            '*.jm' => 'nullable|string',
-            '*.sto' => 'nullable|string',
-            '*.gotovina' => 'nullable|numeric',
-            '*.kartica' => 'nullable|numeric',
-            '*.prenosnaracun' => 'nullable|numeric',
-            '*.porudzbinaid' => 'nullable|integer',
-            '*.stornoporudzbine' => 'nullable|integer',
-            '*.popust' => 'nullable|numeric',
-            '*.originalnacena' => 'nullable|numeric',
+            '*' => 'array',
         ];
     }
 }
