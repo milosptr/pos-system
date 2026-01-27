@@ -28,6 +28,8 @@ use App\Http\Controllers\InventoryPricingController;
 use App\Http\Controllers\ClientBankAccountController;
 use App\Http\Controllers\SalesImportDetaisController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\ThirdPartyInvoiceController;
+use App\Http\Controllers\ThirdPartyOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -188,4 +190,10 @@ Route::prefix('/backoffice')->group(function () {
     });
 
     Route::get('db-backup', [DBBackupController::class, 'backup']);
+});
+
+// Third-party invoice/order import (external API)
+Route::group(['middleware' => ['external.api']], function () {
+    Route::post('third-party-invoice', [ThirdPartyInvoiceController::class, 'store']);
+    Route::post('third-party-order', [ThirdPartyOrderController::class, 'store']);
 });

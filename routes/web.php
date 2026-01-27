@@ -2,8 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SalesController;
-use App\Http\Controllers\ThirdPartyInvoiceController;
-use App\Http\Controllers\ThirdPartyOrderController;
 use App\Http\Controllers\LogViewerController;
 
 /*
@@ -36,18 +34,6 @@ Route::group(['middleware' => ['auth']], function () {
 
 Route::group(['prefix' => 'public', 'middleware' => ['cors']], function () {
     Route::post('sales/import', [SalesController::class, 'import']);
-});
-
-// Route::group(['prefix' => 'public', 'middleware' => ['cors', 'external.api']], function () {
-// });
-
-// Test without middleware - remove after testing
-Route::post('public/third-party-invoice', [ThirdPartyInvoiceController::class, 'store']);
-Route::post('public/third-party-order', [ThirdPartyOrderController::class, 'store']);
-
-// Debug route - no middleware - remove after testing
-Route::any('public/test-ping', function () {
-    return response()->json(['pong' => true, 'ip' => request()->ip()]);
 });
 
 
