@@ -1,14 +1,12 @@
 import requests
 from datetime import datetime, date
 from decimal import Decimal
-import os
-from dotenv import load_dotenv
-load_dotenv()
 
-EXTERNAL_INVOICE_API_KEY = os.getenv("EXTERNAL_INVOICE_API_KEY")
-def send_to_laravel(json_results, endpoint_type):
+EXTERNAL_INVOICE_API_KEY = "u6Q3Jrc04Ia72YMMguSRd6o8muZVP7Gf"
+
+def send_to_laravel(json_results, endpoint_type, base_url="http://127.0.0.1"):
     try:
-        url = f"http://192.168.200.30/public/third-party-{endpoint_type}"
+        url = f"{base_url}/public/third-party-{endpoint_type}"
         headers = {"Content-Type": "application/json", "X-API-Key": EXTERNAL_INVOICE_API_KEY}
 
         for item in json_results:
