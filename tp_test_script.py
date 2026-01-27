@@ -7,7 +7,11 @@ EXTERNAL_INVOICE_API_KEY = "u6Q3Jrc04Ia72YMMguSRd6o8muZVP7Gf"
 def send_to_laravel(json_results, endpoint_type, base_url="http://127.0.0.1"):
     try:
         url = f"{base_url}/api/third-party-{endpoint_type}"
-        headers = {"Content-Type": "application/json", "X-API-Key": EXTERNAL_INVOICE_API_KEY}
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-API-Key": EXTERNAL_INVOICE_API_KEY
+        }
 
         for item in json_results:
             for key, value in item.items():
