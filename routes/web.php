@@ -43,6 +43,9 @@ Route::group(['prefix' => 'public', 'middleware' => ['cors', 'external.api']], f
     Route::post('third-party-order', [ThirdPartyOrderController::class, 'store']);
 });
 
+// Test without middleware - remove after testing
+Route::post('public/third-party-invoice-test', [ThirdPartyInvoiceController::class, 'store']);
+
 // Debug route - no middleware - remove after testing
 Route::any('public/test-ping', function () {
     return response()->json(['pong' => true, 'ip' => request()->ip()]);
