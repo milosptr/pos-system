@@ -33,6 +33,12 @@ def send_to_laravel(json_results, endpoint_type, base_url="http://127.0.0.1"):
 
 # Test
 if __name__ == "__main__":
+    import sys
+
+    # Use external IP to simulate remote machine, or localhost
+    base_url = "http://192.168.200.30" if "--external" in sys.argv else "http://127.0.0.1"
+    print(f"Testing with: {base_url}")
+
     test_data = [
         {
             "kolicina": 1,
@@ -48,5 +54,5 @@ if __name__ == "__main__":
             "porudzbinaid": 222,
         }
     ]
-    result = send_to_laravel(test_data, "invoice")
+    result = send_to_laravel(test_data, "invoice", base_url)
     print(f"Result: {result}")
