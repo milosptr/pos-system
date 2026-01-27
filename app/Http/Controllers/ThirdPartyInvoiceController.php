@@ -5,11 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\ThirdPartyInvoice;
 use App\Models\ThirdPartyOrder;
 use App\Http\Requests\ThirdPartyInvoiceStoreRequest;
+use App\Http\Resources\ThirdPartyInvoiceResource;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ThirdPartyInvoiceController extends Controller
 {
+    /**
+     * List all third-party invoices with filters and pagination.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function all(Request $request)
+    {
+        $invoices = ThirdPartyInvoice::filter($request)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return ThirdPartyInvoiceResource::collection($invoices);
+    }
+
     /**
      * Store a third-party invoice from external system.
      *

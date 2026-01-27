@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Models\Traits\HasUuid;
+use App\Models\Traits\ThirdPartyInvoiceFilters;
 use Illuminate\Database\Eloquent\Model;
 
 class ThirdPartyInvoice extends Model
 {
     use HasUuid;
+    use ThirdPartyInvoiceFilters;
 
     const STATUS_STORNO = 0;
     const STATUS_PAYED = 1;

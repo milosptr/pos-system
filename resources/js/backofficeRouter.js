@@ -12,6 +12,7 @@ import BackofficeTables from './components/Backoffice/BackofficeTables.vue'
 import BackofficeOrders from './components/Backoffice/BackofficeOrders.vue'
 import BackofficeTasks from './components/Backoffice/BackofficeTasks.vue'
 import BackofficeInvoices from './components/Backoffice/BackofficeInvoices.vue'
+import BackofficeThirdPartyInvoices from './components/Backoffice/BackofficeThirdPartyInvoices.vue'
 import BackofficeReports from './components/Backoffice/Reports/BackofficeReports.vue'
 import BackofficeClients from './components/Backoffice/BackofficeClients.vue'
 import BackofficeClientsNew from './components/Backoffice/BackofficeClientsNew.vue'
@@ -71,6 +72,11 @@ const routes = [
         path: '/invoices',
         name: 'invoices',
         component: BackofficeInvoices
+      },
+      {
+        path: '/third-party-invoices',
+        name: 'third-party-invoices',
+        component: BackofficeThirdPartyInvoices
       },
       {
         path: '/settings',
