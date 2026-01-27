@@ -46,13 +46,13 @@ class ThirdPartyOrderController extends Controller
         foreach ($rows as $row) {
             $qty = (float) ($row['kolicina'] ?? 0);
             $price = (float) ($row['cena'] ?? 0);
-            $itemTotalCents = (int) round($qty * $price * 100);
-            $totalCents += $itemTotalCents;
+            $itemTotal = (int) round($qty * $price);
+            $totalCents += $itemTotal;
 
             $item = [
                 'name' => (string) ($row['naziv'] ?? 'Unknown'),
                 'qty' => $qty,
-                'price' => (int) round($price * 100),
+                'price' => (int) round($price),
                 'unit' => (string) ($row['jm'] ?? 'kom'),
             ];
 
