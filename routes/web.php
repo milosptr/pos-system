@@ -38,13 +38,12 @@ Route::group(['prefix' => 'public', 'middleware' => ['cors']], function () {
     Route::post('sales/import', [SalesController::class, 'import']);
 });
 
-Route::group(['prefix' => 'public', 'middleware' => ['cors', 'external.api']], function () {
-    Route::post('third-party-invoice', [ThirdPartyInvoiceController::class, 'store']);
-    Route::post('third-party-order', [ThirdPartyOrderController::class, 'store']);
-});
+// Route::group(['prefix' => 'public', 'middleware' => ['cors', 'external.api']], function () {
+// });
 
 // Test without middleware - remove after testing
-Route::post('public/third-party-invoice-test', [ThirdPartyInvoiceController::class, 'store']);
+Route::post('public/third-party-invoice', [ThirdPartyInvoiceController::class, 'store']);
+Route::post('public/third-party-order', [ThirdPartyOrderController::class, 'store']);
 
 // Debug route - no middleware - remove after testing
 Route::any('public/test-ping', function () {
