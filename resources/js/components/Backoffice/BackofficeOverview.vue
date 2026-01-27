@@ -2,8 +2,8 @@
 <div class="flex flex-col w-full relative">
     <OverviewStats />
     <div class="flex flex-col md:flex-col-reverse">
-      <OverviewActiveOrders />
       <OverviewThirdPartyOrders />
+      <OverviewActiveOrders />
       <OverviewScheduler />
     </div>
     <OverviewSlideoverSidebar />
