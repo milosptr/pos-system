@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inventory;
 use App\Models\ThirdPartyInvoice;
 use App\Models\ThirdPartyOrder;
+use App\Models\WarehouseStatus;
 use App\Http\Requests\ThirdPartyInvoiceStoreRequest;
 use App\Http\Resources\ThirdPartyInvoiceResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Services\SalesService;
 
 class ThirdPartyInvoiceController extends Controller
 {
@@ -25,6 +28,34 @@ class ThirdPartyInvoiceController extends Controller
             ->paginate(20);
 
         return ThirdPartyInvoiceResource::collection($invoices);
+    }
+
+    /**
+     * Match inventory item by sifraArtikla (ID) or naziv (name).
+     *
+     * @param array $row
+     * @return int|null
+     */
+    private function matchInventory(array $row): ?int
+    {
+        // First, try to match by sifraArtikla (inventory ID from external system)
+        if (isset($row['sifraArtikla']) && !empty($row['sifraArtikla'])) {
+            $inventory = Inventory::find((int) $row['sifraArtikla']);
+            if ($inventory) {
+                return $inventory->id;
+            }
+        }
+
+        // Fallback: try to match by item name (case-insensitive)
+        $itemName = $row['naziv'] ?? null;
+        if ($itemName) {
+            $inventory = Inventory::whereRaw('LOWER(name) = ?', [strtolower($itemName)])->first();
+            if ($inventory) {
+                return $inventory->id;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -84,6 +115,7 @@ class ThirdPartyInvoiceController extends Controller
         // Transform rows into items array
         $items = [];
         $totalCents = 0;
+        $matchedItems = []; // Track items with inventory matches
 
         foreach ($rows as $row) {
             $qty = (float) ($row['kolicina'] ?? 0);
@@ -91,12 +123,24 @@ class ThirdPartyInvoiceController extends Controller
             $itemTotal = (int) round($qty * $price);
             $totalCents += $itemTotal;
 
+            // Try to match inventory
+            $inventoryId = $this->matchInventory($row);
+
             $item = [
                 'name' => (string) ($row['naziv'] ?? 'Unknown'),
                 'qty' => $qty,
                 'price' => (int) round($price),
                 'unit' => (string) ($row['jm'] ?? 'kom'),
             ];
+
+            // Store inventory_id if matched
+            if ($inventoryId !== null) {
+                $item['inventory_id'] = $inventoryId;
+                $matchedItems[] = [
+                    'inventory_id' => $inventoryId,
+                    'qty' => $qty,
+                ];
+            }
 
             // Add optional fields for storno invoices
             if ($isStorno && isset($row['originalnacena'])) {
@@ -146,6 +190,43 @@ class ThirdPartyInvoiceController extends Controller
                 return $invoice;
             });
 
+            // Populate warehouse for STATUS_PAYED invoices only (skip duplicates to avoid double-deduction)
+            if ($status === ThirdPartyInvoice::STATUS_PAYED && !$isDuplicate && !empty($matchedItems)) {
+                // Parse date from request if available
+                $invoiceDate = null;
+                if (isset($firstRow['datum']) && !empty($firstRow['datum'])) {
+                    try {
+                        $parsedDate = \Carbon\Carbon::parse($firstRow['datum'])
+                            ->timezone('Europe/Belgrade');
+                        // Apply working day logic: sales between midnight and 4am count as previous day
+                        if ($parsedDate->hour < 4) {
+                            $parsedDate = $parsedDate->subDay();
+                        }
+                        $invoiceDate = $parsedDate->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        // Fall back to default (current working day)
+                        $invoiceDate = null;
+                    }
+                }
+
+                foreach ($matchedItems as $matchedItem) {
+                    try {
+                        SalesService::populateWarehouseForThirdParty(
+                            $matchedItem['inventory_id'],
+                            $matchedItem['qty'],
+                            $invoice->id,
+                            $invoiceDate
+                        );
+                    } catch (\Exception $e) {
+                        Log::error('[ThirdPartyInvoice] Warehouse population failed', [
+                            'invoice_id' => $invoice->id,
+                            'inventory_id' => $matchedItem['inventory_id'],
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            }
+
             $message = 'Invoice stored successfully';
             if ($orderDeleted) {
                 $message .= ', matching order deleted';
@@ -185,6 +266,55 @@ class ThirdPartyInvoiceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to store invoice',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a third-party invoice and associated warehouse status records.
+     *
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($id)
+    {
+        $invoice = ThirdPartyInvoice::find($id);
+
+        if (!$invoice) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice not found',
+            ], 404);
+        }
+
+        try {
+            DB::transaction(function () use ($invoice) {
+                // Delete associated warehouse status records
+                WarehouseStatus::where('batch_id', $invoice->id)->delete();
+
+                // Delete the invoice
+                $invoice->delete();
+            });
+
+            Log::info('[ThirdPartyInvoice] Invoice deleted', [
+                'id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('[ThirdPartyInvoice] Failed to delete invoice', [
+                'id' => $invoice->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete invoice',
                 'error' => $e->getMessage(),
             ], 500);
         }

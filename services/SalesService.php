@@ -109,4 +109,37 @@ class SalesService {
         }
       }
     }
+
+    public static function populateWarehouseForThirdParty($inventoryId, $qty, $invoiceId, $date = null)
+    {
+        $warehouses = WarehouseInventory::where('inventory_id', $inventoryId)->get();
+
+        foreach ($warehouses as $warehouse) {
+            try {
+                WarehouseStatus::create([
+                    'warehouse_id' => $warehouse->warehouse_id,
+                    'inventory_id' => $inventoryId,
+                    'batch_id' => $invoiceId,
+                    'date' => $date ?? WorkingDay::setCorrectDateForWorkingDay(),
+                    'quantity' => (float)$qty * (float)$warehouse->norm,
+                    'type' => WarehouseStatus::TYPE_OUT,
+                    'comment' => 'Sale from Third Party System',
+                ]);
+            } catch (\Exception $e) {
+                ExceptionLog::create([
+                    'type' => 'WarehouseStatus::populateWarehouseForThirdParty',
+                    'message' => $e->getMessage(),
+                    'stack_trace' => $e->getTraceAsString(),
+                    'file' => $e->getFile(),
+                    'method' => $e->getLine(),
+                    'payload' => json_encode([
+                        'inventory_id' => $inventoryId,
+                        'qty' => $qty,
+                        'invoice_id' => $invoiceId,
+                    ]),
+                    'status_code' => 500,
+                ]);
+            }
+        }
+    }
 }

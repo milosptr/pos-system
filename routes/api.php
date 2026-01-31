@@ -193,6 +193,7 @@ Route::prefix('/backoffice')->group(function () {
 
     // Third-party invoices
     Route::get('third-party-invoices', [ThirdPartyInvoiceController::class, 'all']);
+    Route::delete('third-party-invoices/{id}', [ThirdPartyInvoiceController::class, 'destroy']);
 
     // Third-party orders
     Route::get('third-party-orders', [ThirdPartyOrderController::class, 'all']);
