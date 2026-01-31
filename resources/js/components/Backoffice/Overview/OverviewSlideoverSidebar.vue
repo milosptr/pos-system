@@ -34,6 +34,16 @@
                       />
                     </div>
                   </div>
+                  <div v-if="isThirdPartyInvoice && activeOrder" class="px-4 sm:px-6 pt-4 border-t border-gray-200">
+                    <button
+                      type="button"
+                      class="w-full inline-flex justify-center items-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      @click="showDeleteModal = true"
+                    >
+                      <TrashIcon class="h-5 w-5 mr-2" aria-hidden="true" />
+                      Izbriši
+                    </button>
+                  </div>
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -42,24 +52,38 @@
       </div>
     </Dialog>
   </TransitionRoot>
+
+  <ThirdPartyInvoiceDeleteModal
+    :show="showDeleteModal"
+    :invoiceNumber="activeOrder ? activeOrder.invoice_number : ''"
+    @close="showDeleteModal = false"
+    @delete="handleDelete"
+  />
 </template>
 
 <script>
   import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-  import { XIcon } from '@heroicons/vue/outline'
+  import { XIcon, TrashIcon } from '@heroicons/vue/outline'
   import SingleOrder from '../../Tables/SingleOrder.vue'
+  import ThirdPartyInvoiceDeleteModal from '../../Modals/ThirdPartyInvoiceDeleteModal.vue'
 
   export default {
     props: {
       isInvoice: {
         type: Boolean,
         default: () => false,
-      }
+      },
+      isThirdPartyInvoice: {
+        type: Boolean,
+        default: () => false,
+      },
     },
     components: {
-      Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, XIcon, SingleOrder
+      Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, XIcon, TrashIcon, SingleOrder, ThirdPartyInvoiceDeleteModal
     },
-    data: () => ({}),
+    data: () => ({
+      showDeleteModal: false,
+    }),
     computed: {
       activeOrder() {
         return this.$store.getters.activeOrder
@@ -76,6 +100,15 @@
         if(this.activeOrder && this.activeOrder.table)
           return this.activeOrder.table.name
         return ''
+      },
+    },
+    methods: {
+      handleDelete() {
+        this.$store.dispatch('deleteThirdPartyInvoice', this.activeOrder.id)
+          .then(() => {
+            this.showDeleteModal = false
+            this.$store.commit('setActiveOrder', null)
+          })
       },
     },
     mounted() {},

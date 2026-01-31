@@ -41,7 +41,7 @@
         </div>
       </div>
       <BackofficeThirdPartyInvoicesPagination />
-      <OverviewSlideoverSidebar :isInvoice="true" />
+      <OverviewSlideoverSidebar :isInvoice="true" :isThirdPartyInvoice="true" />
     </div>
 </template>
 <script>

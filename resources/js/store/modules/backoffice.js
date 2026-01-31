@@ -116,6 +116,12 @@ const backoffice = {
                     commit('setThirdPartyOrders', res.data.data)
                 })
         },
+        deleteThirdPartyInvoice({ dispatch }, invoiceId) {
+          return axios.delete('/api/backoffice/third-party-invoices/' + invoiceId)
+            .then(() => {
+              dispatch('getThirdPartyInvoices')
+            })
+        },
         getTasks({ commit }) {
             axios.get('/api/tasks')
                 .then( (res) => {
