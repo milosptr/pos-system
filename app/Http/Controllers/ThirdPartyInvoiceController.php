@@ -39,10 +39,20 @@ class ThirdPartyInvoiceController extends Controller
     private function matchInventory(array $row): ?int
     {
         // First, try to match by sifraArtikla (inventory ID from external system)
-        if (isset($row['sifraArtikla']) && !empty($row['sifraArtikla'])) {
-            $inventory = Inventory::find((int) $row['sifraArtikla']);
-            if ($inventory) {
-                return $inventory->id;
+        // The value may come as string with leading zeros (e.g., "0042" for ID 42)
+        if (isset($row['sifraArtikla'])) {
+            $rawId = $row['sifraArtikla'];
+            // Convert to string first, then parse as integer to handle:
+            // - Strings with leading zeros: "0042" -> 42
+            // - Integer values: 42 -> 42
+            // - Numeric strings: "42" -> 42
+            $parsedId = is_numeric($rawId) ? intval($rawId) : null;
+
+            if ($parsedId !== null && $parsedId > 0) {
+                $inventory = Inventory::find($parsedId);
+                if ($inventory) {
+                    return $inventory->id;
+                }
             }
         }
 

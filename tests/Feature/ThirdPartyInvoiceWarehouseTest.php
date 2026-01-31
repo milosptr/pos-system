@@ -111,6 +111,49 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
     }
 
     /**
+     * Test that inventory is matched by sifraArtikla with leading zeros in string.
+     */
+    public function test_matches_inventory_by_sifra_artikla_with_leading_zeros()
+    {
+        // Create inventory
+        $inventory = $this->createInventoryWithWarehouse('Test Product');
+
+        // The external system may send sifraArtikla with leading zeros as a string
+        // e.g., inventory ID 42 might come as "0042" or "00042"
+        $requestData = [
+            [
+                'kolicina' => 3,
+                'cena' => 150,
+                'naziv' => 'Different name',
+                'jm' => 'kom',
+                'gotovina' => 450,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'LZ-001',
+                'sto' => '1',
+                'porudzbinaid' => 99801,
+                'sifraArtikla' => str_pad($inventory->id, 5, '0', STR_PAD_LEFT), // e.g., "00042"
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-invoice', $requestData);
+
+        $response->assertStatus(201);
+        $response->assertJson(['success' => true]);
+
+        // Verify invoice was created with inventory_id in order JSON
+        $invoice = ThirdPartyInvoice::first();
+        $this->assertNotNull($invoice);
+        $this->assertEquals($inventory->id, $invoice->order[0]['inventory_id']);
+
+        // Verify warehouse status was created with correct inventory
+        $warehouseStatus = WarehouseStatus::where('batch_id', $invoice->id)->first();
+        $this->assertNotNull($warehouseStatus);
+        $this->assertEquals($inventory->id, $warehouseStatus->inventory_id);
+        $this->assertEquals(3, $warehouseStatus->quantity);
+    }
+
+    /**
      * Test that inventory is matched by name when sifraArtikla doesn't match.
      */
     public function test_matches_inventory_by_name_fallback()
