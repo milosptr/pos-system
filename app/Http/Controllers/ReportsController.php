@@ -38,7 +38,7 @@ class ReportsController extends Controller
                 sales.category_name as category,
                 inventory.name as name')
               ->leftJoin('inventory', 'inventory.id', '=', 'sales.inventory_id')
-              ->groupBy('sales.inventory_id', 'inventory.name', 'sales.category_name')
+              ->groupBy('sales.inventory_id', 'inventory.name', 'sales.category_name', 'inventory.category_id')
               ->orderBy('inventory.category_id', 'ASC')
               ->orderBy('qty', 'DESC')
               ->get();
