@@ -3,6 +3,7 @@
 namespace Services;
 
 use App\Models\ExceptionLog;
+use App\Models\Inventory;
 use App\Models\Invoice;
 use App\Models\Sales;
 use App\Models\WarehouseInventory;
@@ -140,6 +141,33 @@ class SalesService {
                     'status_code' => 500,
                 ]);
             }
+        }
+    }
+
+    public static function createSalesForThirdParty($matchedItems, $invoiceId, $date = null)
+    {
+        $date = $date ?? WorkingDay::setCorrectDateForWorkingDay();
+
+        foreach ($matchedItems as $item) {
+            $inventory = Inventory::with('category')->find($item['inventory_id']);
+            if (!$inventory || !$inventory->category) {
+                continue;
+            }
+
+            Sales::create([
+                'inventory_id' => $inventory->id,
+                'category_id' => $inventory->category_id,
+                'category_name' => $inventory->category->name,
+                'name' => $item['name'],
+                'sku' => $inventory->sku,
+                'qty' => $item['qty'],
+                'price' => $item['price'],
+                'total' => (int) round($item['qty'] * $item['price']),
+                'type' => Sales::TYPE_EBAR,
+                'status' => Sales::STATUS_ACTIVE,
+                'batch_id' => $invoiceId,
+                'created_at' => $date . ' 12:00:00',
+            ]);
         }
     }
 }

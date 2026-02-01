@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inventory;
+use App\Models\Sales;
 use App\Models\ThirdPartyInvoice;
 use App\Models\ThirdPartyOrder;
 use App\Models\WarehouseStatus;
@@ -143,6 +144,8 @@ class ThirdPartyInvoiceController extends Controller
                 $matchedItems[] = [
                     'inventory_id' => $inventoryId,
                     'qty' => $qty,
+                    'name' => $item['name'],
+                    'price' => $item['price'],
                 ];
             }
 
@@ -229,6 +232,20 @@ class ThirdPartyInvoiceController extends Controller
                         ]);
                     }
                 }
+
+                // Create sales records for matched items
+                try {
+                    SalesService::createSalesForThirdParty(
+                        $matchedItems,
+                        $invoice->id,
+                        $invoiceDate
+                    );
+                } catch (\Exception $e) {
+                    Log::error('[ThirdPartyInvoice] Sales creation failed', [
+                        'invoice_id' => $invoice->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
 
             $message = 'Invoice stored successfully';
@@ -296,6 +313,9 @@ class ThirdPartyInvoiceController extends Controller
             DB::transaction(function () use ($invoice) {
                 // Delete associated warehouse status records
                 WarehouseStatus::where('batch_id', $invoice->id)->delete();
+
+                // Delete associated sales records
+                Sales::where('batch_id', $invoice->id)->delete();
 
                 // Delete the invoice
                 $invoice->delete();
