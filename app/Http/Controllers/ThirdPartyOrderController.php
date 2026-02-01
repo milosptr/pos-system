@@ -6,7 +6,9 @@ use App\Models\ThirdPartyOrder;
 use App\Models\ThirdPartyOrderItem;
 use App\Http\Requests\ThirdPartyOrderStoreRequest;
 use App\Http\Resources\ThirdPartyOrderResource;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Services\Pusher;
 
 class ThirdPartyOrderController extends Controller
 {
@@ -139,6 +141,106 @@ class ThirdPartyOrderController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to process orders',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Update storno status for order items.
+     * Sets active = 0 for storno = 1, active = 1 for storno = 0.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function storno(Request $request)
+    {
+        $rows = $request->all();
+
+        Log::info('[ThirdPartyOrder] Storno request', [
+            'body' => $rows,
+            'ip' => $request->ip(),
+        ]);
+
+        if (empty($rows)) {
+            Log::warning('[ThirdPartyOrder] Empty storno data provided', [
+                'ip' => $request->ip(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'No data provided',
+            ], 422);
+        }
+
+        try {
+            $updated = 0;
+            $notFound = 0;
+            $results = [];
+
+            foreach ($rows as $row) {
+                // Support both stavkaId and stavkaid (case variations)
+                $externalItemId = (int) ($row['stavkaId'] ?? $row['stavkaid'] ?? 0);
+                $storno = (int) ($row['storno'] ?? 0);
+
+                if ($externalItemId === 0) {
+                    continue;
+                }
+
+                // Find item by external_item_id
+                $item = ThirdPartyOrderItem::where('external_item_id', $externalItemId)->first();
+
+                if ($item) {
+                    // storno = 1 means cancelled, so active = 0
+                    // storno = 0 means not cancelled, so active = 1
+                    $item->update(['active' => $storno ? 0 : 1]);
+                    $updated++;
+                    $results[] = [
+                        'external_item_id' => $externalItemId,
+                        'storno' => $storno,
+                        'active' => $storno ? 0 : 1,
+                        'status' => 'updated',
+                    ];
+                } else {
+                    $notFound++;
+                    $results[] = [
+                        'external_item_id' => $externalItemId,
+                        'status' => 'not_found',
+                    ];
+                }
+            }
+
+            // Notify backoffice of update
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+            } catch (\Exception $e) {
+                Log::error('[ThirdPartyOrder] Pusher notification failed', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            Log::info('[ThirdPartyOrder] Storno processed', [
+                'updated' => $updated,
+                'not_found' => $notFound,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $updated . ' item(s) updated' . ($notFound > 0 ? ', ' . $notFound . ' not found' : ''),
+                'data' => [
+                    'updated' => $updated,
+                    'not_found' => $notFound,
+                    'results' => $results,
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('[ThirdPartyOrder] Failed to process storno', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to process storno',
                 'error' => $e->getMessage(),
             ], 500);
         }

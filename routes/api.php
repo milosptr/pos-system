@@ -203,4 +203,5 @@ Route::prefix('/backoffice')->group(function () {
 Route::group(['middleware' => ['external.api']], function () {
     Route::post('third-party-invoice', [ThirdPartyInvoiceController::class, 'store']);
     Route::post('third-party-order', [ThirdPartyOrderController::class, 'store']);
+    Route::post('third-party-order-storno', [ThirdPartyOrderController::class, 'storno']);
 });

@@ -1411,4 +1411,291 @@ class ThirdPartyOrderTest extends TestCase
         // Order should NOT be deleted
         $this->assertEquals(1, ThirdPartyOrder::count());
     }
+
+    /**
+     * Test storno endpoint sets items to inactive.
+     */
+    public function test_storno_sets_items_inactive()
+    {
+        // Create order with items
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 100575,
+            'table_id' => 740,
+            'table_name' => '9',
+            'total' => 1000,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 1,
+            'name' => 'Item 1',
+            'qty' => 1,
+            'price' => 500,
+            'unit' => 'kom',
+            'active' => 1,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 2,
+            'name' => 'Item 2',
+            'qty' => 1,
+            'price' => 500,
+            'unit' => 'kom',
+            'active' => 1,
+        ]);
+
+        // All items active
+        $this->assertEquals(2, ThirdPartyOrderItem::where('active', 1)->count());
+
+        // Storno item 1
+        $response = $this->postJson('/api/third-party-order-storno', [
+            ['stavkaId' => 1, 'storno' => 1],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $response->assertJsonFragment(['updated' => 1]);
+
+        // Item 1 should be inactive, item 2 still active
+        $this->assertEquals(0, ThirdPartyOrderItem::where('external_item_id', 1)->first()->active);
+        $this->assertEquals(1, ThirdPartyOrderItem::where('external_item_id', 2)->first()->active);
+    }
+
+    /**
+     * Test storno endpoint can reactivate items.
+     */
+    public function test_storno_can_reactivate_items()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 100575,
+            'table_id' => 740,
+            'table_name' => '9',
+            'total' => 500,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 1,
+            'name' => 'Item 1',
+            'qty' => 1,
+            'price' => 500,
+            'unit' => 'kom',
+            'active' => 0, // Already inactive
+        ]);
+
+        // Item is inactive
+        $this->assertEquals(0, ThirdPartyOrderItem::first()->active);
+
+        // Remove storno (storno = 0)
+        $response = $this->postJson('/api/third-party-order-storno', [
+            ['stavkaId' => 1, 'storno' => 0],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Item should now be active
+        $this->assertEquals(1, ThirdPartyOrderItem::first()->active);
+    }
+
+    /**
+     * Test storno endpoint with multiple items.
+     */
+    public function test_storno_multiple_items()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 100575,
+            'table_id' => 740,
+            'table_name' => '9',
+            'total' => 1500,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 1,
+            'name' => 'Item 1',
+            'qty' => 1,
+            'price' => 500,
+            'unit' => 'kom',
+            'active' => 1,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 2,
+            'name' => 'Item 2',
+            'qty' => 1,
+            'price' => 500,
+            'unit' => 'kom',
+            'active' => 1,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 3,
+            'name' => 'Item 3',
+            'qty' => 1,
+            'price' => 500,
+            'unit' => 'kom',
+            'active' => 1,
+        ]);
+
+        // Storno items 1 and 2, keep item 3 active
+        $response = $this->postJson('/api/third-party-order-storno', [
+            ['stavkaId' => 1, 'storno' => 1],
+            ['stavkaId' => 2, 'storno' => 1],
+            ['stavkaId' => 3, 'storno' => 0],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['updated' => 3]);
+
+        // Items 1 and 2 inactive, item 3 active
+        $this->assertEquals(0, ThirdPartyOrderItem::where('external_item_id', 1)->first()->active);
+        $this->assertEquals(0, ThirdPartyOrderItem::where('external_item_id', 2)->first()->active);
+        $this->assertEquals(1, ThirdPartyOrderItem::where('external_item_id', 3)->first()->active);
+    }
+
+    /**
+     * Test storno endpoint with non-existent items.
+     */
+    public function test_storno_not_found_items()
+    {
+        $response = $this->postJson('/api/third-party-order-storno', [
+            ['stavkaId' => 999, 'storno' => 1],
+            ['stavkaId' => 888, 'storno' => 1],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $response->assertJsonFragment(['updated' => 0]);
+        $response->assertJsonFragment(['not_found' => 2]);
+    }
+
+    /**
+     * Test storno endpoint with mixed found and not found items.
+     */
+    public function test_storno_mixed_found_and_not_found()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 100575,
+            'table_id' => 740,
+            'table_name' => '9',
+            'total' => 500,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 1,
+            'name' => 'Item 1',
+            'qty' => 1,
+            'price' => 500,
+            'unit' => 'kom',
+            'active' => 1,
+        ]);
+
+        $response = $this->postJson('/api/third-party-order-storno', [
+            ['stavkaId' => 1, 'storno' => 1],    // Exists
+            ['stavkaId' => 999, 'storno' => 1],  // Does not exist
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['updated' => 1]);
+        $response->assertJsonFragment(['not_found' => 1]);
+
+        // Item 1 should be inactive
+        $this->assertEquals(0, ThirdPartyOrderItem::where('external_item_id', 1)->first()->active);
+    }
+
+    /**
+     * Test storno endpoint with empty request.
+     */
+    public function test_storno_empty_request()
+    {
+        $response = $this->postJson('/api/third-party-order-storno', []);
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'No data provided',
+        ]);
+    }
+
+    /**
+     * Test storno endpoint response structure.
+     */
+    public function test_storno_response_structure()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 100575,
+            'table_id' => 740,
+            'table_name' => '9',
+            'total' => 500,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 1,
+            'name' => 'Item 1',
+            'qty' => 1,
+            'price' => 500,
+            'unit' => 'kom',
+            'active' => 1,
+        ]);
+
+        $response = $this->postJson('/api/third-party-order-storno', [
+            ['stavkaId' => 1, 'storno' => 1],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'success',
+            'message',
+            'data' => [
+                'updated',
+                'not_found',
+                'results' => [
+                    '*' => [
+                        'external_item_id',
+                        'storno',
+                        'active',
+                        'status',
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Test storno with lowercase stavkaid (case insensitive).
+     */
+    public function test_storno_lowercase_stavkaid()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 100575,
+            'table_id' => 740,
+            'table_name' => '9',
+            'total' => 500,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 1,
+            'name' => 'Item 1',
+            'qty' => 1,
+            'price' => 500,
+            'unit' => 'kom',
+            'active' => 1,
+        ]);
+
+        // Use lowercase stavkaid
+        $response = $this->postJson('/api/third-party-order-storno', [
+            ['stavkaid' => 1, 'storno' => 1],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['updated' => 1]);
+        $this->assertEquals(0, ThirdPartyOrderItem::first()->active);
+    }
 }
