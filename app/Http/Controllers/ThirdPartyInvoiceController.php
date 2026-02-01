@@ -12,6 +12,7 @@ use App\Http\Resources\ThirdPartyInvoiceResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Services\Pusher;
 use Services\SalesService;
 
 class ThirdPartyInvoiceController extends Controller
@@ -246,6 +247,15 @@ class ThirdPartyInvoiceController extends Controller
                         'error' => $e->getMessage(),
                     ]);
                 }
+            }
+
+            // Notify backoffice of new data
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+            } catch (\Exception $e) {
+                Log::error('[ThirdPartyInvoice] Pusher notification failed', [
+                    'error' => $e->getMessage(),
+                ]);
             }
 
             $message = 'Invoice stored successfully';
