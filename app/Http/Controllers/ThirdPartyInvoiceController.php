@@ -95,6 +95,7 @@ class ThirdPartyInvoiceController extends Controller
         // Extract invoice-level data from first row (with safe defaults)
         $invoiceNumber = (string) ($firstRow['brojracuna'] ?? 'UNKNOWN-' . time());
         $tableName = isset($firstRow['sto']) ? (string) $firstRow['sto'] : null;
+        $tableId = isset($firstRow['stoid']) ? (int) $firstRow['stoid'] : null;
         $externalOrderId = isset($firstRow['porudzbinaid']) ? (int) $firstRow['porudzbinaid'] : null;
         $discount = (float) ($firstRow['popust'] ?? 0);
 
@@ -161,7 +162,7 @@ class ThirdPartyInvoiceController extends Controller
         // Check for duplicate
         $isDuplicate = ThirdPartyInvoice::isDuplicate($invoiceNumber);
 
-        $orderDeleted = false;
+        $ordersDeleted = 0;
 
         try {
             // Use transaction for invoice creation + order deletion
@@ -169,13 +170,14 @@ class ThirdPartyInvoiceController extends Controller
                 $invoiceNumber,
                 $isDuplicate,
                 $externalOrderId,
+                $tableId,
                 $tableName,
                 $status,
                 $items,
                 $totalCents,
                 $paymentType,
                 $discount,
-                &$orderDeleted
+                &$ordersDeleted
             ) {
                 // Create invoice
                 $invoice = ThirdPartyInvoice::create([
@@ -190,9 +192,9 @@ class ThirdPartyInvoiceController extends Controller
                     'discount' => $discount,
                 ]);
 
-                // Delete matching order if external_order_id is present
-                if ($externalOrderId) {
-                    $orderDeleted = ThirdPartyOrder::deleteByExternalOrderId($externalOrderId);
+                // Delete all orders for this table if stoid is present
+                if ($tableId) {
+                    $ordersDeleted = ThirdPartyOrder::deleteByTableId($tableId);
                 }
 
                 return $invoice;
@@ -259,8 +261,8 @@ class ThirdPartyInvoiceController extends Controller
             }
 
             $message = 'Invoice stored successfully';
-            if ($orderDeleted) {
-                $message .= ', matching order deleted';
+            if ($ordersDeleted > 0) {
+                $message .= ', ' . $ordersDeleted . ' order(s) for table closed';
             }
             if ($isDuplicate) {
                 $message .= ' (duplicate detected)';
@@ -272,7 +274,8 @@ class ThirdPartyInvoiceController extends Controller
                 'is_duplicate' => $isDuplicate,
                 'status' => $status,
                 'total' => $totalCents,
-                'order_deleted' => $orderDeleted,
+                'table_id' => $tableId,
+                'orders_deleted' => $ordersDeleted,
             ]);
 
             return response()->json([
@@ -284,7 +287,7 @@ class ThirdPartyInvoiceController extends Controller
                     'is_duplicate' => $invoice->is_duplicate,
                     'status' => $invoice->status,
                     'total' => $invoice->total,
-                    'order_deleted' => $orderDeleted,
+                    'orders_deleted' => $ordersDeleted,
                 ],
             ], 201);
         } catch (\Exception $e) {

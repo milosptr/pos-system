@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ThirdPartyOrder;
+use App\Models\ThirdPartyOrderItem;
 use App\Http\Requests\ThirdPartyOrderStoreRequest;
 use App\Http\Resources\ThirdPartyOrderResource;
 use Illuminate\Support\Facades\Log;
@@ -16,11 +17,14 @@ class ThirdPartyOrderController extends Controller
      */
     public function all()
     {
-        return ThirdPartyOrderResource::collection(ThirdPartyOrder::all());
+        return ThirdPartyOrderResource::collection(
+            ThirdPartyOrder::with('items')->get()
+        );
     }
 
     /**
      * Store a third-party order from external system.
+     * Handles multiple orders per request (grouped by porudzbinaid).
      *
      * @param ThirdPartyOrderStoreRequest $request
      * @return \Illuminate\Http\JsonResponse
@@ -44,92 +48,97 @@ class ThirdPartyOrderController extends Controller
             ], 422);
         }
 
-        $firstRow = $rows[0];
-
-        // Extract order-level data from first row (with safe defaults)
-        $externalOrderId = (int) ($firstRow['porudzbinaid'] ?? 0);
-        $tableName = (string) ($firstRow['sto'] ?? 'Unknown');
-
-        // Transform rows into items array
-        $items = [];
-        $totalCents = 0;
-
-        foreach ($rows as $row) {
-            $qty = (float) ($row['kolicina'] ?? 0);
-            $price = (float) ($row['cena'] ?? 0);
-            $itemTotal = (int) round($qty * $price);
-            $totalCents += $itemTotal;
-
-            $item = [
-                'name' => (string) ($row['naziv'] ?? 'Unknown'),
-                'qty' => $qty,
-                'price' => (int) round($price),
-                'unit' => (string) ($row['jm'] ?? 'kom'),
-            ];
-
-            // Add optional fields
-            if (isset($row['modifikatorslobodan']) && $row['modifikatorslobodan']) {
-                $item['modifier'] = (string) $row['modifikatorslobodan'];
-            }
-            if (isset($row['stampanjenalogid'])) {
-                $item['print_station_id'] = (int) $row['stampanjenalogid'];
-            }
-
-            $items[] = $item;
-        }
-
         try {
-            // Check if order with same external_order_id exists
-            $existingOrder = ThirdPartyOrder::where('external_order_id', $externalOrderId)->first();
-            $updated = false;
+            // Group rows by porudzbinaid (multiple orders can be in one request)
+            $orderGroups = collect($rows)->groupBy('porudzbinaid');
+            $processedOrders = [];
 
-            if ($existingOrder) {
-                // Update existing order
-                $existingOrder->update([
-                    'table_name' => $tableName,
-                    'order' => $items,
-                    'total' => $totalCents,
-                ]);
-                $order = $existingOrder;
-                $updated = true;
-            } else {
-                // Create new order
-                $order = ThirdPartyOrder::create([
-                    'external_order_id' => $externalOrderId,
-                    'table_name' => $tableName,
-                    'order' => $items,
-                    'total' => $totalCents,
-                ]);
+            foreach ($orderGroups as $externalOrderId => $orderRows) {
+                $firstRow = $orderRows->first();
+
+                // Extract order-level data (lowercase field names)
+                $tableId = isset($firstRow['stoid']) ? (int) $firstRow['stoid'] : null;
+                $tableName = (string) ($firstRow['sto'] ?? 'Unknown');
+
+                // Find or create order
+                $order = ThirdPartyOrder::updateOrCreate(
+                    ['external_order_id' => (int) $externalOrderId],
+                    [
+                        'table_id' => $tableId,
+                        'table_name' => $tableName,
+                        'total' => 0,
+                    ]
+                );
+
+                $totalCents = 0;
+                $incomingItemIds = [];
+
+                foreach ($orderRows as $row) {
+                    $externalItemId = (int) ($row['stavkaid'] ?? 0);
+                    $qty = (float) ($row['kolicina'] ?? 0);
+                    $price = (int) round((float) ($row['cena'] ?? 0));
+                    $itemTotal = (int) round($qty * $price);
+                    $totalCents += $itemTotal;
+
+                    $incomingItemIds[] = $externalItemId;
+
+                    // Find existing item to preserve active flag
+                    $existingItem = $order->items()
+                        ->where('external_item_id', $externalItemId)
+                        ->first();
+
+                    $itemData = [
+                        'third_party_order_id' => $order->id,
+                        'external_item_id' => $externalItemId,
+                        'name' => (string) ($row['naziv'] ?? 'Unknown'),
+                        'qty' => $qty,
+                        'price' => $price,
+                        'unit' => (string) ($row['jm'] ?? 'kom'),
+                        'modifier' => $row['modifikatorslobodan'] ?? null,
+                        'print_station_id' => isset($row['stampanjenalogaid']) ? (int) $row['stampanjenalogaid'] : null,
+                    ];
+
+                    if ($existingItem) {
+                        // Update existing item - DO NOT touch active flag
+                        $existingItem->update($itemData);
+                    } else {
+                        // New item - default active = 1
+                        $itemData['active'] = 1;
+                        ThirdPartyOrderItem::create($itemData);
+                    }
+                }
+
+                // Remove items no longer in this order
+                $order->items()
+                    ->whereNotIn('external_item_id', $incomingItemIds)
+                    ->delete();
+
+                // Update order total
+                $order->update(['total' => $totalCents]);
+                $processedOrders[] = $order;
             }
 
-            Log::info('[ThirdPartyOrder] Order stored successfully', [
-                'id' => $order->id,
-                'external_order_id' => $externalOrderId,
-                'table_name' => $tableName,
-                'total' => $totalCents,
-                'updated' => $updated,
+            Log::info('[ThirdPartyOrder] Orders processed successfully', [
+                'count' => count($processedOrders),
+                'order_ids' => collect($processedOrders)->pluck('external_order_id')->toArray(),
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => $updated ? 'Order updated successfully' : 'Order stored successfully',
-                'data' => [
-                    'id' => $order->id,
-                    'external_order_id' => $order->external_order_id,
-                    'total' => $order->total,
-                    'updated' => $updated,
-                ],
-            ], $updated ? 200 : 201);
+                'message' => count($processedOrders) . ' order(s) processed',
+                'data' => ThirdPartyOrderResource::collection(
+                    collect($processedOrders)->map->load('items')
+                ),
+            ], 201);
         } catch (\Exception $e) {
-            Log::error('[ThirdPartyOrder] Failed to store order', [
-                'external_order_id' => $externalOrderId,
+            Log::error('[ThirdPartyOrder] Failed to process orders', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to store order',
+                'message' => 'Failed to process orders',
                 'error' => $e->getMessage(),
             ], 500);
         }

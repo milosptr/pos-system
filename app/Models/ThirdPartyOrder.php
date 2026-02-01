@@ -11,14 +11,30 @@ class ThirdPartyOrder extends Model
 
     protected $fillable = [
         'external_order_id',
+        'table_id',
         'table_name',
-        'order',
         'total',
     ];
 
     protected $casts = [
-        'order' => 'array',
+        'total' => 'integer',
     ];
+
+    /**
+     * Get all items for this order.
+     */
+    public function items()
+    {
+        return $this->hasMany(ThirdPartyOrderItem::class);
+    }
+
+    /**
+     * Get only active items for this order.
+     */
+    public function activeItems()
+    {
+        return $this->hasMany(ThirdPartyOrderItem::class)->where('active', 1);
+    }
 
     /**
      * Delete an order by its external order ID.
@@ -29,5 +45,16 @@ class ThirdPartyOrder extends Model
     public static function deleteByExternalOrderId(int $orderId): bool
     {
         return static::where('external_order_id', $orderId)->delete() > 0;
+    }
+
+    /**
+     * Delete all orders for a given table ID.
+     *
+     * @param int $tableId
+     * @return int Number of orders deleted
+     */
+    public static function deleteByTableId(int $tableId): int
+    {
+        return static::where('table_id', $tableId)->delete();
     }
 }

@@ -213,6 +213,29 @@ const backoffice = {
         invoices: (state) => state.invoices,
         thirdPartyInvoices: (state) => state.thirdPartyInvoices,
         thirdPartyOrders: (state) => state.thirdPartyOrders,
+        thirdPartyOrdersGroupedByTable: (state) => {
+            const grouped = {}
+
+            state.thirdPartyOrders.forEach(order => {
+                const key = order.table_id ?? 'ungrouped'
+
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        table_id: order.table_id,
+                        table_name: order.table_name,
+                        orders: [],
+                        total: 0,
+                        active_total: 0,
+                    }
+                }
+
+                grouped[key].orders.push(order)
+                grouped[key].total += order.total
+                grouped[key].active_total += order.active_total ?? order.total
+            })
+
+            return Object.values(grouped)
+        },
         thirdPartyPagination: (state) => state.thirdPartyPagination,
         tasks: (state) => state.tasks,
         stats: (state) => state.stats,
