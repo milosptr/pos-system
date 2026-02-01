@@ -18,7 +18,18 @@ class WarehouseStatusController extends Controller
       $warehouse = $warehouse->whereHas('warehouse');
 
       $warehouse = $warehouse->leftJoin('warehouses', 'warehouses.id', '=', 'warehouse_status.warehouse_id');
-      $date = $request->get('date') ?? date('Y-m-d');
+
+      // Parse date range format: "YYYY-MM-DD to YYYY-MM-DD" or single date "YYYY-MM-DD"
+      $dateParam = $request->get('date') ?? date('Y-m-d');
+      if (str_contains($dateParam, ' to ')) {
+        $dates = explode(' to ', $dateParam);
+        $startDate = $dates[0];
+        $endDate = $dates[1];
+      } else {
+        $startDate = $dateParam;
+        $endDate = $dateParam;
+      }
+
       $category_id = $request->get('category_id');
       $group_id = $request->get('group_id');
       if ($category_id) {
@@ -31,15 +42,20 @@ class WarehouseStatusController extends Controller
           ->where('warehouse_categories.group_id', $group_id);
       }
 
-      $warehouse = $warehouse->whereDate('date', '<=', $date)
+      $warehouse = $warehouse->whereDate('date', '<=', $endDate)
         ->selectRaw(
           'warehouse_id, ' .
-          'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 0 then quantity else 0 end) else 0 end) as import_quantity, ' .
-          'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 1 then quantity else 0 end) else 0 end) as sale_quantity, ' .
+          // Imports within the date range
+          'SUM(case when warehouse_status.date >= ? AND warehouse_status.date <= ? then(case when warehouse_status.type = 0 then quantity else 0 end) else 0 end) as import_quantity, ' .
+          // Sales within the date range
+          'SUM(case when warehouse_status.date >= ? AND warehouse_status.date <= ? then(case when warehouse_status.type = 1 then quantity else 0 end) else 0 end) as sale_quantity, ' .
+          // Final quantity: running total up to end date
           'SUM(case when warehouse_status.date <= ? then (case when warehouse_status.type = 1 then -quantity else quantity end) else 0 end) as quantity,' .
+          // Previous quantity: stock level before start date
           'SUM(case when warehouse_status.date < ? then (case when warehouse_status.type = 1 then -quantity else quantity end) else 0 end) as previous_quantity,' .
-          'SUM(case when warehouse_status.date = ? then(case when warehouse_status.type = 2 then quantity else 0 end) else 0 end) as recalculated_quantity',
-          [$date, $date, $date, $date, $date]
+          // Recalculations within the date range
+          'SUM(case when warehouse_status.date >= ? AND warehouse_status.date <= ? then(case when warehouse_status.type = 2 then quantity else 0 end) else 0 end) as recalculated_quantity',
+          [$startDate, $endDate, $startDate, $endDate, $endDate, $startDate, $startDate, $endDate]
         )
         ->groupBy('warehouse_id')
         ->orderBy('warehouses.order');

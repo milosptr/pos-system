@@ -2,19 +2,18 @@
   <div>
     <div class="">
       <div class="flex flex-col sm:flex-row gap-10">
-        <div class="text-right flex items-center gap-4">
-          <ChevronLeftIcon
-            class="w-6 cursor-pointer"
-            @click="previousDate()" />
-          <input
-            type="date"
+        <div class="w-full sm:w-64 relative text-sm">
+          <litepie-datepicker
+            i18n="sr"
+            use-range
+            separator=" to "
+            :formatter="formatter"
+            :shortcuts="customShortcuts"
+            :auto-apply="false"
+            readonly
+            aria-readonly="true"
             v-model="date"
-            :max="maxDate"
-            @change="updateDate"
-            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-48 sm:text-sm border-gray-300 rounded-md" />
-          <ChevronRightIcon
-            class="w-6 cursor-pointer"
-            @click="nextDate()" />
+          />
         </div>
         <div>
           <select
@@ -168,19 +167,76 @@ import dayjs from 'dayjs'
 import {
   ArrowSmUpIcon,
   ArrowSmDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   PencilIcon
 } from '@heroicons/vue/outline'
+
+const customShortcuts = () => {
+  return [
+    {
+      label: 'Today',
+      atClick: () => {
+        const date = new Date();
+        return [date, date];
+      }
+    },
+    {
+      label: 'Yesterday',
+      atClick: () => {
+        const date = new Date();
+        return [
+          new Date(date.setDate(date.getDate() - 1)),
+          date
+        ];
+      }
+    },
+    {
+      label: 'This week',
+      atClick: () => {
+        const date = new Date();
+        const startOfWeek = dayjs().day(-7 + dayjs().day() + 1).format()
+        return [startOfWeek, date];
+      }
+    },
+    {
+      label: 'Last week',
+      atClick: () => {
+        const startOfWeek = dayjs().day(-14 + dayjs().day() + 1).format()
+        const endOfWeek = dayjs().day(-7 + dayjs().day() + 1).format()
+        return [startOfWeek, endOfWeek];
+      }
+    },
+    {
+      label: 'This Month',
+      atClick: () => {
+        const startOfMonth = dayjs().startOf('M');
+        const endOfMonth = dayjs().endOf('M');
+        return [startOfMonth, endOfMonth];
+      }
+    },
+    {
+      label: 'Last Month',
+      atClick: () => {
+        const startOfMonth = dayjs().subtract(1, 'month').startOf('M');
+        const endOfMonth = dayjs().subtract(1, 'month').endOf('M');
+        return [startOfMonth, endOfMonth];
+      }
+    },
+  ];
+}
 
 export default {
   name: 'WarehouseSales',
   data: () => ({
     warehouse: [],
     warehouseCategories: [],
-    date: dayjs().format('YYYY-MM-DD'),
+    date: dayjs().format('YYYY-MM-DD') + ' to ' + dayjs().format('YYYY-MM-DD'),
+    formatter: {
+      date: 'YYYY-MM-DD',
+      month: 'MMM'
+    },
+    customShortcuts,
     category_id: null,
     group_id: null,
     draggedIndex: null,
@@ -188,8 +244,6 @@ export default {
   }),
   components: {
     PencilIcon,
-    ChevronLeftIcon,
-    ChevronRightIcon,
     ArrowUpIcon,
     ArrowDownIcon,
     ArrowSmUpIcon,
@@ -199,15 +253,17 @@ export default {
     this.getWarehouseStatus()
     this.getWarehouseCategories()
   },
-  computed: {
-    maxDate() {
-      return dayjs().format('YYYY-MM-DD')
+  watch: {
+    date(val) {
+      if (val) {
+        this.getWarehouseStatus()
+      }
     }
   },
   methods: {
     dayjs,
     getWarehouseStatus() {
-      let filters = `?date=${dayjs(this.date).format('YYYY-MM-DD')}`
+      let filters = `?date=${this.date}`
       if (this.category_id) {
         filters += `&category_id=${this.category_id}`
       }
@@ -219,27 +275,14 @@ export default {
         this.warehouse = this.groupBy(data, 'category_id')
       })
     },
-    updateDate() {
-      this.getWarehouseStatus()
-    },
-    previousDate() {
-      this.date = dayjs(this.date).subtract(1, 'day').format('YYYY-MM-DD')
-      this.getWarehouseStatus()
-    },
-    nextDate() {
-      this.date = dayjs(this.date).add(1, 'day').format('YYYY-MM-DD')
-      if (dayjs(this.date).isAfter(dayjs().format('YYYY-MM-DD'))) {
-        this.date = dayjs().format('YYYY-MM-DD')
-        return
-      }
-      this.getWarehouseStatus()
-    },
     editStartingQuantity() {
+      // Extract end date from range for recalculation
+      const endDate = this.date.includes(' to ') ? this.date.split(' to ')[1] : this.date
       axios
         .post('/api/backoffice/warehouse-status/recalculate/' + this.editItem.warehouse_id, {
           quantity: parseFloat(this.editItem.recalculated) - parseFloat(this.editItem.previous_quantity),
           previous_quantity: parseFloat(this.editItem.previous_quantity),
-          date: this.date
+          date: endDate
         })
         .then(() => {
           this.editItem = null
