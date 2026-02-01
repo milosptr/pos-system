@@ -31,28 +31,22 @@ class ThirdPartyInvoiceController extends Controller
     }
 
     /**
-     * Match inventory item by sifraArtikla (ID) or naziv (name).
+     * Match inventory item by sifraArtikla (SKU) or naziv (name).
      *
      * @param array $row
      * @return int|null
      */
     private function matchInventory(array $row): ?int
     {
-        // First, try to match by sifraArtikla (inventory ID from external system)
-        // The value may come as string with leading zeros (e.g., "0042" for ID 42)
-        if (isset($row['sifraArtikla'])) {
-            $rawId = $row['sifraArtikla'];
-            // Convert to string first, then parse as integer to handle:
-            // - Strings with leading zeros: "0042" -> 42
-            // - Integer values: 42 -> 42
-            // - Numeric strings: "42" -> 42
-            $parsedId = is_numeric($rawId) ? intval($rawId) : null;
-
-            if ($parsedId !== null && $parsedId > 0) {
-                $inventory = Inventory::find($parsedId);
-                if ($inventory) {
-                    return $inventory->id;
-                }
+        // First, try to match by sifraArtikla against inventory SKU
+        // Compare as integers to handle any leading zeros on either side
+        // e.g., SKU "000220" matches sifraArtikla 220, "220", or "000220"
+        if (isset($row['sifraArtikla']) && $row['sifraArtikla'] !== '') {
+            $sifraInt = (int) $row['sifraArtikla'];
+            // Use sku + 0 to cast varchar to integer in SQL (works in MySQL and SQLite)
+            $inventory = Inventory::whereRaw('sku + 0 = ?', [$sifraInt])->first();
+            if ($inventory) {
+                return $inventory->id;
             }
         }
 

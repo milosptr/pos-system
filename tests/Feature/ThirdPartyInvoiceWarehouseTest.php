@@ -49,13 +49,13 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
     /**
      * Helper to create inventory item with warehouse link.
      */
-    private function createInventoryWithWarehouse(string $name, float $norm = 1.0): Inventory
+    private function createInventoryWithWarehouse(string $name, float $norm = 1.0, ?string $sku = null): Inventory
     {
         $inventory = Inventory::create([
             'category_id' => $this->category->id,
             'name' => $name,
             'price' => 100,
-            'sku' => str_pad(rand(1, 99999), 6, '0', STR_PAD_LEFT),
+            'sku' => $sku ?? str_pad(rand(1, 99999), 6, '0', STR_PAD_LEFT),
         ]);
 
         WarehouseInventory::create([
@@ -68,12 +68,12 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
     }
 
     /**
-     * Test that inventory is matched by sifraArtikla (external system ID).
+     * Test that inventory is matched by sifraArtikla (SKU).
      */
     public function test_matches_inventory_by_sifra_artikla()
     {
-        // Create inventory
-        $inventory = $this->createInventoryWithWarehouse('Sljiv Bukovo');
+        // Create inventory with specific SKU
+        $inventory = $this->createInventoryWithWarehouse('Sljiv Bukovo', 1.0, '000220');
 
         $requestData = [
             [
@@ -87,7 +87,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => '12345',
                 'sto' => '6',
                 'porudzbinaid' => 99800,
-                'sifraArtikla' => $inventory->id, // Use actual ID
+                'sifraArtikla' => 220, // Matches SKU "000220" as integer
             ],
         ];
 
@@ -111,46 +111,70 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
     }
 
     /**
-     * Test that inventory is matched by sifraArtikla with leading zeros in string.
+     * Test all SKU matching edge cases with leading zeros.
+     * Covers: SKU with/without padding, sifraArtikla as int/string with/without padding.
      */
-    public function test_matches_inventory_by_sifra_artikla_with_leading_zeros()
+    public function test_sku_matching_all_edge_cases()
     {
-        // Create inventory
-        $inventory = $this->createInventoryWithWarehouse('Test Product');
+        // Test case 1: SKU "000220" with sifraArtikla as integer 220
+        $inv1 = $this->createInventoryWithWarehouse('Product 1', 1.0, '000220');
+        $response1 = $this->postJson('/api/third-party-invoice', [[
+            'kolicina' => 1, 'cena' => 100, 'naziv' => 'X', 'jm' => 'kom',
+            'gotovina' => 100, 'kartica' => 0, 'prenosnaracun' => 0,
+            'brojracuna' => 'EDGE-1', 'sto' => '1', 'porudzbinaid' => 90001,
+            'sifraArtikla' => 220, // Integer
+        ]]);
+        $response1->assertStatus(201);
+        $invoice1 = ThirdPartyInvoice::where('invoice_number', 'EDGE-1')->first();
+        $this->assertEquals($inv1->id, $invoice1->order[0]['inventory_id']);
 
-        // The external system may send sifraArtikla with leading zeros as a string
-        // e.g., inventory ID 42 might come as "0042" or "00042"
-        $requestData = [
-            [
-                'kolicina' => 3,
-                'cena' => 150,
-                'naziv' => 'Different name',
-                'jm' => 'kom',
-                'gotovina' => 450,
-                'kartica' => 0,
-                'prenosnaracun' => 0,
-                'brojracuna' => 'LZ-001',
-                'sto' => '1',
-                'porudzbinaid' => 99801,
-                'sifraArtikla' => str_pad($inventory->id, 5, '0', STR_PAD_LEFT), // e.g., "00042"
-            ],
-        ];
+        // Test case 2: SKU "000220" with sifraArtikla as string "220"
+        $inv2 = $this->createInventoryWithWarehouse('Product 2', 1.0, '000221');
+        $response2 = $this->postJson('/api/third-party-invoice', [[
+            'kolicina' => 1, 'cena' => 100, 'naziv' => 'X', 'jm' => 'kom',
+            'gotovina' => 100, 'kartica' => 0, 'prenosnaracun' => 0,
+            'brojracuna' => 'EDGE-2', 'sto' => '1', 'porudzbinaid' => 90002,
+            'sifraArtikla' => '221', // String without padding
+        ]]);
+        $response2->assertStatus(201);
+        $invoice2 = ThirdPartyInvoice::where('invoice_number', 'EDGE-2')->first();
+        $this->assertEquals($inv2->id, $invoice2->order[0]['inventory_id']);
 
-        $response = $this->postJson('/api/third-party-invoice', $requestData);
+        // Test case 3: SKU "000220" with sifraArtikla as string "000220"
+        $inv3 = $this->createInventoryWithWarehouse('Product 3', 1.0, '000222');
+        $response3 = $this->postJson('/api/third-party-invoice', [[
+            'kolicina' => 1, 'cena' => 100, 'naziv' => 'X', 'jm' => 'kom',
+            'gotovina' => 100, 'kartica' => 0, 'prenosnaracun' => 0,
+            'brojracuna' => 'EDGE-3', 'sto' => '1', 'porudzbinaid' => 90003,
+            'sifraArtikla' => '000222', // String with same padding
+        ]]);
+        $response3->assertStatus(201);
+        $invoice3 = ThirdPartyInvoice::where('invoice_number', 'EDGE-3')->first();
+        $this->assertEquals($inv3->id, $invoice3->order[0]['inventory_id']);
 
-        $response->assertStatus(201);
-        $response->assertJson(['success' => true]);
+        // Test case 4: SKU "220" (no padding) with sifraArtikla as integer 220
+        $inv4 = $this->createInventoryWithWarehouse('Product 4', 1.0, '223');
+        $response4 = $this->postJson('/api/third-party-invoice', [[
+            'kolicina' => 1, 'cena' => 100, 'naziv' => 'X', 'jm' => 'kom',
+            'gotovina' => 100, 'kartica' => 0, 'prenosnaracun' => 0,
+            'brojracuna' => 'EDGE-4', 'sto' => '1', 'porudzbinaid' => 90004,
+            'sifraArtikla' => 223, // Integer matching unpadded SKU
+        ]]);
+        $response4->assertStatus(201);
+        $invoice4 = ThirdPartyInvoice::where('invoice_number', 'EDGE-4')->first();
+        $this->assertEquals($inv4->id, $invoice4->order[0]['inventory_id']);
 
-        // Verify invoice was created with inventory_id in order JSON
-        $invoice = ThirdPartyInvoice::first();
-        $this->assertNotNull($invoice);
-        $this->assertEquals($inventory->id, $invoice->order[0]['inventory_id']);
-
-        // Verify warehouse status was created with correct inventory
-        $warehouseStatus = WarehouseStatus::where('batch_id', $invoice->id)->first();
-        $this->assertNotNull($warehouseStatus);
-        $this->assertEquals($inventory->id, $warehouseStatus->inventory_id);
-        $this->assertEquals(3, $warehouseStatus->quantity);
+        // Test case 5: SKU "220" (no padding) with sifraArtikla as string "000220"
+        $inv5 = $this->createInventoryWithWarehouse('Product 5', 1.0, '224');
+        $response5 = $this->postJson('/api/third-party-invoice', [[
+            'kolicina' => 1, 'cena' => 100, 'naziv' => 'X', 'jm' => 'kom',
+            'gotovina' => 100, 'kartica' => 0, 'prenosnaracun' => 0,
+            'brojracuna' => 'EDGE-5', 'sto' => '1', 'porudzbinaid' => 90005,
+            'sifraArtikla' => '000224', // Padded string matching unpadded SKU
+        ]]);
+        $response5->assertStatus(201);
+        $invoice5 = ThirdPartyInvoice::where('invoice_number', 'EDGE-5')->first();
+        $this->assertEquals($inv5->id, $invoice5->order[0]['inventory_id']);
     }
 
     /**
@@ -263,7 +287,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
      */
     public function test_storno_invoice_no_warehouse_deduction()
     {
-        $inventory = $this->createInventoryWithWarehouse('Cevapi');
+        $inventory = $this->createInventoryWithWarehouse('Cevapi', 1.0, '000301');
 
         $requestData = [
             [
@@ -277,7 +301,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => '12349',
                 'sto' => '6',
                 'porudzbinaid' => 99804,
-                'sifraArtikla' => $inventory->id,
+                'sifraArtikla' => 301,
                 'stornoporudzbine' => 1, // Storno flag
                 'originalnacena' => 1050,
             ],
@@ -302,7 +326,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
      */
     public function test_delete_removes_invoice_and_warehouse_status()
     {
-        $inventory = $this->createInventoryWithWarehouse('Pogaca');
+        $inventory = $this->createInventoryWithWarehouse('Pogaca', 1.0, '000302');
 
         // First create an invoice
         $requestData = [
@@ -317,7 +341,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => '12350',
                 'sto' => '6',
                 'porudzbinaid' => 99805,
-                'sifraArtikla' => $inventory->id,
+                'sifraArtikla' => 302,
             ],
         ];
 
@@ -361,7 +385,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
     public function test_warehouse_deduction_uses_norm_multiplier()
     {
         // Create inventory with norm of 0.5 (half unit consumed per item sold)
-        $inventory = $this->createInventoryWithWarehouse('Vino 0.2', 0.5);
+        $inventory = $this->createInventoryWithWarehouse('Vino 0.2', 0.5, '000303');
 
         $requestData = [
             [
@@ -375,7 +399,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => '12351',
                 'sto' => '6',
                 'porudzbinaid' => 99806,
-                'sifraArtikla' => $inventory->id,
+                'sifraArtikla' => 303,
             ],
         ];
 
@@ -395,7 +419,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
     public function test_mixed_items_partial_warehouse_deduction()
     {
         // Create only one matching inventory
-        $inventory1 = $this->createInventoryWithWarehouse('Cevapi');
+        $inventory1 = $this->createInventoryWithWarehouse('Cevapi', 1.0, '000304');
 
         $requestData = [
             [
@@ -409,7 +433,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => '28925',
                 'sto' => '6',
                 'porudzbinaid' => 99803,
-                'sifraArtikla' => $inventory1->id, // Matches
+                'sifraArtikla' => 304, // Matches SKU "000304"
             ],
             [
                 'kolicina' => 2,
@@ -451,9 +475,9 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
     public function test_production_request_structure()
     {
         // Create some inventory items that match the production data
-        $sljiv = $this->createInventoryWithWarehouse('Sljiv Bukovo, Đorđe 0.05');
-        $cocaCola = $this->createInventoryWithWarehouse('Coca cola 0.25');
-        $cevapi = $this->createInventoryWithWarehouse('Cevapi', 0.25); // 250g per portion
+        $sljiv = $this->createInventoryWithWarehouse('Sljiv Bukovo, Đorđe 0.05', 1.0, '000305');
+        $cocaCola = $this->createInventoryWithWarehouse('Coca cola 0.25', 1.0, '000306');
+        $cevapi = $this->createInventoryWithWarehouse('Cevapi', 0.25, '000307'); // 250g per portion
 
         $requestData = [
             [
@@ -470,7 +494,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'klijentid' => 0,
                 'pibkupca' => "\0",
                 'porudzbinaid' => 99800,
-                'sifraArtikla' => $sljiv->id,
+                'sifraArtikla' => 305,
             ],
             [
                 'kolicina' => 2,
@@ -486,7 +510,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'klijentid' => 0,
                 'pibkupca' => "\0",
                 'porudzbinaid' => 99800,
-                'sifraArtikla' => $cocaCola->id,
+                'sifraArtikla' => 306,
             ],
             [
                 'kolicina' => 2.5,
@@ -502,7 +526,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'klijentid' => 0,
                 'pibkupca' => "\0",
                 'porudzbinaid' => 99803,
-                'sifraArtikla' => $cevapi->id,
+                'sifraArtikla' => 307,
             ],
         ];
 
@@ -535,7 +559,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
      */
     public function test_warehouse_status_uses_invoice_uuid_as_batch_id()
     {
-        $inventory = $this->createInventoryWithWarehouse('Test Item');
+        $inventory = $this->createInventoryWithWarehouse('Test Item', 1.0, '000308');
 
         $requestData = [
             [
@@ -549,7 +573,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => '12352',
                 'sto' => '1',
                 'porudzbinaid' => 99807,
-                'sifraArtikla' => $inventory->id,
+                'sifraArtikla' => 308,
             ],
         ];
 
@@ -572,7 +596,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
      */
     public function test_card_payment_type()
     {
-        $inventory = $this->createInventoryWithWarehouse('Item');
+        $inventory = $this->createInventoryWithWarehouse('Item', 1.0, '000309');
 
         $requestData = [
             [
@@ -586,7 +610,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => '12353',
                 'sto' => '1',
                 'porudzbinaid' => 99808,
-                'sifraArtikla' => $inventory->id,
+                'sifraArtikla' => 309,
             ],
         ];
 
@@ -606,7 +630,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
      */
     public function test_duplicate_invoice_no_warehouse_deduction()
     {
-        $inventory = $this->createInventoryWithWarehouse('Item');
+        $inventory = $this->createInventoryWithWarehouse('Item', 1.0, '000310');
 
         $requestData = [
             [
@@ -620,7 +644,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => 'DUPLICATE-TEST-123',
                 'sto' => '1',
                 'porudzbinaid' => 99809,
-                'sifraArtikla' => $inventory->id,
+                'sifraArtikla' => 310,
             ],
         ];
 
@@ -650,7 +674,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
      */
     public function test_warehouse_status_uses_date_from_request()
     {
-        $inventory = $this->createInventoryWithWarehouse('Item');
+        $inventory = $this->createInventoryWithWarehouse('Item', 1.0, '000311');
 
         $requestData = [
             [
@@ -664,7 +688,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => '12354',
                 'sto' => '1',
                 'porudzbinaid' => 99810,
-                'sifraArtikla' => $inventory->id,
+                'sifraArtikla' => 311,
                 'datum' => '2026-01-15 14:30:00', // Specific date
             ],
         ];
@@ -685,7 +709,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
      */
     public function test_warehouse_status_uses_working_day_for_late_night()
     {
-        $inventory = $this->createInventoryWithWarehouse('Item');
+        $inventory = $this->createInventoryWithWarehouse('Item', 1.0, '000312');
 
         $requestData = [
             [
@@ -699,7 +723,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
                 'brojracuna' => '12355',
                 'sto' => '1',
                 'porudzbinaid' => 99811,
-                'sifraArtikla' => $inventory->id,
+                'sifraArtikla' => 312,
                 'datum' => '2026-01-16 02:30:00', // 2:30 AM on the 16th = working day of 15th
             ],
         ];
