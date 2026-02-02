@@ -406,6 +406,7 @@ export default {
       pusher.bind('tables-update', (data) => {
         this.$store.dispatch('getStats')
         this.$store.dispatch('getActiveTableOrders')
+        this.$store.dispatch('getThirdPartyOrders')
       })
       pusher.bind('notifications', (data) => {
         this.$store.dispatch('getTasks')
