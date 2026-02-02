@@ -19,6 +19,7 @@ class ThirdPartyInvoice extends Model
     const PAYMENT_TRANSFER = 3;
 
     protected $fillable = [
+        'external_invoice_id',
         'invoice_number',
         'is_duplicate',
         'external_order_id',
@@ -44,5 +45,52 @@ class ThirdPartyInvoice extends Model
     public static function isDuplicate(string $invoiceNumber): bool
     {
         return static::where('invoice_number', $invoiceNumber)->exists();
+    }
+
+    /**
+     * Find invoice by external invoice ID (racunid).
+     *
+     * @param int $externalInvoiceId
+     * @return self|null
+     */
+    public static function findByExternalId(int $externalInvoiceId): ?self
+    {
+        return static::where('external_invoice_id', $externalInvoiceId)->first();
+    }
+
+    /**
+     * Check if this invoice is already marked as storno.
+     *
+     * @return bool
+     */
+    public function isStorno(): bool
+    {
+        return $this->status === self::STATUS_STORNO;
+    }
+
+    /**
+     * Mark invoice as storno and delete related sales/warehouse records.
+     * This method is transaction-safe and idempotent.
+     *
+     * @return bool True if storno was processed, false if already stornoed
+     */
+    public function markAsStorno(): bool
+    {
+        // Skip if already stornoed (idempotent)
+        if ($this->isStorno()) {
+            return false;
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () {
+            $this->update(['status' => self::STATUS_STORNO]);
+
+            // Delete related warehouse status records
+            \App\Models\WarehouseStatus::where('batch_id', $this->id)->delete();
+
+            // Delete related sales records
+            \App\Models\Sales::where('batch_id', $this->id)->delete();
+        });
+
+        return true;
     }
 }

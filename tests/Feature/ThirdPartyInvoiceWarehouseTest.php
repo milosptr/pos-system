@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Inventory;
+use App\Models\Sales;
 use App\Models\ThirdPartyInvoice;
 use App\Models\Warehouse;
 use App\Models\WarehouseCategory;
@@ -737,5 +738,490 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
 
         // 2:30 AM on Jan 16 should be counted as Jan 15's working day
         $this->assertEquals('2026-01-15', $warehouseStatus->date);
+    }
+
+    /**
+     * Test that external_invoice_id (racunid) is stored correctly.
+     */
+    public function test_stores_external_invoice_id()
+    {
+        $inventory = $this->createInventoryWithWarehouse('Item', 1.0, '000400');
+
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 100,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'INV-001',
+                'racunid' => 12345,
+                'sto' => '1',
+                'porudzbinaid' => 99900,
+                'sifraArtikla' => 400,
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-invoice', $requestData);
+
+        $response->assertStatus(201);
+
+        $invoice = ThirdPartyInvoice::first();
+        $this->assertNotNull($invoice);
+        $this->assertEquals(12345, $invoice->external_invoice_id);
+        $this->assertEquals('INV-001', $invoice->invoice_number);
+    }
+
+    /**
+     * Test that stornoreferenceid marks the referenced invoice as storno.
+     */
+    public function test_storno_reference_marks_referenced_invoice_as_storno()
+    {
+        $inventory = $this->createInventoryWithWarehouse('Item', 1.0, '000401');
+
+        // First, create an original invoice with racunid
+        $originalInvoiceData = [
+            [
+                'kolicina' => 2,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 200,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'ORIG-001',
+                'racunid' => 100,
+                'sto' => '1',
+                'porudzbinaid' => 99901,
+                'sifraArtikla' => 401,
+            ],
+        ];
+
+        $this->postJson('/api/third-party-invoice', $originalInvoiceData);
+
+        $originalInvoice = ThirdPartyInvoice::where('invoice_number', 'ORIG-001')->first();
+        $this->assertNotNull($originalInvoice);
+        $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $originalInvoice->status);
+        $this->assertEquals(100, $originalInvoice->external_invoice_id);
+
+        // Verify warehouse and sales records exist
+        $this->assertEquals(1, WarehouseStatus::where('batch_id', $originalInvoice->id)->count());
+        $this->assertEquals(1, Sales::where('batch_id', $originalInvoice->id)->count());
+
+        // Now create a storno invoice that references the original
+        $stornoInvoiceData = [
+            [
+                'kolicina' => 2,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 0,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'STORNO-001',
+                'racunid' => 101,
+                'stornoreferenceid' => 100, // References the original invoice
+                'sto' => '1',
+                'porudzbinaid' => 99902,
+                'sifraArtikla' => 401,
+            ],
+        ];
+
+        $this->postJson('/api/third-party-invoice', $stornoInvoiceData);
+
+        // Refresh the original invoice
+        $originalInvoice->refresh();
+
+        // Original invoice should now be marked as storno
+        $this->assertEquals(ThirdPartyInvoice::STATUS_STORNO, $originalInvoice->status);
+
+        // Warehouse and sales records for original invoice should be deleted
+        $this->assertEquals(0, WarehouseStatus::where('batch_id', $originalInvoice->id)->count());
+        $this->assertEquals(0, Sales::where('batch_id', $originalInvoice->id)->count());
+
+        // Storno invoice should be created
+        $stornoInvoice = ThirdPartyInvoice::where('invoice_number', 'STORNO-001')->first();
+        $this->assertNotNull($stornoInvoice);
+        $this->assertEquals(101, $stornoInvoice->external_invoice_id);
+    }
+
+    /**
+     * Test that storno reference to non-existent invoice continues and creates the storno invoice.
+     */
+    public function test_storno_reference_not_found_continues()
+    {
+        $stornoInvoiceData = [
+            [
+                'kolicina' => 1,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 0,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'STORNO-NOTFOUND',
+                'racunid' => 200,
+                'stornoreferenceid' => 99999, // Non-existent reference
+                'sto' => '1',
+                'porudzbinaid' => 99903,
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-invoice', $stornoInvoiceData);
+
+        $response->assertStatus(201);
+
+        // Storno invoice should still be created even when reference not found
+        $invoice = ThirdPartyInvoice::where('invoice_number', 'STORNO-NOTFOUND')->first();
+        $this->assertNotNull($invoice);
+        $this->assertEquals(200, $invoice->external_invoice_id);
+    }
+
+    /**
+     * Test invoice with both stornoporudzbine and stornoreferenceid.
+     */
+    public function test_both_stornoporudzbine_and_stornoreferenceid()
+    {
+        $inventory = $this->createInventoryWithWarehouse('Item', 1.0, '000402');
+
+        // Create original invoice
+        $originalInvoiceData = [
+            [
+                'kolicina' => 1,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 100,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'ORIG-002',
+                'racunid' => 300,
+                'sto' => '1',
+                'porudzbinaid' => 99904,
+                'sifraArtikla' => 402,
+            ],
+        ];
+
+        $this->postJson('/api/third-party-invoice', $originalInvoiceData);
+
+        $originalInvoice = ThirdPartyInvoice::where('invoice_number', 'ORIG-002')->first();
+        $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $originalInvoice->status);
+
+        // Create storno invoice with both flags
+        $stornoInvoiceData = [
+            [
+                'kolicina' => 1,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 0,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'STORNO-002',
+                'racunid' => 301,
+                'stornoreferenceid' => 300,
+                'stornoporudzbine' => 1, // Self-storno flag
+                'sto' => '1',
+                'porudzbinaid' => 99905,
+                'sifraArtikla' => 402,
+            ],
+        ];
+
+        $this->postJson('/api/third-party-invoice', $stornoInvoiceData);
+
+        // Original invoice should be marked as storno
+        $originalInvoice->refresh();
+        $this->assertEquals(ThirdPartyInvoice::STATUS_STORNO, $originalInvoice->status);
+
+        // Storno invoice itself should also be marked as storno (stornoporudzbine=1)
+        $stornoInvoice = ThirdPartyInvoice::where('invoice_number', 'STORNO-002')->first();
+        $this->assertEquals(ThirdPartyInvoice::STATUS_STORNO, $stornoInvoice->status);
+
+        // No warehouse records should be created for the storno invoice
+        $this->assertEquals(0, WarehouseStatus::where('batch_id', $stornoInvoice->id)->count());
+    }
+
+    /**
+     * Test findByExternalId method.
+     */
+    public function test_find_by_external_id()
+    {
+        // Create invoice with external_invoice_id
+        $invoice = ThirdPartyInvoice::create([
+            'external_invoice_id' => 500,
+            'invoice_number' => 'TEST-500',
+            'status' => ThirdPartyInvoice::STATUS_PAYED,
+            'order' => [['name' => 'Test', 'qty' => 1, 'price' => 100]],
+            'total' => 100,
+        ]);
+
+        // Should find by external ID
+        $found = ThirdPartyInvoice::findByExternalId(500);
+        $this->assertNotNull($found);
+        $this->assertEquals($invoice->id, $found->id);
+
+        // Should return null for non-existent ID
+        $notFound = ThirdPartyInvoice::findByExternalId(999);
+        $this->assertNull($notFound);
+    }
+
+    /**
+     * Test markAsStorno method.
+     */
+    public function test_mark_as_storno_method()
+    {
+        $inventory = $this->createInventoryWithWarehouse('Item', 1.0, '000403');
+
+        // Create invoice with warehouse and sales records
+        $requestData = [
+            [
+                'kolicina' => 3,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 300,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'MARK-STORNO',
+                'racunid' => 600,
+                'sto' => '1',
+                'porudzbinaid' => 99906,
+                'sifraArtikla' => 403,
+            ],
+        ];
+
+        $this->postJson('/api/third-party-invoice', $requestData);
+
+        $invoice = ThirdPartyInvoice::where('invoice_number', 'MARK-STORNO')->first();
+        $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $invoice->status);
+        $this->assertEquals(1, WarehouseStatus::where('batch_id', $invoice->id)->count());
+        $this->assertEquals(1, Sales::where('batch_id', $invoice->id)->count());
+
+        // Call markAsStorno - should return true (first time)
+        $result = $invoice->markAsStorno();
+        $this->assertTrue($result);
+
+        // Status should be storno
+        $this->assertEquals(ThirdPartyInvoice::STATUS_STORNO, $invoice->status);
+
+        // Warehouse and sales records should be deleted
+        $this->assertEquals(0, WarehouseStatus::where('batch_id', $invoice->id)->count());
+        $this->assertEquals(0, Sales::where('batch_id', $invoice->id)->count());
+    }
+
+    /**
+     * Test markAsStorno is idempotent - calling twice returns false on second call.
+     */
+    public function test_mark_as_storno_is_idempotent()
+    {
+        $invoice = ThirdPartyInvoice::create([
+            'external_invoice_id' => 700,
+            'invoice_number' => 'IDEMPOTENT-TEST',
+            'status' => ThirdPartyInvoice::STATUS_PAYED,
+            'order' => [['name' => 'Test', 'qty' => 1, 'price' => 100]],
+            'total' => 100,
+        ]);
+
+        // First call should return true
+        $result1 = $invoice->markAsStorno();
+        $this->assertTrue($result1);
+        $this->assertTrue($invoice->isStorno());
+
+        // Second call should return false (already stornoed)
+        $result2 = $invoice->markAsStorno();
+        $this->assertFalse($result2);
+        $this->assertTrue($invoice->isStorno());
+    }
+
+    /**
+     * Test duplicate storno reference is handled gracefully (idempotency).
+     */
+    public function test_duplicate_storno_reference_is_idempotent()
+    {
+        $inventory = $this->createInventoryWithWarehouse('Item', 1.0, '000404');
+
+        // Create original invoice
+        $originalData = [
+            [
+                'kolicina' => 1,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 100,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'ORIG-IDEM',
+                'racunid' => 800,
+                'sto' => '1',
+                'porudzbinaid' => 99907,
+                'sifraArtikla' => 404,
+            ],
+        ];
+
+        $this->postJson('/api/third-party-invoice', $originalData);
+        $originalInvoice = ThirdPartyInvoice::where('invoice_number', 'ORIG-IDEM')->first();
+        $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $originalInvoice->status);
+
+        // First storno request
+        $stornoData1 = [
+            [
+                'kolicina' => 1,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 0,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'STORNO-IDEM-1',
+                'racunid' => 801,
+                'stornoreferenceid' => 800,
+                'sto' => '1',
+                'porudzbinaid' => 99908,
+            ],
+        ];
+
+        $response1 = $this->postJson('/api/third-party-invoice', $stornoData1);
+        $response1->assertStatus(201);
+
+        $originalInvoice->refresh();
+        $this->assertEquals(ThirdPartyInvoice::STATUS_STORNO, $originalInvoice->status);
+
+        // Second storno request for the same original (duplicate/retry)
+        $stornoData2 = [
+            [
+                'kolicina' => 1,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 0,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'STORNO-IDEM-2',
+                'racunid' => 802,
+                'stornoreferenceid' => 800, // Same reference
+                'sto' => '1',
+                'porudzbinaid' => 99909,
+            ],
+        ];
+
+        $response2 = $this->postJson('/api/third-party-invoice', $stornoData2);
+        $response2->assertStatus(201); // Should succeed, not error
+
+        // Original should still be storno
+        $originalInvoice->refresh();
+        $this->assertEquals(ThirdPartyInvoice::STATUS_STORNO, $originalInvoice->status);
+
+        // Both storno invoices should be created
+        $this->assertNotNull(ThirdPartyInvoice::where('invoice_number', 'STORNO-IDEM-1')->first());
+        $this->assertNotNull(ThirdPartyInvoice::where('invoice_number', 'STORNO-IDEM-2')->first());
+    }
+
+    /**
+     * Test racunid as string is handled correctly.
+     */
+    public function test_racunid_as_string_is_handled()
+    {
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 100,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'STRING-RACUNID',
+                'racunid' => '12345', // String instead of integer
+                'sto' => '1',
+                'porudzbinaid' => 99910,
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-invoice', $requestData);
+        $response->assertStatus(201);
+
+        $invoice = ThirdPartyInvoice::where('invoice_number', 'STRING-RACUNID')->first();
+        $this->assertNotNull($invoice);
+        $this->assertEquals(12345, $invoice->external_invoice_id);
+    }
+
+    /**
+     * Test stornoreferenceid of 0 is treated as no reference.
+     */
+    public function test_storno_reference_id_zero_is_ignored()
+    {
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 100,
+                'naziv' => 'Item',
+                'jm' => 'kom',
+                'gotovina' => 100,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'ZERO-REF',
+                'racunid' => 900,
+                'stornoreferenceid' => 0, // Zero should be treated as no reference
+                'sto' => '1',
+                'porudzbinaid' => 99911,
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-invoice', $requestData);
+        $response->assertStatus(201);
+
+        // Invoice should be created with status PAYED (not treated as storno)
+        $invoice = ThirdPartyInvoice::where('invoice_number', 'ZERO-REF')->first();
+        $this->assertNotNull($invoice);
+        $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $invoice->status);
+    }
+
+    /**
+     * Test markAsStorno on invoice without warehouse/sales records.
+     */
+    public function test_mark_as_storno_without_related_records()
+    {
+        // Create invoice directly without warehouse/sales records
+        $invoice = ThirdPartyInvoice::create([
+            'external_invoice_id' => 950,
+            'invoice_number' => 'NO-RECORDS',
+            'status' => ThirdPartyInvoice::STATUS_PAYED,
+            'order' => [['name' => 'Test', 'qty' => 1, 'price' => 100]],
+            'total' => 100,
+        ]);
+
+        // Ensure no related records exist
+        $this->assertEquals(0, WarehouseStatus::where('batch_id', $invoice->id)->count());
+        $this->assertEquals(0, Sales::where('batch_id', $invoice->id)->count());
+
+        // markAsStorno should still work without errors
+        $result = $invoice->markAsStorno();
+        $this->assertTrue($result);
+        $this->assertEquals(ThirdPartyInvoice::STATUS_STORNO, $invoice->status);
+    }
+
+    /**
+     * Test isStorno helper method.
+     */
+    public function test_is_storno_helper()
+    {
+        $payedInvoice = ThirdPartyInvoice::create([
+            'invoice_number' => 'IS-STORNO-PAYED',
+            'status' => ThirdPartyInvoice::STATUS_PAYED,
+            'order' => [],
+            'total' => 100,
+        ]);
+
+        $stornoInvoice = ThirdPartyInvoice::create([
+            'invoice_number' => 'IS-STORNO-STORNO',
+            'status' => ThirdPartyInvoice::STATUS_STORNO,
+            'order' => [],
+            'total' => 100,
+        ]);
+
+        $this->assertFalse($payedInvoice->isStorno());
+        $this->assertTrue($stornoInvoice->isStorno());
     }
 }

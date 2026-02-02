@@ -93,11 +93,13 @@ class ThirdPartyInvoiceController extends Controller
         $firstRow = $rows[0];
 
         // Extract invoice-level data from first row (with safe defaults)
+        $externalInvoiceId = isset($firstRow['racunid']) ? (int) $firstRow['racunid'] : null;
         $invoiceNumber = (string) ($firstRow['brojracuna'] ?? 'UNKNOWN-' . time());
         $tableName = isset($firstRow['sto']) ? (string) $firstRow['sto'] : null;
         $tableId = isset($firstRow['stoid']) ? (int) $firstRow['stoid'] : null;
         $externalOrderId = isset($firstRow['porudzbinaid']) ? (int) $firstRow['porudzbinaid'] : null;
         $discount = (float) ($firstRow['popust'] ?? 0);
+        $stornoReferenceId = isset($firstRow['stornoreferenceid']) ? (int) $firstRow['stornoreferenceid'] : null;
 
         // Detect storno
         $isStorno = isset($firstRow['stornoporudzbine']) && $firstRow['stornoporudzbine'] == 1;
@@ -164,9 +166,13 @@ class ThirdPartyInvoiceController extends Controller
 
         $ordersDeleted = 0;
 
+        $stornoProcessed = false;
+
         try {
-            // Use transaction for invoice creation + order deletion
+            // Use transaction for storno reference + invoice creation + order deletion
             $invoice = DB::transaction(function () use (
+                $stornoReferenceId,
+                $externalInvoiceId,
                 $invoiceNumber,
                 $isDuplicate,
                 $externalOrderId,
@@ -177,10 +183,20 @@ class ThirdPartyInvoiceController extends Controller
                 $totalCents,
                 $paymentType,
                 $discount,
-                &$ordersDeleted
+                &$ordersDeleted,
+                &$stornoProcessed
             ) {
+                // Handle storno reference - mark referenced invoice as storno (inside transaction for atomicity)
+                if ($stornoReferenceId) {
+                    $stornoedInvoice = ThirdPartyInvoice::findByExternalId($stornoReferenceId);
+                    if ($stornoedInvoice) {
+                        $stornoProcessed = $stornoedInvoice->markAsStorno();
+                    }
+                }
+
                 // Create invoice
                 $invoice = ThirdPartyInvoice::create([
+                    'external_invoice_id' => $externalInvoiceId,
                     'invoice_number' => $invoiceNumber,
                     'is_duplicate' => $isDuplicate,
                     'external_order_id' => $externalOrderId,
@@ -199,6 +215,28 @@ class ThirdPartyInvoiceController extends Controller
 
                 return $invoice;
             });
+
+            // Log storno reference processing (after transaction success)
+            if ($stornoReferenceId) {
+                if ($stornoProcessed) {
+                    Log::info('[ThirdPartyInvoice] Storno reference processed', [
+                        'storno_reference_id' => $stornoReferenceId,
+                        'invoice_id' => $invoice->id,
+                    ]);
+                } else {
+                    // Either not found or already stornoed
+                    $existingInvoice = ThirdPartyInvoice::findByExternalId($stornoReferenceId);
+                    if ($existingInvoice) {
+                        Log::info('[ThirdPartyInvoice] Storno reference already processed (idempotent)', [
+                            'storno_reference_id' => $stornoReferenceId,
+                        ]);
+                    } else {
+                        Log::warning('[ThirdPartyInvoice] Storno reference not found', [
+                            'storno_reference_id' => $stornoReferenceId,
+                        ]);
+                    }
+                }
+            }
 
             // Populate warehouse for STATUS_PAYED invoices only (skip duplicates to avoid double-deduction)
             if ($status === ThirdPartyInvoice::STATUS_PAYED && !$isDuplicate && !empty($matchedItems)) {
