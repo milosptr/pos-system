@@ -76,8 +76,8 @@
             </div>
           </div>
           <div
-            v-for="category in warehouse"
-            :key="category">
+            v-for="(category, categoryId) in warehouse"
+            :key="categoryId">
             <div
               class="w-full truncate px-2 sm:px-4 hidden sm:block py-1 border-b border-solid border-gray-300 bg-gray-200 text-sm font-semibold">
               {{ categoryName(category[0].category_id) }}
@@ -261,6 +261,16 @@ export default {
     this.getWarehouseStatus()
     this.getWarehouseCategories()
   },
+  computed: {
+    // Pre-compute category name map for O(1) lookups instead of O(n) array.find
+    categoryNameMap() {
+      const map = {}
+      this.warehouseCategories.forEach(cat => {
+        map[cat.id] = cat.name
+      })
+      return map
+    }
+  },
   watch: {
     date(val) {
       if (val) {
@@ -310,7 +320,7 @@ export default {
       this.getWarehouseStatus()
     },
     categoryName(id) {
-      return this.warehouseCategories.find((category) => category.id === id)?.name
+      return this.categoryNameMap[id]
     },
     groupBy(array, key) {
       return array.reduce((result, currentValue) => {

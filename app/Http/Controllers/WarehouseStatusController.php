@@ -12,12 +12,9 @@ class WarehouseStatusController extends Controller
 {
     public function index(Request $request)
     {
-      $warehouse = WarehouseStatus::query();
-
-      // If the warehouse has been deleted, remove the warehouse status from query
-      $warehouse = $warehouse->whereHas('warehouse');
-
-      $warehouse = $warehouse->leftJoin('warehouses', 'warehouses.id', '=', 'warehouse_status.warehouse_id');
+      // Use inner join instead of whereHas + leftJoin (eliminates redundant subquery)
+      $warehouse = WarehouseStatus::query()
+        ->join('warehouses', 'warehouses.id', '=', 'warehouse_status.warehouse_id');
 
       // Parse date range format: "YYYY-MM-DD to YYYY-MM-DD" or single date "YYYY-MM-DD"
       $dateParam = $request->get('date') ?? date('Y-m-d');
@@ -32,19 +29,25 @@ class WarehouseStatusController extends Controller
 
       $category_id = $request->get('category_id');
       $group_id = $request->get('group_id');
+
+      // Use direct where on joined table instead of whereHas subquery
       if ($category_id) {
-        $warehouse = $warehouse->whereHas('warehouse', function ($query) use ($category_id) {
-          $query->where('category_id', $category_id);
-        });
+        $warehouse = $warehouse->where('warehouses.category_id', $category_id);
       }
       if ($request->has('group_id')) {
-        $warehouse = $warehouse->leftJoin('warehouse_categories', 'warehouse_categories.id', '=', 'warehouses.category_id')
+        $warehouse = $warehouse->join('warehouse_categories', 'warehouse_categories.id', '=', 'warehouses.category_id')
           ->where('warehouse_categories.group_id', $group_id);
       }
 
-      $warehouse = $warehouse->whereDate('date', '<=', $endDate)
+      // Use where instead of whereDate to allow index usage (date column is already DATE type)
+      $warehouse = $warehouse->where('warehouse_status.date', '<=', $endDate)
         ->selectRaw(
-          'warehouse_id, ' .
+          'warehouse_status.warehouse_id, ' .
+          // Include warehouse fields to avoid N+1 queries
+          'warehouses.name as warehouse_name, ' .
+          'warehouses.unit as warehouse_unit, ' .
+          'warehouses.category_id, ' .
+          'warehouses.order as warehouse_order, ' .
           // Imports within the date range
           'SUM(case when warehouse_status.date >= ? AND warehouse_status.date <= ? then(case when warehouse_status.type = 0 then quantity else 0 end) else 0 end) as import_quantity, ' .
           // Sales within the date range
@@ -57,7 +60,7 @@ class WarehouseStatusController extends Controller
           'SUM(case when warehouse_status.date >= ? AND warehouse_status.date <= ? then(case when warehouse_status.type = 2 then quantity else 0 end) else 0 end) as recalculated_quantity',
           [$startDate, $endDate, $startDate, $endDate, $endDate, $startDate, $startDate, $endDate]
         )
-        ->groupBy('warehouse_id')
+        ->groupBy('warehouse_status.warehouse_id', 'warehouses.name', 'warehouses.unit', 'warehouses.category_id', 'warehouses.order')
         ->orderBy('warehouses.order');
 
       return WarehouseStatusResource::collection($warehouse->get());
