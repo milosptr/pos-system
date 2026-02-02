@@ -35,7 +35,6 @@ class WarehouseStatusResource extends JsonResource
                 'name' => $warehouseName,
                 'unit' => $warehouseUnit,
             ],
-            'inventory' => $this->inventory_id ? $this->inventory : null,
             'date' => $this->date,
             'category_id' => $categoryId,
             'created_at' => $this->created_at,
