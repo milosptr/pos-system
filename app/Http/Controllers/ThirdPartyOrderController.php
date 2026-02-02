@@ -120,6 +120,15 @@ class ThirdPartyOrderController extends Controller
                 $processedOrders[] = $order;
             }
 
+            // Notify backoffice of update
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+            } catch (\Exception $e) {
+                Log::error('[ThirdPartyOrder] Pusher notification failed', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             Log::info('[ThirdPartyOrder] Orders processed successfully', [
                 'count' => count($processedOrders),
                 'order_ids' => collect($processedOrders)->pluck('external_order_id')->toArray(),
