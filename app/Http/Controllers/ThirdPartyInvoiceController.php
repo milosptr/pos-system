@@ -160,7 +160,7 @@ class ThirdPartyInvoiceController extends Controller
             }
         }
 
-        // Determine payment type
+        // Determine payment type and total from payment fields
         $paymentType = null;
         $gotovina = (float) ($firstRow['gotovina'] ?? 0);
         $kartica = (float) ($firstRow['kartica'] ?? 0);
@@ -174,16 +174,15 @@ class ThirdPartyInvoiceController extends Controller
             $paymentType = ThirdPartyInvoice::PAYMENT_TRANSFER;
         }
 
+        $totalCents = (int) round($gotovina + $kartica + $prenosNaRacun);
+
         // Transform rows into items array
         $items = [];
-        $totalCents = 0;
         $matchedItems = []; // Track items with inventory matches
 
         foreach ($rows as $row) {
             $qty = (float) ($row['kolicina'] ?? 0);
             $price = (float) ($row['cena'] ?? 0);
-            $itemTotal = (int) round($qty * $price);
-            $totalCents += $itemTotal;
 
             // Try to match inventory
             $inventoryId = $this->matchInventory($row);
