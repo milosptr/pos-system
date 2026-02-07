@@ -104,24 +104,74 @@ class ThirdPartyInvoiceController extends Controller
             ? $firstRow['datum']
             : null;
 
-        // Detect storno
-        $isStorno = isset($firstRow['stornoporudzbine']) && $firstRow['stornoporudzbine'] == 1;
-        $status = $isStorno ? ThirdPartyInvoice::STATUS_STORNO : ThirdPartyInvoice::STATUS_PAYED;
+        // Handle storno reference: mark the referenced invoice as storno and return early
+        if ($stornoReferenceId) {
+            try {
+                $stornoedInvoice = ThirdPartyInvoice::findByExternalId($stornoReferenceId);
+
+                if (!$stornoedInvoice) {
+                    Log::warning('[ThirdPartyInvoice] Storno reference not found', [
+                        'storno_reference_id' => $stornoReferenceId,
+                    ]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Referenced invoice not found',
+                    ], 404);
+                }
+
+                if ($stornoedInvoice->isStorno()) {
+                    Log::info('[ThirdPartyInvoice] Storno reference already processed (idempotent)', [
+                        'storno_reference_id' => $stornoReferenceId,
+                    ]);
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Invoice already stornoed',
+                    ], 200);
+                }
+
+                $stornoedInvoice->markAsStorno();
+
+                Log::info('[ThirdPartyInvoice] Storno reference processed', [
+                    'storno_reference_id' => $stornoReferenceId,
+                    'stornoed_invoice_id' => $stornoedInvoice->id,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Invoice stornoed successfully',
+                    'data' => [
+                        'id' => $stornoedInvoice->id,
+                        'invoice_number' => $stornoedInvoice->invoice_number,
+                        'status' => ThirdPartyInvoice::STATUS_STORNO,
+                    ],
+                ], 200);
+            } catch (\Exception $e) {
+                Log::error('[ThirdPartyInvoice] Failed to process storno', [
+                    'storno_reference_id' => $stornoReferenceId,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to process storno',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        }
 
         // Determine payment type
         $paymentType = null;
-        if (!$isStorno) {
-            $gotovina = (float) ($firstRow['gotovina'] ?? 0);
-            $kartica = (float) ($firstRow['kartica'] ?? 0);
-            $prenosNaRacun = (float) ($firstRow['prenosnaracun'] ?? 0);
+        $gotovina = (float) ($firstRow['gotovina'] ?? 0);
+        $kartica = (float) ($firstRow['kartica'] ?? 0);
+        $prenosNaRacun = (float) ($firstRow['prenosnaracun'] ?? 0);
 
-            if ($gotovina > 0) {
-                $paymentType = ThirdPartyInvoice::PAYMENT_CASH;
-            } elseif ($kartica > 0) {
-                $paymentType = ThirdPartyInvoice::PAYMENT_CARD;
-            } elseif ($prenosNaRacun > 0) {
-                $paymentType = ThirdPartyInvoice::PAYMENT_TRANSFER;
-            }
+        if ($gotovina > 0) {
+            $paymentType = ThirdPartyInvoice::PAYMENT_CASH;
+        } elseif ($kartica > 0) {
+            $paymentType = ThirdPartyInvoice::PAYMENT_CARD;
+        } elseif ($prenosNaRacun > 0) {
+            $paymentType = ThirdPartyInvoice::PAYMENT_TRANSFER;
         }
 
         // Transform rows into items array
@@ -156,11 +206,6 @@ class ThirdPartyInvoiceController extends Controller
                 ];
             }
 
-            // Add optional fields for storno invoices
-            if ($isStorno && isset($row['originalnacena'])) {
-                $item['original_price'] = (int) round((float) $row['originalnacena']);
-            }
-
             $items[] = $item;
         }
 
@@ -169,35 +214,22 @@ class ThirdPartyInvoiceController extends Controller
 
         $ordersDeleted = 0;
 
-        $stornoProcessed = false;
-
         try {
-            // Use transaction for storno reference + invoice creation + order deletion
+            // Use transaction for invoice creation + order deletion
             $invoice = DB::transaction(function () use (
-                $stornoReferenceId,
                 $externalInvoiceId,
                 $invoiceNumber,
                 $isDuplicate,
                 $externalOrderId,
                 $tableId,
                 $tableName,
-                $status,
                 $items,
                 $totalCents,
                 $paymentType,
                 $discount,
                 $invoicedAt,
-                &$ordersDeleted,
-                &$stornoProcessed
+                &$ordersDeleted
             ) {
-                // Handle storno reference - mark referenced invoice as storno (inside transaction for atomicity)
-                if ($stornoReferenceId) {
-                    $stornoedInvoice = ThirdPartyInvoice::findByExternalId($stornoReferenceId);
-                    if ($stornoedInvoice) {
-                        $stornoProcessed = $stornoedInvoice->markAsStorno();
-                    }
-                }
-
                 // Create invoice
                 $invoice = ThirdPartyInvoice::create([
                     'external_invoice_id' => $externalInvoiceId,
@@ -205,7 +237,7 @@ class ThirdPartyInvoiceController extends Controller
                     'is_duplicate' => $isDuplicate,
                     'external_order_id' => $externalOrderId,
                     'table_name' => $tableName,
-                    'status' => $status,
+                    'status' => ThirdPartyInvoice::STATUS_PAYED,
                     'order' => $items,
                     'total' => $totalCents,
                     'payment_type' => $paymentType,
@@ -221,30 +253,8 @@ class ThirdPartyInvoiceController extends Controller
                 return $invoice;
             });
 
-            // Log storno reference processing (after transaction success)
-            if ($stornoReferenceId) {
-                if ($stornoProcessed) {
-                    Log::info('[ThirdPartyInvoice] Storno reference processed', [
-                        'storno_reference_id' => $stornoReferenceId,
-                        'invoice_id' => $invoice->id,
-                    ]);
-                } else {
-                    // Either not found or already stornoed
-                    $existingInvoice = ThirdPartyInvoice::findByExternalId($stornoReferenceId);
-                    if ($existingInvoice) {
-                        Log::info('[ThirdPartyInvoice] Storno reference already processed (idempotent)', [
-                            'storno_reference_id' => $stornoReferenceId,
-                        ]);
-                    } else {
-                        Log::warning('[ThirdPartyInvoice] Storno reference not found', [
-                            'storno_reference_id' => $stornoReferenceId,
-                        ]);
-                    }
-                }
-            }
-
-            // Populate warehouse for STATUS_PAYED invoices only (skip duplicates to avoid double-deduction)
-            if ($status === ThirdPartyInvoice::STATUS_PAYED && !$isDuplicate && !empty($matchedItems)) {
+            // Populate warehouse (skip duplicates to avoid double-deduction)
+            if (!$isDuplicate && !empty($matchedItems)) {
                 // Parse date from request if available
                 $invoiceDate = null;
                 if (isset($firstRow['datum']) && !empty($firstRow['datum'])) {
@@ -315,7 +325,6 @@ class ThirdPartyInvoiceController extends Controller
                 'id' => $invoice->id,
                 'invoice_number' => $invoiceNumber,
                 'is_duplicate' => $isDuplicate,
-                'status' => $status,
                 'total' => $totalCents,
                 'table_id' => $tableId,
                 'orders_deleted' => $ordersDeleted,
