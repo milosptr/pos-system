@@ -94,12 +94,6 @@
       tabInvoices() {
         return !this.$store.getters.reportsActiveTab
       },
-      visibleCount() {
-        if (!this.tabInvoices) return 1
-        let count = 5 // gotovina, kartica, prenos, kasa_i, prihod
-        if (this.reportsStat?.onthehouse && parseInt(this.reportsStat.onthehouse)) count++
-        return count
-      },
     },
     methods: {
        copyToClipBoard(text){

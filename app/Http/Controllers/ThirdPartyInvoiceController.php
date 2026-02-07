@@ -421,6 +421,18 @@ class ThirdPartyInvoiceController extends Controller
                 return $invoice;
             });
 
+            // Auto on-the-house for specific table names (check before sales
+            // creation so we don't create records that markAsOnTheHouse deletes)
+            $isAutoOnTheHouse = $tableName && in_array(strtolower($tableName), ['sima', 'muzika']);
+
+            if ($isAutoOnTheHouse) {
+                $invoice->markAsOnTheHouse();
+                Log::info('[ThirdPartyInvoice] Auto marked as on the house', [
+                    'id' => $invoice->id,
+                    'table_name' => $tableName,
+                ]);
+            }
+
             // Populate warehouse (skip duplicates to avoid double-deduction)
             if (!$isDuplicate && !empty($matchedItems)) {
                 // Parse date from request if available
@@ -457,28 +469,21 @@ class ThirdPartyInvoiceController extends Controller
                     }
                 }
 
-                // Create sales records for matched items
-                try {
-                    SalesService::createSalesForThirdParty(
-                        $matchedItems,
-                        $invoice->id,
-                        $invoiceDate
-                    );
-                } catch (\Exception $e) {
-                    Log::error('[ThirdPartyInvoice] Sales creation failed', [
-                        'invoice_id' => $invoice->id,
-                        'error' => $e->getMessage(),
-                    ]);
+                // Create sales records for matched items (skip if on-the-house)
+                if (!$isAutoOnTheHouse) {
+                    try {
+                        SalesService::createSalesForThirdParty(
+                            $matchedItems,
+                            $invoice->id,
+                            $invoiceDate
+                        );
+                    } catch (\Exception $e) {
+                        Log::error('[ThirdPartyInvoice] Sales creation failed', [
+                            'invoice_id' => $invoice->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
-            }
-
-            // Auto on-the-house for specific table names
-            if ($tableName && in_array(strtolower($tableName), ['sima', 'muzika'])) {
-                $invoice->markAsOnTheHouse();
-                Log::info('[ThirdPartyInvoice] Auto marked as on the house', [
-                    'id' => $invoice->id,
-                    'table_name' => $tableName,
-                ]);
             }
 
             // Notify backoffice of new data

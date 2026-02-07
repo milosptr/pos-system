@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\ThirdPartyOrder;
 use App\Models\ThirdPartyOrderItem;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class CleanupThirdPartyOrders extends Command
 {
@@ -15,10 +16,18 @@ class CleanupThirdPartyOrders extends Command
     public function handle()
     {
         $orderIds = ThirdPartyOrder::pluck('id');
+
+        if ($orderIds->isEmpty()) {
+            $this->info('No active orders to clean up.');
+            return 0;
+        }
+
         $itemCount = ThirdPartyOrderItem::whereIn('third_party_order_id', $orderIds)->count();
 
-        ThirdPartyOrderItem::whereIn('third_party_order_id', $orderIds)->delete();
-        ThirdPartyOrder::whereIn('id', $orderIds)->delete();
+        DB::transaction(function () use ($orderIds) {
+            ThirdPartyOrderItem::whereIn('third_party_order_id', $orderIds)->delete();
+            ThirdPartyOrder::whereIn('id', $orderIds)->delete();
+        });
 
         $this->info("Soft-deleted {$orderIds->count()} orders and {$itemCount} items.");
 
