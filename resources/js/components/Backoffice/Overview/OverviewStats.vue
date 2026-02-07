@@ -31,12 +31,16 @@ export default {
     },
     computed: {
       filteredStats() {
-        return this.$store.getters.stats.filter((s) => (s.stat !== 0 || s.name !== 'Na račun kuće'))
+        return this.$store.getters.stats.filter((s) => {
+          if (s.name === 'Na račun kuće' && s.stat === 0) return false
+          if (s.name === 'Stornirano' && s.stat === 0) return false
+          return true
+        })
       },
       gridCols() {
         const len = this.filteredStats.length
-        if(len === 5)
-          return 'md:grid-cols-5'
+        if (len === 6) return 'md:grid-cols-6'
+        if (len === 5) return 'md:grid-cols-5'
         return 'md:grid-cols-4'
       },
     },

@@ -282,7 +282,7 @@
       </div>
       <main class="flex-1">
         <div class="py-6">
-          <div class="max-w-[90%] flex justify-between items-center mx-4 sm:mx-auto">
+          <div class="max-w-[95%] flex justify-between items-center mx-4 sm:mx-auto">
             <h1 class="text-2xl font-semibold text-gray-900 capitalize">{{ pageTitle }}</h1>
             <div
               v-if="showButton"
@@ -295,7 +295,7 @@
               </button>
             </div>
           </div>
-          <div class="max-w-[90%] mx-auto">
+          <div class="max-w-[95%] mx-auto">
             <!-- Replace with your content -->
             <div class="py-4">
               <router-view />

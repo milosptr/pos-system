@@ -22,17 +22,6 @@
       </select>
     </div>
     <div v-if="tabInvoices">
-      <label for="waiters" class="block text-sm font-medium text-gray-700">Konobar</label>
-      <select
-        name="waiters"
-        class="block w-full pl-3 pr-10 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-        @change="updateReportFilters('waiter', $event.target.value)"
-      >
-        <option value="" selected>Svi</option>
-        <option v-for="waiter in waiters" :key="waiter.id" :value="waiter.id">{{ waiter.name }}</option>
-      </select>
-    </div>
-    <div v-if="tabInvoices">
       <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
       <select
         name="status"

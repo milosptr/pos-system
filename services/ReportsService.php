@@ -4,6 +4,7 @@ namespace Services;
 
 use Carbon\Carbon;
 use App\Models\Invoice;
+use App\Models\ThirdPartyInvoice;
 
 class ReportsService {
     /**
@@ -39,5 +40,35 @@ class ReportsService {
         "stat" => (int) $today[$field] + (int) $addition,
         "primary" => $primary,
       ];
+    }
+
+    public static function getCombinedRevenueForDate($date)
+    {
+        $tp = ThirdPartyInvoice::selectRaw('
+                sum(case when payment_type in (1,2,3) then total else 0 end)
+                - sum(case when payment_type in (1,2,3) and status = 0 then total else 0 end)
+                - sum(case when payment_type in (1,2,3) and status = 2 then total else 0 end) as komp')
+            ->selectRaw('
+                sum(case when payment_type = 4 then total else 0 end)
+                - sum(case when payment_type = 4 and status = 0 then total else 0 end)
+                - sum(case when payment_type = 4 and status = 2 then total else 0 end) as kasa_i')
+            ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
+            ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
+            ->whereRaw('COALESCE(invoiced_at, created_at) BETWEEN ? AND ?', $date)
+            ->first();
+
+        $inv = Invoice::selectRaw('
+                sum(total) - sum(case when status = 0 then total else 0 end) - sum(case when status = 2 then total else 0 end) as kasa_i')
+            ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
+            ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
+            ->whereBetween('created_at', $date)
+            ->first();
+
+        return (object) [
+            'komp' => (int) ($tp->komp ?? 0),
+            'kasa_i' => (int) ($tp->kasa_i ?? 0) + (int) ($inv->kasa_i ?? 0),
+            'refund' => (int) ($tp->refund ?? 0) + (int) ($inv->refund ?? 0),
+            'onthehouse' => (int) ($tp->onthehouse ?? 0) + (int) ($inv->onthehouse ?? 0),
+        ];
     }
 }
