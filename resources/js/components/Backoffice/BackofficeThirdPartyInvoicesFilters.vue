@@ -11,6 +11,7 @@
         <option value="" selected>Sve</option>
         <option value="0">Stornirano</option>
         <option value="1">Naplaceno</option>
+        <option value="2">Na racun kuce</option>
       </select>
     </div>
     <div>

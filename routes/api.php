@@ -202,6 +202,9 @@ Route::prefix('/backoffice')->group(function () {
 // Third-party invoice/order import (external API)
 Route::group(['middleware' => ['external.api']], function () {
     Route::post('third-party-invoice', [ThirdPartyInvoiceController::class, 'store']);
+    Route::get('third-party-invoices/today', [ThirdPartyInvoiceController::class, 'allForToday']);
+    Route::get('third-party-invoices/today-transactions', [ThirdPartyInvoiceController::class, 'todayTransactions']);
+    Route::post('third-party-invoices/{id}/on-the-house', [ThirdPartyInvoiceController::class, 'markAsOnTheHouse']);
     Route::post('third-party-order', [ThirdPartyOrderController::class, 'store']);
     Route::post('third-party-order-storno', [ThirdPartyOrderController::class, 'storno']);
 });

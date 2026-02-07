@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Services\Pusher;
 use Services\SalesService;
+use Services\WorkingDay;
 
 class ThirdPartyInvoiceController extends Controller
 {
@@ -30,6 +31,102 @@ class ThirdPartyInvoiceController extends Controller
             ->paginate(20);
 
         return ThirdPartyInvoiceResource::collection($invoices);
+    }
+
+    /**
+     * Get all third-party invoices for today's working day.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function allForToday()
+    {
+        $workingDay = WorkingDay::getWorkingDay();
+
+        $invoices = ThirdPartyInvoice::whereRaw('COALESCE(invoiced_at, created_at) BETWEEN ? AND ?', $workingDay)
+            ->orderByRaw('COALESCE(invoiced_at, created_at) DESC')
+            ->get();
+
+        return ThirdPartyInvoiceResource::collection($invoices);
+    }
+
+    /**
+     * Get today's transaction summary for third-party invoices.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function todayTransactions()
+    {
+        $workingDay = WorkingDay::getWorkingDay();
+
+        return ThirdPartyInvoice::selectRaw('sum(total) AS total')
+            ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
+            ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
+            ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) - sum(case when status = 2 then total else 0 end) as income')
+            ->whereRaw('COALESCE(invoiced_at, created_at) BETWEEN ? AND ?', $workingDay)
+            ->get()
+            ->first();
+    }
+
+    /**
+     * Mark a third-party invoice as on the house.
+     *
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markAsOnTheHouse($id)
+    {
+        $invoice = ThirdPartyInvoice::find($id);
+
+        if (!$invoice) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice not found',
+            ], 404);
+        }
+
+        if ($invoice->isOnTheHouse()) {
+            Log::info('[ThirdPartyInvoice] Already on the house (idempotent)', [
+                'id' => $invoice->id,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice already marked as on the house',
+                'data' => new ThirdPartyInvoiceResource($invoice),
+            ]);
+        }
+
+        if ($invoice->isStorno()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot mark stornoed invoice as on the house',
+            ], 422);
+        }
+
+        try {
+            $invoice->markAsOnTheHouse();
+
+            Log::info('[ThirdPartyInvoice] Marked as on the house', [
+                'id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice marked as on the house',
+                'data' => new ThirdPartyInvoiceResource($invoice->fresh()),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('[ThirdPartyInvoice] Failed to mark as on the house', [
+                'id' => $invoice->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark invoice as on the house',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

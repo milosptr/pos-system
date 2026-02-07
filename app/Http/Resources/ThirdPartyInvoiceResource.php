@@ -25,6 +25,7 @@ class ThirdPartyInvoiceResource extends JsonResource
             'table_name' => $this->table_name,
             'status' => $this->status,
             'is_storno' => $this->status === ThirdPartyInvoice::STATUS_STORNO,
+            'is_on_the_house' => $this->status === ThirdPartyInvoice::STATUS_ON_THE_HOUSE,
             'order' => $this->order,
             'total' => $this->total,
             'payment_type' => $this->payment_type,

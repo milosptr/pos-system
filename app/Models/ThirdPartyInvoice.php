@@ -13,6 +13,7 @@ class ThirdPartyInvoice extends Model
 
     const STATUS_STORNO = 0;
     const STATUS_PAYED = 1;
+    const STATUS_ON_THE_HOUSE = 2;
 
     const PAYMENT_CASH = 1;
     const PAYMENT_CARD = 2;
@@ -72,6 +73,16 @@ class ThirdPartyInvoice extends Model
     }
 
     /**
+     * Check if this invoice is marked as on the house.
+     *
+     * @return bool
+     */
+    public function isOnTheHouse(): bool
+    {
+        return $this->status === self::STATUS_ON_THE_HOUSE;
+    }
+
+    /**
      * Mark invoice as storno and delete related sales/warehouse records.
      * This method is transaction-safe and idempotent.
      *
@@ -86,6 +97,31 @@ class ThirdPartyInvoice extends Model
 
         \Illuminate\Support\Facades\DB::transaction(function () {
             $this->update(['status' => self::STATUS_STORNO]);
+
+            // Delete related warehouse status records
+            \App\Models\WarehouseStatus::where('batch_id', $this->id)->delete();
+
+            // Delete related sales records
+            \App\Models\Sales::where('batch_id', $this->id)->delete();
+        });
+
+        return true;
+    }
+
+    /**
+     * Mark invoice as on the house and delete related sales/warehouse records.
+     * This method is transaction-safe.
+     *
+     * @return bool True if processed, false if already on-the-house or stornoed
+     */
+    public function markAsOnTheHouse(): bool
+    {
+        if ($this->isOnTheHouse() || $this->isStorno()) {
+            return false;
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () {
+            $this->update(['status' => self::STATUS_ON_THE_HOUSE]);
 
             // Delete related warehouse status records
             \App\Models\WarehouseStatus::where('batch_id', $this->id)->delete();
