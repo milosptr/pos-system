@@ -165,16 +165,23 @@ class ThirdPartyInvoiceController extends Controller
         $gotovina = (float) ($firstRow['gotovina'] ?? 0);
         $kartica = (float) ($firstRow['kartica'] ?? 0);
         $prenosNaRacun = (float) ($firstRow['prenosnaracun'] ?? 0);
+        $stornoPorudzbine = (float) ($firstRow['stornoporudzbine'] ?? 0);
 
         if ($gotovina > 0) {
             $paymentType = ThirdPartyInvoice::PAYMENT_CASH;
+            $totalCents = (int) round($gotovina);
         } elseif ($kartica > 0) {
             $paymentType = ThirdPartyInvoice::PAYMENT_CARD;
+            $totalCents = (int) round($kartica);
         } elseif ($prenosNaRacun > 0) {
             $paymentType = ThirdPartyInvoice::PAYMENT_TRANSFER;
+            $totalCents = (int) round($prenosNaRacun);
+        } elseif ($stornoPorudzbine > 0) {
+            $paymentType = ThirdPartyInvoice::PAYMENT_KASA_I;
+            $totalCents = (int) round($stornoPorudzbine);
+        } else {
+            $totalCents = 0;
         }
-
-        $totalCents = (int) round($gotovina + $kartica + $prenosNaRacun);
 
         // Transform rows into items array
         $items = [];
@@ -192,6 +199,7 @@ class ThirdPartyInvoiceController extends Controller
                 'qty' => $qty,
                 'price' => (int) round($price),
                 'unit' => (string) ($row['jm'] ?? 'kom'),
+                'storno' => !empty($row['stornirano']),
             ];
 
             // Store inventory_id if matched

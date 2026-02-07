@@ -17,6 +17,7 @@ class ThirdPartyInvoice extends Model
     const PAYMENT_CASH = 1;
     const PAYMENT_CARD = 2;
     const PAYMENT_TRANSFER = 3;
+    const PAYMENT_KASA_I = 4;
 
     protected $fillable = [
         'external_invoice_id',

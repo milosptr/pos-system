@@ -24,6 +24,7 @@
         <option value="1">Gotovina</option>
         <option value="2">Kartica</option>
         <option value="3">Prenos</option>
+        <option value="4">Kasa I</option>
       </select>
     </div>
     <div class="w-full sm:w-64 relative text-sm">

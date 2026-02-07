@@ -78,6 +78,8 @@ export default {
           return 'Kartica'
         if(paymentType === 3)
           return 'Prenos'
+        if(paymentType === 4)
+          return 'Kasa I'
         return '-'
       },
     },
