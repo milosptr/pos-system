@@ -14,3 +14,8 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+third-party-invoice-request.json
+third-party-invoices-api.md
+third-party-order-request.json
+third-party-storno-request.json
+warehouse-request.har

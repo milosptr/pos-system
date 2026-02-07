@@ -42,7 +42,8 @@ class ThirdPartyInvoiceController extends Controller
     {
         $workingDay = WorkingDay::getWorkingDay();
 
-        $invoices = ThirdPartyInvoice::whereRaw('COALESCE(invoiced_at, created_at) BETWEEN ? AND ?', $workingDay)
+        $invoices = ThirdPartyInvoice::where('payment_type', ThirdPartyInvoice::PAYMENT_KASA_I)
+            ->whereRaw('COALESCE(invoiced_at, created_at) BETWEEN ? AND ?', $workingDay)
             ->orderByRaw('COALESCE(invoiced_at, created_at) DESC')
             ->get();
 
@@ -62,6 +63,7 @@ class ThirdPartyInvoiceController extends Controller
             ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
             ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
             ->selectRaw('(sum(total) - sum(case when status = 0 then total else 0 end)) - sum(case when status = 2 then total else 0 end) as income')
+            ->where('payment_type', ThirdPartyInvoice::PAYMENT_KASA_I)
             ->whereRaw('COALESCE(invoiced_at, created_at) BETWEEN ? AND ?', $workingDay)
             ->get()
             ->first();
@@ -124,6 +126,68 @@ class ThirdPartyInvoiceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to mark invoice as on the house',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Storno a third-party invoice (delete warehouse + sales records).
+     *
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function storno($id)
+    {
+        $invoice = ThirdPartyInvoice::find($id);
+
+        if (!$invoice) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice not found',
+            ], 404);
+        }
+
+        if ($invoice->isStorno()) {
+            Log::info('[ThirdPartyInvoice] Already stornoed (idempotent)', [
+                'id' => $invoice->id,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice already stornoed',
+                'data' => new ThirdPartyInvoiceResource($invoice),
+            ]);
+        }
+
+        if ($invoice->isOnTheHouse()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot storno an on-the-house invoice',
+            ], 422);
+        }
+
+        try {
+            $invoice->markAsStorno();
+
+            Log::info('[ThirdPartyInvoice] Stornoed via API', [
+                'id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice stornoed successfully',
+                'data' => new ThirdPartyInvoiceResource($invoice->fresh()),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('[ThirdPartyInvoice] Failed to storno', [
+                'id' => $invoice->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to storno invoice',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -406,6 +470,15 @@ class ThirdPartyInvoiceController extends Controller
                         'error' => $e->getMessage(),
                     ]);
                 }
+            }
+
+            // Auto on-the-house for specific table names
+            if ($tableName && in_array(strtolower($tableName), ['sima', 'muzika'])) {
+                $invoice->markAsOnTheHouse();
+                Log::info('[ThirdPartyInvoice] Auto marked as on the house', [
+                    'id' => $invoice->id,
+                    'table_name' => $tableName,
+                ]);
             }
 
             // Notify backoffice of new data
