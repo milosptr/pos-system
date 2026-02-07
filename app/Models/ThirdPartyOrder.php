@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ThirdPartyOrder extends Model
 {
-    use HasUuid;
+    use HasUuid, SoftDeletes;
 
     protected $fillable = [
         'external_order_id',
@@ -21,6 +22,13 @@ class ThirdPartyOrder extends Model
         'total' => 'integer',
         'ordered_at' => 'datetime',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function (ThirdPartyOrder $order) {
+            $order->items()->delete();
+        });
+    }
 
     /**
      * Get all items for this order.
@@ -46,6 +54,8 @@ class ThirdPartyOrder extends Model
      */
     public static function deleteByExternalOrderId(int $orderId): bool
     {
+        $orderIds = static::where('external_order_id', $orderId)->pluck('id');
+        ThirdPartyOrderItem::whereIn('third_party_order_id', $orderIds)->delete();
         return static::where('external_order_id', $orderId)->delete() > 0;
     }
 
@@ -57,6 +67,8 @@ class ThirdPartyOrder extends Model
      */
     public static function deleteByTableId(int $tableId): int
     {
+        $orderIds = static::where('table_id', $tableId)->pluck('id');
+        ThirdPartyOrderItem::whereIn('third_party_order_id', $orderIds)->delete();
         return static::where('table_id', $tableId)->delete();
     }
 }

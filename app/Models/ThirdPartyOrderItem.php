@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ThirdPartyOrderItem extends Model
 {
-    use HasUuid;
+    use HasUuid, SoftDeletes;
 
     protected $fillable = [
         'third_party_order_id',
