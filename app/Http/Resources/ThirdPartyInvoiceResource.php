@@ -16,6 +16,8 @@ class ThirdPartyInvoiceResource extends JsonResource
      */
     public function toArray($request)
     {
+        $displayDate = $this->invoiced_at ?? $this->created_at;
+
         return [
             'id' => $this->id,
             'external_invoice_id' => $this->external_invoice_id,
@@ -27,7 +29,7 @@ class ThirdPartyInvoiceResource extends JsonResource
             'total' => $this->total,
             'payment_type' => $this->payment_type,
             'discount' => $this->discount,
-            'created_at' => Carbon::parse($this->created_at)->format('d.m.Y H:i:s')
+            'created_at' => Carbon::parse($displayDate)->format('d.m.Y H:i:s')
         ];
     }
 }

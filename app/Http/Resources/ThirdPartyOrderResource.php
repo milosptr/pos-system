@@ -15,6 +15,8 @@ class ThirdPartyOrderResource extends JsonResource
      */
     public function toArray($request)
     {
+        $displayDate = $this->ordered_at ?? $this->created_at;
+
         return [
             'id' => $this->id,
             'external_order_id' => $this->external_order_id,
@@ -23,8 +25,8 @@ class ThirdPartyOrderResource extends JsonResource
             'items' => ThirdPartyOrderItemResource::collection($this->whenLoaded('items')),
             'total' => $this->total,
             'active_total' => $this->calculateActiveTotal(),
-            'created_at' => Carbon::parse($this->created_at)->format('d.m.Y H:i:s'),
-            'created_at_full' => $this->created_at,
+            'created_at' => Carbon::parse($displayDate)->format('d.m.Y H:i:s'),
+            'created_at_full' => $displayDate,
         ];
     }
 

@@ -3,7 +3,7 @@
 namespace App\Models\Traits;
 
 use Illuminate\Http\Request;
-use App\Http\Filters\Invoice\Date;
+use App\Http\Filters\ThirdPartyInvoice\Date;
 use App\Http\Filters\Invoice\Status;
 use App\Http\Filters\ThirdPartyInvoice\PaymentType;
 use Illuminate\Database\Eloquent\Builder;

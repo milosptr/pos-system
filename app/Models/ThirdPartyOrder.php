@@ -14,10 +14,12 @@ class ThirdPartyOrder extends Model
         'table_id',
         'table_name',
         'total',
+        'ordered_at',
     ];
 
     protected $casts = [
         'total' => 'integer',
+        'ordered_at' => 'datetime',
     ];
 
     /**

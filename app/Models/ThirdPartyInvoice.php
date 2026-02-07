@@ -29,11 +29,13 @@ class ThirdPartyInvoice extends Model
         'total',
         'payment_type',
         'discount',
+        'invoiced_at',
     ];
 
     protected $casts = [
         'order' => 'array',
         'is_duplicate' => 'boolean',
+        'invoiced_at' => 'datetime',
     ];
 
     /**

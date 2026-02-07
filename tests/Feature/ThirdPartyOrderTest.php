@@ -70,6 +70,7 @@ class ThirdPartyOrderTest extends TestCase
         $this->assertEquals(740, $order->table_id);
         $this->assertEquals('9', $order->table_name);
         $this->assertEquals(530, $order->total); // 2*150 + 1*230 = 530
+        $this->assertEquals('2026-01-15 14:03:55', $order->ordered_at->format('Y-m-d H:i:s'));
 
         // Verify items were created
         $this->assertEquals(2, ThirdPartyOrderItem::count());

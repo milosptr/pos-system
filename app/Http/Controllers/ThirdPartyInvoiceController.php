@@ -26,7 +26,7 @@ class ThirdPartyInvoiceController extends Controller
     public function all(Request $request)
     {
         $invoices = ThirdPartyInvoice::filter($request)
-            ->orderBy('created_at', 'desc')
+            ->orderByRaw('COALESCE(invoiced_at, created_at) DESC')
             ->paginate(20);
 
         return ThirdPartyInvoiceResource::collection($invoices);
@@ -100,6 +100,9 @@ class ThirdPartyInvoiceController extends Controller
         $externalOrderId = isset($firstRow['porudzbinaid']) ? (int) $firstRow['porudzbinaid'] : null;
         $discount = (float) ($firstRow['popust'] ?? 0);
         $stornoReferenceId = isset($firstRow['stornoreferenceid']) ? (int) $firstRow['stornoreferenceid'] : null;
+        $invoicedAt = isset($firstRow['datum']) && !empty($firstRow['datum'])
+            ? $firstRow['datum']
+            : null;
 
         // Detect storno
         $isStorno = isset($firstRow['stornoporudzbine']) && $firstRow['stornoporudzbine'] == 1;
@@ -183,6 +186,7 @@ class ThirdPartyInvoiceController extends Controller
                 $totalCents,
                 $paymentType,
                 $discount,
+                $invoicedAt,
                 &$ordersDeleted,
                 &$stornoProcessed
             ) {
@@ -206,6 +210,7 @@ class ThirdPartyInvoiceController extends Controller
                     'total' => $totalCents,
                     'payment_type' => $paymentType,
                     'discount' => $discount,
+                    'invoiced_at' => $invoicedAt,
                 ]);
 
                 // Delete all orders for this table if stoid is present

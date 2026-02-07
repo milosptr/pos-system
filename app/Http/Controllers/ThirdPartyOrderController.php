@@ -62,6 +62,11 @@ class ThirdPartyOrderController extends Controller
                 $tableId = isset($firstRow['stoid']) ? (int) $firstRow['stoid'] : null;
                 $tableName = (string) ($firstRow['sto'] ?? 'Unknown');
 
+                // Parse order datetime from datum field
+                $orderedAt = isset($firstRow['datum']) && !empty($firstRow['datum'])
+                    ? $firstRow['datum']
+                    : null;
+
                 // Find or create order
                 $order = ThirdPartyOrder::updateOrCreate(
                     ['external_order_id' => (int) $externalOrderId],
@@ -69,6 +74,7 @@ class ThirdPartyOrderController extends Controller
                         'table_id' => $tableId,
                         'table_name' => $tableName,
                         'total' => 0,
+                        'ordered_at' => $orderedAt,
                     ]
                 );
 
