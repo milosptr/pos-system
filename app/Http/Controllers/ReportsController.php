@@ -19,17 +19,17 @@ class ReportsController extends Controller
         if($type == 0) {
             // Stats: ThirdPartyInvoice breakdown
             $tpStats = ThirdPartyInvoice::filter($request)
-                ->selectRaw('sum(case when payment_type = 1 then total else 0 end) as gotovina')
-                ->selectRaw('sum(case when payment_type = 2 then total else 0 end) as kartica')
-                ->selectRaw('sum(case when payment_type = 3 then total else 0 end) as prenos')
-                ->selectRaw('sum(case when payment_type = 4 then total else 0 end) as kasa_i')
+                ->selectRaw('sum(case when payment_type = 1 and status = 1 then total else 0 end) as gotovina')
+                ->selectRaw('sum(case when payment_type = 2 and status = 1 then total else 0 end) as kartica')
+                ->selectRaw('sum(case when payment_type = 3 and status = 1 then total else 0 end) as prenos')
+                ->selectRaw('sum(case when payment_type = 4 and status = 1 then total else 0 end) as kasa_i')
                 ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
                 ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
                 ->first();
 
             // Stats: Invoice (→ Kasa I bucket)
             $invStats = Invoice::filter($request)
-                ->selectRaw('sum(total) as kasa_i')
+                ->selectRaw('sum(case when status = 1 then total else 0 end) as kasa_i')
                 ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
                 ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
                 ->first();
@@ -42,15 +42,15 @@ class ReportsController extends Controller
                 'onthehouse' => (int) ($tpStats->onthehouse ?? 0) + (int) ($invStats->onthehouse ?? 0),
                 'refund' => (int) ($tpStats->refund ?? 0) + (int) ($invStats->refund ?? 0),
             ];
-            $stats['income'] = $stats['gotovina'] + $stats['kartica'] + $stats['prenos'] + $stats['kasa_i'] - $stats['onthehouse'] - $stats['refund'];
+            $stats['income'] = $stats['gotovina'] + $stats['kartica'] + $stats['prenos'] + $stats['kasa_i'];
 
             // Daily breakdown: ThirdPartyInvoice by date
             $tpByDate = ThirdPartyInvoice::filter($request)
                 ->selectRaw('DATE(DATE_SUB(COALESCE(invoiced_at, created_at), INTERVAL 4 HOUR)) as date')
-                ->selectRaw('sum(case when payment_type = 1 then total else 0 end) as gotovina')
-                ->selectRaw('sum(case when payment_type = 2 then total else 0 end) as kartica')
-                ->selectRaw('sum(case when payment_type = 3 then total else 0 end) as prenos')
-                ->selectRaw('sum(case when payment_type = 4 then total else 0 end) as kasa_i')
+                ->selectRaw('sum(case when payment_type = 1 and status = 1 then total else 0 end) as gotovina')
+                ->selectRaw('sum(case when payment_type = 2 and status = 1 then total else 0 end) as kartica')
+                ->selectRaw('sum(case when payment_type = 3 and status = 1 then total else 0 end) as prenos')
+                ->selectRaw('sum(case when payment_type = 4 and status = 1 then total else 0 end) as kasa_i')
                 ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
                 ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
                 ->groupBy('date')
@@ -59,7 +59,7 @@ class ReportsController extends Controller
             // Daily breakdown: Invoice by date (→ Kasa I bucket)
             $invByDate = Invoice::filter($request)
                 ->selectRaw('DATE(DATE_SUB(created_at, INTERVAL 4 HOUR)) as date')
-                ->selectRaw('sum(total) as kasa_i')
+                ->selectRaw('sum(case when status = 1 then total else 0 end) as kasa_i')
                 ->selectRaw('sum(case when status = 2 then total else 0 end) as onthehouse')
                 ->selectRaw('sum(case when status = 0 then total else 0 end) as refund')
                 ->groupBy('date')
@@ -79,7 +79,7 @@ class ReportsController extends Controller
                     'onthehouse' => (int) ($tp->onthehouse ?? 0) + (int) ($inv->onthehouse ?? 0),
                     'refund' => (int) ($tp->refund ?? 0) + (int) ($inv->refund ?? 0),
                 ];
-                $row['income'] = $row['gotovina'] + $row['kartica'] + $row['prenos'] + $row['kasa_i'] - $row['onthehouse'] - $row['refund'];
+                $row['income'] = $row['gotovina'] + $row['kartica'] + $row['prenos'] + $row['kasa_i'];
                 return $row;
             })->values();
         }

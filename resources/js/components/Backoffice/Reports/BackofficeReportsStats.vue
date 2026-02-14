@@ -44,6 +44,19 @@
         </div>
         <div v-if="tabInvoices" class="px-4 py-5">
           <dt class="text-base font-normal text-gray-900">
+            Ebar
+          </dt>
+          <dd class="flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
+            <div
+              class="flex flex-col lg:flex-row items-baseline text-2xl font-semibold mb-2 xl:mb-0 text-gray-700 active:opacity-50 cursor-pointer"
+              @click="copyToClipBoard(ebar)"
+            >
+            {{ $filters.formatPrice(ebar) }} RSD
+            </div>
+          </dd>
+        </div>
+        <div v-if="tabInvoices" class="px-4 py-5">
+          <dt class="text-base font-normal text-gray-900">
             Kasa I
           </dt>
           <dd class="flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
@@ -52,19 +65,6 @@
               @click="copyToClipBoard(reportsStat.kasa_i)"
             >
             {{ $filters.formatPrice(reportsStat?.kasa_i) }} RSD
-            </div>
-          </dd>
-        </div>
-        <div v-if="tabInvoices" class="px-4 py-5">
-          <dt class="text-base font-normal text-gray-900">
-            Na račun kuće
-          </dt>
-          <dd class="flex flex-col xl:flex-row justify-between items-baseline md:block lg:flex">
-            <div
-              class="flex flex-col lg:flex-row items-baseline text-2xl font-semibold mb-2 xl:mb-0 active:opacity-50 cursor-pointer"
-              @click="copyToClipBoard(reportsStat.onthehouse)"
-            >
-            {{ $filters.formatPrice(reportsStat?.onthehouse) }} RSD
             </div>
           </dd>
         </div>
@@ -90,6 +90,10 @@
     computed: {
       reportsStat() {
         return this.$store.getters.reports?.stats
+      },
+      ebar() {
+        const s = this.reportsStat
+        return (s?.gotovina ?? 0) + (s?.kartica ?? 0) + (s?.prenos ?? 0)
       },
       tabInvoices() {
         return !this.$store.getters.reportsActiveTab

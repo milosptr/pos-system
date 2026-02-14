@@ -8,6 +8,7 @@ use Services\WorkingDay;
 use Illuminate\Http\Request;
 use App\Http\Resources\TableResource;
 use App\Models\Order;
+use App\Models\ThirdPartyOrderItem;
 use Carbon\Carbon;
 use Services\ReportsService;
 
@@ -34,14 +35,17 @@ class DashboardController extends Controller
     {
         $today = ReportsService::getCombinedRevenueForDate(WorkingDay::getWorkingDay());
         $activeTablesTotal = Order::selectRaw('sum(total) as total')->groupBy('table_id')->get()->sum('total');
+        $thirdPartyActiveTotal = (int) ThirdPartyOrderItem::where('active', 1)
+            ->selectRaw('sum(qty * price) as total')
+            ->value('total');
 
         return [
           ['name' => 'Komp', 'stat' => $today->komp, 'primary' => false],
           ['name' => 'Kasa I', 'stat' => $today->kasa_i, 'primary' => false],
-          ['name' => 'Aktivni stolovi', 'stat' => (int) $activeTablesTotal, 'primary' => false],
+          ['name' => 'Aktivni stolovi', 'stat' => (int) $activeTablesTotal + $thirdPartyActiveTotal, 'primary' => false],
           ['name' => 'Stornirano', 'stat' => $today->refund, 'primary' => false],
           ['name' => 'Na račun kuće', 'stat' => $today->onthehouse, 'primary' => false],
-          ['name' => 'Ukupno', 'stat' => $today->komp + $today->kasa_i + (int) $activeTablesTotal, 'primary' => true],
+          ['name' => 'Ukupno', 'stat' => $today->komp + $today->kasa_i + (int) $activeTablesTotal + $thirdPartyActiveTotal, 'primary' => true],
         ];
     }
 }
