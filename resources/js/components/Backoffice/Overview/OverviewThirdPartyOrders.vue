@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div class="text-xl font-semibold mt-10">Druge porudzbine</div>
+  <div class="text-xl font-semibold mt-10">Aktivni stolovi</div>
   <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-2">
     <div
       v-for="group in thirdPartyOrdersGroupedByTable"

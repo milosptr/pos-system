@@ -336,8 +336,8 @@ import {
 
 const navigation = [
   { name: 'Početna', href: 'overview', icon: HomeIcon, current: true },
-  { name: 'Računi', href: 'invoices', icon: ClipboardListIcon, current: false },
-  { name: 'Drugi Računi', href: 'third-party-invoices', icon: ClipboardListIcon, current: false },
+  { name: 'Tablet računi', href: 'invoices', icon: ClipboardListIcon, current: false },
+  { name: 'Računi', href: 'third-party-invoices', icon: ClipboardListIcon, current: false },
   { name: 'Pregled prometa', href: 'reports', icon: ChartPieIcon, current: false },
   { name: 'Artikli', href: 'inventory', icon: CubeIcon, current: false },
   { name: 'Kategorije', href: 'categories', icon: FolderIcon, current: false },

@@ -196,3 +196,14 @@ This project includes custom Claude Code skills in `.claude/skills/`:
 - `warehouse-guide` - Warehouse system documentation
 - `working-day` - Business day concept reference
 - `printing-guide` - Epson printer integration
+
+## Naming Conventions / Terminology
+
+The UI labels differ from internal code names. This mapping is important for understanding what users see vs what the code calls things:
+
+| Code / Internal Name | UI Label | Description |
+|---|---|---|
+| `Order`, `activeTableOrders`, `OverviewActiveOrders` | **Tablet porudžbine** | POS tablet orders (from waitstaff interface) |
+| `ThirdPartyOrder`, `thirdPartyOrders`, `OverviewThirdPartyOrders` | **Aktivni stolovi** | Third-party / ebar orders |
+| `Invoice`, route `invoices` | **Tablet računi** | POS tablet invoices |
+| `ThirdPartyInvoice`, route `third-party-invoices` | **Računi** | Third-party / ebar invoices |

@@ -1,7 +1,7 @@
 <template>
-<div>
+<div v-if="$store.getters.activeTableOrders.length">
   <div class="flex items-center justify-between">
-    <div class="text-xl font-semibold mt-10">Aktivni stolovi</div>
+    <div class="text-xl font-semibold mt-10">Tablet porudžbine</div>
     <div class="text-lg font-medium mt-10 text-indigo-500" @click="showAllActiveOrdersSidebar = true">Vidi sve</div>
   </div>
   <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-2">
