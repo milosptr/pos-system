@@ -103,6 +103,7 @@ class ThirdPartyOrderController extends Controller
                         'price' => $price,
                         'unit' => (string) ($row['jm'] ?? 'kom'),
                         'modifier' => $row['modifikatorslobodan'] ?? null,
+                        'sku' => $row['sifraArtikla'] ?? null,
                         'print_station_id' => isset($row['stampanjenalogaid']) ? (int) $row['stampanjenalogaid'] : null,
                     ];
 
@@ -123,6 +124,13 @@ class ThirdPartyOrderController extends Controller
 
                 // Update order total
                 $order->update(['total' => $totalCents]);
+
+                try {
+                    \Services\KitchenService::processThirdPartyOrder($order);
+                } catch (\Exception $e) {
+                    Log::error('[Kitchen] ' . $e->getMessage());
+                }
+
                 $processedOrders[] = $order;
             }
 
@@ -221,6 +229,22 @@ class ThirdPartyOrderController extends Controller
                         'external_item_id' => $externalItemId,
                         'status' => 'not_found',
                     ];
+                }
+            }
+
+            // Reprocess kitchen orders for affected third-party orders
+            $affectedOrderIds = ThirdPartyOrderItem::whereIn('external_item_id',
+                collect($results)->where('status', 'updated')->pluck('external_item_id')
+            )->pluck('third_party_order_id')->unique();
+
+            foreach ($affectedOrderIds as $orderId) {
+                try {
+                    $order = ThirdPartyOrder::find($orderId);
+                    if ($order) {
+                        \Services\KitchenService::processThirdPartyOrder($order);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('[Kitchen] ' . $e->getMessage());
                 }
             }
 

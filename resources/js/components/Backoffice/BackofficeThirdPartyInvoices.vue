@@ -23,7 +23,7 @@
                   :class="[{'bg-gray-50': idx % 2 === 1}, {'bg-orange-100': activeOrder && activeOrder.id === item.id}, {'text-red-500': item.status === 0 }, {'text-indigo-500': item.status === 2 }]"
                   @click="$store.commit('setActiveOrder', {...item, orders: [item] })"
                 >
-                  <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8',{'text-red-500': item.status === 0 }, {'text-indigo-500': item.status === 2 }]">{{ item.invoice_number }}</td>
+                  <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-2 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8',{'text-red-500': item.status === 0 }, {'text-indigo-500': item.status === 2 }]">{{ item.external_invoice_id }}</td>
                   <td :class="[idx !== invoices.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-2 text-sm ', {'text-orange-500': item.discount }]">
                     <span>{{ $filters.formatPrice(item.total) }} RSD</span>
                     <span v-if="item.discount"> ({{ item.discount }}% discount)</span>

@@ -54,6 +54,12 @@ class OrderController extends Controller
         $order = Order::create($request->all());
 
         try {
+            \Services\KitchenService::processOrder($order);
+        } catch (\Exception $e) {
+            Log::error('[Kitchen] ' . $e->getMessage());
+        }
+
+        try {
           if($order)
             app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
         } catch(Exception $e) {

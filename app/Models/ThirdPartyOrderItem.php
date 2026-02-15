@@ -18,6 +18,7 @@ class ThirdPartyOrderItem extends Model
         'price',
         'unit',
         'modifier',
+        'sku',
         'print_station_id',
         'active',
     ];

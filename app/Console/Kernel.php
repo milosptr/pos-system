@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('database:backup')->daily()->at('04:00');
         $schedule->command('third-party-orders:cleanup')->daily()->at('04:00');
+        $schedule->command('kitchen:cleanup')->daily()->at('04:00');
     }
 
     /**

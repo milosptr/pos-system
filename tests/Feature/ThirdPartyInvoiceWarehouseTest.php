@@ -126,7 +126,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
             'sifraArtikla' => 220, // Integer
         ]]);
         $response1->assertStatus(201);
-        $invoice1 = ThirdPartyInvoice::where('invoice_number', 'EDGE-1')->first();
+        $invoice1 = ThirdPartyInvoice::where('invoice_number', 'EDGE-100')->first();
         $this->assertEquals($inv1->id, $invoice1->order[0]['inventory_id']);
 
         // Test case 2: SKU "000220" with sifraArtikla as string "220"
@@ -138,7 +138,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
             'sifraArtikla' => '221', // String without padding
         ]]);
         $response2->assertStatus(201);
-        $invoice2 = ThirdPartyInvoice::where('invoice_number', 'EDGE-2')->first();
+        $invoice2 = ThirdPartyInvoice::where('invoice_number', 'EDGE-200')->first();
         $this->assertEquals($inv2->id, $invoice2->order[0]['inventory_id']);
 
         // Test case 3: SKU "000220" with sifraArtikla as string "000220"
@@ -150,7 +150,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
             'sifraArtikla' => '000222', // String with same padding
         ]]);
         $response3->assertStatus(201);
-        $invoice3 = ThirdPartyInvoice::where('invoice_number', 'EDGE-3')->first();
+        $invoice3 = ThirdPartyInvoice::where('invoice_number', 'EDGE-300')->first();
         $this->assertEquals($inv3->id, $invoice3->order[0]['inventory_id']);
 
         // Test case 4: SKU "220" (no padding) with sifraArtikla as integer 220
@@ -162,7 +162,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
             'sifraArtikla' => 223, // Integer matching unpadded SKU
         ]]);
         $response4->assertStatus(201);
-        $invoice4 = ThirdPartyInvoice::where('invoice_number', 'EDGE-4')->first();
+        $invoice4 = ThirdPartyInvoice::where('invoice_number', 'EDGE-400')->first();
         $this->assertEquals($inv4->id, $invoice4->order[0]['inventory_id']);
 
         // Test case 5: SKU "220" (no padding) with sifraArtikla as string "000220"
@@ -174,7 +174,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
             'sifraArtikla' => '000224', // Padded string matching unpadded SKU
         ]]);
         $response5->assertStatus(201);
-        $invoice5 = ThirdPartyInvoice::where('invoice_number', 'EDGE-5')->first();
+        $invoice5 = ThirdPartyInvoice::where('invoice_number', 'EDGE-500')->first();
         $this->assertEquals($inv5->id, $invoice5->order[0]['inventory_id']);
     }
 
@@ -558,7 +558,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
         $invoice = ThirdPartyInvoice::first();
         $this->assertNotNull($invoice);
         $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $invoice->status);
-        $this->assertEquals('28925', $invoice->invoice_number);
+        $this->assertEquals('2892500', $invoice->invoice_number);
         $this->assertEquals('6', $invoice->table_name);
 
         // All items should have inventory_id
@@ -790,8 +790,8 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
 
         $invoice = ThirdPartyInvoice::first();
         $this->assertNotNull($invoice);
-        $this->assertEquals(12345, $invoice->external_invoice_id);
-        $this->assertEquals('INV-001', $invoice->invoice_number);
+        $this->assertEquals(1234500, $invoice->external_invoice_id);
+        $this->assertEquals('INV-00100', $invoice->invoice_number);
     }
 
     /**
@@ -821,10 +821,10 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
 
         $this->postJson('/api/third-party-invoice', $originalInvoiceData);
 
-        $originalInvoice = ThirdPartyInvoice::where('invoice_number', 'ORIG-001')->first();
+        $originalInvoice = ThirdPartyInvoice::where('invoice_number', 'ORIG-00100')->first();
         $this->assertNotNull($originalInvoice);
         $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $originalInvoice->status);
-        $this->assertEquals(100, $originalInvoice->external_invoice_id);
+        $this->assertEquals(10000, $originalInvoice->external_invoice_id);
 
         // Verify warehouse and sales records exist
         $this->assertEquals(1, WarehouseStatus::where('batch_id', $originalInvoice->id)->count());
@@ -915,7 +915,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
 
         $this->postJson('/api/third-party-invoice', $originalInvoiceData);
 
-        $originalInvoice = ThirdPartyInvoice::where('invoice_number', 'ORIG-002')->first();
+        $originalInvoice = ThirdPartyInvoice::where('invoice_number', 'ORIG-00200')->first();
         $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $originalInvoice->status);
 
         // Send storno with both flags - stornoreferenceid takes precedence
@@ -996,7 +996,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
 
         $this->postJson('/api/third-party-invoice', $requestData);
 
-        $invoice = ThirdPartyInvoice::where('invoice_number', 'MARK-STORNO')->first();
+        $invoice = ThirdPartyInvoice::where('invoice_number', 'MARK-STORNO00')->first();
         $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $invoice->status);
         $this->assertEquals(1, WarehouseStatus::where('batch_id', $invoice->id)->count());
         $this->assertEquals(1, Sales::where('batch_id', $invoice->id)->count());
@@ -1063,7 +1063,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
         ];
 
         $this->postJson('/api/third-party-invoice', $originalData);
-        $originalInvoice = ThirdPartyInvoice::where('invoice_number', 'ORIG-IDEM')->first();
+        $originalInvoice = ThirdPartyInvoice::where('invoice_number', 'ORIG-IDEM00')->first();
         $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $originalInvoice->status);
 
         // First storno request
@@ -1137,9 +1137,9 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
         $response = $this->postJson('/api/third-party-invoice', $requestData);
         $response->assertStatus(201);
 
-        $invoice = ThirdPartyInvoice::where('invoice_number', 'STRING-RACUNID')->first();
+        $invoice = ThirdPartyInvoice::where('invoice_number', 'STRING-RACUNID00')->first();
         $this->assertNotNull($invoice);
-        $this->assertEquals(12345, $invoice->external_invoice_id);
+        $this->assertEquals(1234500, $invoice->external_invoice_id);
     }
 
     /**
@@ -1168,7 +1168,7 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
         $response->assertStatus(201);
 
         // Invoice should be created with status PAYED (not treated as storno)
-        $invoice = ThirdPartyInvoice::where('invoice_number', 'ZERO-REF')->first();
+        $invoice = ThirdPartyInvoice::where('invoice_number', 'ZERO-REF00')->first();
         $this->assertNotNull($invoice);
         $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $invoice->status);
     }

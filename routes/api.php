@@ -30,6 +30,7 @@ use App\Http\Controllers\SalesImportDetaisController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\ThirdPartyInvoiceController;
 use App\Http\Controllers\ThirdPartyOrderController;
+use App\Http\Controllers\KitchenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -198,6 +199,12 @@ Route::prefix('/backoffice')->group(function () {
     // Third-party orders
     Route::get('third-party-orders', [ThirdPartyOrderController::class, 'all']);
 });
+
+// Kitchen Display
+Route::get('kitchen/orders', [KitchenController::class, 'index']);
+Route::post('kitchen/orders/{id}/ready', [KitchenController::class, 'markReady']);
+Route::post('kitchen/orders/{id}/undo', [KitchenController::class, 'undoReady']);
+Route::post('kitchen/items/{id}/toggle-done', [KitchenController::class, 'toggleItemDone']);
 
 // Third-party invoice/order import (external API)
 Route::group(['middleware' => ['external.api']], function () {

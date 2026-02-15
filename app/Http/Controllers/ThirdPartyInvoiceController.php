@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Inventory;
 use App\Models\Sales;
+use App\Models\KitchenOrder;
 use App\Models\ThirdPartyInvoice;
 use App\Models\ThirdPartyOrder;
 use App\Models\WarehouseStatus;
@@ -201,28 +202,9 @@ class ThirdPartyInvoiceController extends Controller
      */
     private function matchInventory(array $row): ?int
     {
-        // First, try to match by sifraArtikla against inventory SKU
-        // Compare as integers to handle any leading zeros on either side
-        // e.g., SKU "000220" matches sifraArtikla 220, "220", or "000220"
-        if (isset($row['sifraArtikla']) && $row['sifraArtikla'] !== '') {
-            $sifraInt = (int) $row['sifraArtikla'];
-            // Use sku + 0 to cast varchar to integer in SQL (works in MySQL and SQLite)
-            $inventory = Inventory::whereRaw('sku + 0 = ?', [$sifraInt])->first();
-            if ($inventory) {
-                return $inventory->id;
-            }
-        }
-
-        // Fallback: try to match by item name (case-insensitive)
-        $itemName = $row['naziv'] ?? null;
-        if ($itemName) {
-            $inventory = Inventory::whereRaw('LOWER(name) = ?', [strtolower($itemName)])->first();
-            if ($inventory) {
-                return $inventory->id;
-            }
-        }
-
-        return null;
+        $sku = $row['sifraArtikla'] ?? null;
+        $name = $row['naziv'] ?? null;
+        return \Services\KitchenService::matchInventory($sku, $name);
     }
 
     /**
@@ -254,13 +236,16 @@ class ThirdPartyInvoiceController extends Controller
         $firstRow = $rows[0];
 
         // Extract invoice-level data from first row (with safe defaults)
-        $externalInvoiceId = isset($firstRow['racunid']) ? (int) $firstRow['racunid'] : null;
-        $invoiceNumber = (string) ($firstRow['brojracuna'] ?? 'UNKNOWN-' . time());
+        // Append "00" to external IDs to prevent collision with POS invoice IDs
+        $externalInvoiceId = isset($firstRow['racunid']) ? (int) $firstRow['racunid'] * 100 : null;
+        $invoiceNumber = ($firstRow['brojracuna'] ?? null)
+            ? (string) $firstRow['brojracuna'] . '00'
+            : 'UNKNOWN-' . time();
         $tableName = isset($firstRow['sto']) ? (string) $firstRow['sto'] : null;
         $tableId = isset($firstRow['stoid']) ? (int) $firstRow['stoid'] : null;
         $externalOrderId = isset($firstRow['porudzbinaid']) ? (int) $firstRow['porudzbinaid'] : null;
         $discount = (float) ($firstRow['popust'] ?? 0);
-        $stornoReferenceId = isset($firstRow['stornoreferenceid']) ? (int) $firstRow['stornoreferenceid'] : null;
+        $stornoReferenceId = isset($firstRow['stornoreferenceid']) ? (int) $firstRow['stornoreferenceid'] * 100 : null;
         $invoicedAt = isset($firstRow['datum']) && !empty($firstRow['datum'])
             ? $firstRow['datum']
             : null;
@@ -415,7 +400,11 @@ class ThirdPartyInvoiceController extends Controller
 
                 // Delete all orders for this table if stoid is present
                 if ($tableId) {
+                    $tpoIds = ThirdPartyOrder::where('table_id', $tableId)->pluck('id')->toArray();
                     $ordersDeleted = ThirdPartyOrder::deleteByTableId($tableId);
+                    if (!empty($tpoIds)) {
+                        KitchenOrder::where('orderable_type', 'third_party_order')->whereIn('orderable_id', $tpoIds)->delete();
+                    }
                 }
 
                 return $invoice;
@@ -489,6 +478,7 @@ class ThirdPartyInvoiceController extends Controller
             // Notify backoffice of new data
             try {
                 app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+                app(Pusher::class)->trigger('broadcasting', 'kitchen-update', []);
             } catch (\Exception $e) {
                 Log::error('[ThirdPartyInvoice] Pusher notification failed', [
                     'error' => $e->getMessage(),

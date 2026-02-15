@@ -20,6 +20,10 @@ Route::get('/', function () {
 });
 
 
+Route::get('/kitchen', function () {
+    return view('kitchen');
+});
+
 Route::group(['middleware' => ['administrator', 'auth']], function () {
     Route::get('/backoffice/', function () {
         return view('backoffice');
