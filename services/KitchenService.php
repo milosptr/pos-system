@@ -75,6 +75,9 @@ class KitchenService
             }
         }
 
+        // Reverse to match tablet display order (last added shown first)
+        $kitchenItems = array_reverse($kitchenItems);
+
         if (empty($kitchenItems)) {
             return null;
         }

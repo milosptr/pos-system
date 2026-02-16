@@ -18,7 +18,7 @@ class KitchenController extends Controller
     {
         return response()->json([
             'active' => KitchenOrderResource::collection(
-                KitchenOrder::with('items')->active()->orderBy('created_at', 'desc')->get()
+                KitchenOrder::with('items')->active()->orderBy('created_at', 'asc')->get()
             ),
             'ready' => KitchenOrderResource::collection(
                 KitchenOrder::with('items')->ready()->orderBy('ready_at', 'desc')->get()
