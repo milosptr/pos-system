@@ -5,8 +5,6 @@ namespace App\Models\Traits;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use App\Http\Filters\Invoice\Date;
-use App\Http\Filters\Invoice\Inventory;
-use App\Http\Filters\Inventory\Category;
 use App\Http\Filters\Invoice\Waiter;
 use App\Http\Filters\Invoice\Status;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,8 +15,6 @@ trait Revenue
         'date' => Date::class,
         'waiter' => Waiter::class,
         'status' => Status::class,
-        'inventory' => Inventory::class,
-        'category' => Category::class,
     ];
 
     public function scopeFilter(Builder $builder, Request $request)

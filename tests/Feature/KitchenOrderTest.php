@@ -309,6 +309,45 @@ class KitchenOrderTest extends TestCase
     }
 
     /**
+     * Test re-sending same order does not reset ready_at on kitchen order.
+     */
+    public function test_resend_same_order_preserves_ready_at()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 400001,
+            'table_id' => 900,
+            'table_name' => 'Sima',
+            'total' => 240,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 4001,
+            'name' => 'Kafa',
+            'qty' => 2,
+            'price' => 120,
+            'unit' => 'kom',
+            'print_station_id' => 2,
+            'active' => 1,
+        ]);
+
+        // First process — creates kitchen order
+        $kitchenOrder = \Services\KitchenService::processThirdPartyOrder($order);
+        $this->assertNotNull($kitchenOrder);
+        $this->assertNull($kitchenOrder->ready_at);
+
+        // Mark as ready (moved to "Izdate")
+        $kitchenOrder->update(['ready_at' => now()]);
+        $this->assertNotNull($kitchenOrder->fresh()->ready_at);
+
+        // Re-process same order (ebar re-sends it with no changes)
+        $kitchenOrder = \Services\KitchenService::processThirdPartyOrder($order);
+
+        // ready_at should still be set
+        $this->assertNotNull($kitchenOrder->fresh()->ready_at, 'Re-sending same order should NOT reset ready_at');
+    }
+
+    /**
      * Test third-party sync preserves is_done state for existing items.
      */
     public function test_third_party_sync_preserves_is_done()

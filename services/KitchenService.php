@@ -124,13 +124,6 @@ class KitchenService
             return null;
         }
 
-        // Check if existing record was already marked ready
-        $existing = KitchenOrder::where('orderable_type', 'third_party_order')
-            ->where('orderable_id', $order->id)
-            ->first();
-
-        $shouldResetReady = $existing && $existing->ready_at !== null;
-
         $kitchenOrder = KitchenOrder::updateOrCreate(
             [
                 'orderable_type' => 'third_party_order',
@@ -140,6 +133,8 @@ class KitchenService
                 'table_name' => $order->table_name,
             ]
         );
+
+        $existingExternalIds = $kitchenOrder->items()->pluck('external_item_id')->toArray();
 
         // Sync items using external_item_id to preserve is_done state
         $incomingExternalIds = [];
@@ -162,8 +157,9 @@ class KitchenService
             ->whereNotIn('external_item_id', $incomingExternalIds)
             ->delete();
 
-        // If it was ready but new items appeared, reset ready_at
-        if ($shouldResetReady) {
+        // Only reset ready_at if new items were actually added
+        $hasNewItems = !empty(array_diff($incomingExternalIds, $existingExternalIds));
+        if ($kitchenOrder->ready_at !== null && $hasNewItems) {
             $kitchenOrder->update(['ready_at' => null]);
         }
 
