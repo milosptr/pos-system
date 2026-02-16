@@ -8,6 +8,7 @@ use App\Models\KitchenOrder;
 use App\Models\KitchenOrderItem;
 use App\Models\ThirdPartyOrder;
 use App\Models\ThirdPartyOrderItem;
+use App\Http\Middleware\VerifyExternalApiKey;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -247,6 +248,64 @@ class KitchenOrderTest extends TestCase
         $this->assertNotNull($kitchenOrder);
         $this->assertCount(1, $kitchenOrder->items);
         $this->assertEquals('Cevapi', $kitchenOrder->items->first()->name);
+    }
+
+    /**
+     * Test invoiced orders are not re-added to kitchen display.
+     */
+    public function test_invoiced_orders_not_re_added_to_kitchen()
+    {
+        $this->withoutMiddleware(VerifyExternalApiKey::class);
+
+        // 1. Create a third-party order with a kitchen item via the API
+        $payload = [[
+            'porudzbinaid' => 999001,
+            'stoid' => 800,
+            'sto' => 'Sto 8',
+            'datum' => now()->toDateTimeString(),
+            'stavkaid' => 9001,
+            'naziv' => 'Cevapi',
+            'kolicina' => 2,
+            'cena' => 300,
+            'jm' => 'kom',
+            'stampanjenalogaid' => 2,
+            'sifraArtikla' => '000055',
+        ]];
+
+        $response = $this->postJson('/api/third-party-order', $payload);
+        $response->assertStatus(201);
+
+        $order = ThirdPartyOrder::where('external_order_id', 999001)->first();
+        $this->assertNotNull($order);
+
+        $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->where('orderable_id', $order->id)
+            ->first();
+        $this->assertNotNull($kitchenOrder, 'Kitchen order should exist after initial import');
+
+        // 2. Simulate invoice: soft-delete the order + hard-delete kitchen order
+        $order->delete(); // soft delete
+        $kitchenOrder->items()->delete();
+        $kitchenOrder->delete();
+
+        $this->assertNull(ThirdPartyOrder::find($order->id), 'Order should be soft-deleted');
+        $this->assertTrue(ThirdPartyOrder::onlyTrashed()->where('external_order_id', 999001)->exists());
+        $this->assertEquals(0, KitchenOrder::where('orderable_type', 'third_party_order')
+            ->where('orderable_id', $order->id)->count());
+
+        // 3. Re-send the same order (ebar sends all orders for the table)
+        $response = $this->postJson('/api/third-party-order', $payload);
+        $response->assertStatus(201);
+
+        // A new ThirdPartyOrder row is created (updateOrCreate doesn't find soft-deleted)
+        $newOrder = ThirdPartyOrder::where('external_order_id', 999001)->first();
+        $this->assertNotNull($newOrder);
+
+        // 4. Verify NO kitchen order was created for the re-sent invoiced order
+        $kitchenOrders = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->where('orderable_id', $newOrder->id)
+            ->get();
+        $this->assertCount(0, $kitchenOrders, 'Invoiced order should NOT be re-added to kitchen');
     }
 
     /**

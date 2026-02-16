@@ -125,10 +125,16 @@ class ThirdPartyOrderController extends Controller
                 // Update order total
                 $order->update(['total' => $totalCents]);
 
-                try {
-                    \Services\KitchenService::processThirdPartyOrder($order);
-                } catch (\Exception $e) {
-                    Log::error('[Kitchen] ' . $e->getMessage());
+                $wasPreviouslyInvoiced = ThirdPartyOrder::onlyTrashed()
+                    ->where('external_order_id', (int) $externalOrderId)
+                    ->exists();
+
+                if (!$wasPreviouslyInvoiced) {
+                    try {
+                        \Services\KitchenService::processThirdPartyOrder($order);
+                    } catch (\Exception $e) {
+                        Log::error('[Kitchen] ' . $e->getMessage());
+                    }
                 }
 
                 $processedOrders[] = $order;
