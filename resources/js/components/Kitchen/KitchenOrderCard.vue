@@ -113,7 +113,7 @@ export default {
     },
     urgencyBorderClass() {
       const mins = this.elapsedMinutes
-      const [green, yellow] = this.isTopGroupOnly ? [5, 10] : [10, 20]
+      const [green, yellow] = this.isTopGroupOnly ? [10, 15] : [15, 20]
       if (mins < green) return 'border-green-500'
       if (mins < yellow) return 'border-yellow-500'
       return 'border-red-500'
