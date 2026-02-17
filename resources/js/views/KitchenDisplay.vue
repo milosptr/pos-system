@@ -32,7 +32,7 @@
           </span>
         </button>
       </div>
-      <h1 class="hidden md:block text-white text-lg font-bold tracking-wide text-center uppercase">Aktivne porudžbine</h1>
+      <h1 class="hidden md:block text-white text-lg font-bold tracking-wide text-center uppercase">{{ activeTab === 'active' ? 'Aktivne porudžbine' : 'Izdate porudžbine' }}</h1>
       <span class="text-white text-lg font-semibold text-right">{{ currentTime }}</span>
     </header>
 
