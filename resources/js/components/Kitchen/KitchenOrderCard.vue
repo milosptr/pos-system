@@ -99,7 +99,8 @@ export default {
     },
     readyTime() {
       if (!this.order.ready_at) return ''
-      return dayjs(this.order.ready_at).format('HH:mm')
+      const mins = dayjs(this.order.ready_at).diff(dayjs(this.order.created_at), 'minute')
+      return `${mins} min`
     },
     isTopGroupOnly() {
       const topCategoryIds = [14, 7, 9, 8, 1]
