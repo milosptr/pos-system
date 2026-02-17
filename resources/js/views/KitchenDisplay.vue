@@ -67,7 +67,7 @@ export default {
       pusher: null,
       pollInterval: null,
       timerInterval: null,
-      inactivityTimer: null,
+      readySince: null,
       now: dayjs(),
     }
   },
@@ -96,32 +96,21 @@ export default {
     }, 30000)
     this.timerInterval = setInterval(() => {
       this.now = dayjs()
-    }, 10000)
+      if (this.readySince && Date.now() - this.readySince >= 20000) {
+        this.readySince = null
+        this.$store.commit('setActiveTab', 'active')
+      }
+    }, 1000)
   },
   beforeUnmount() {
     if (this.pollInterval) clearInterval(this.pollInterval)
     if (this.timerInterval) clearInterval(this.timerInterval)
-    this.clearInactivityTimer()
     if (this.pusher) this.pusher.disconnect()
   },
   methods: {
     setTab(tab) {
       this.$store.commit('setActiveTab', tab)
-      this.clearInactivityTimer()
-      if (tab === 'ready') {
-        this.startInactivityTimer()
-      }
-    },
-    startInactivityTimer() {
-      this.inactivityTimer = setTimeout(() => {
-        this.$store.commit('setActiveTab', 'active')
-      }, 20000)
-    },
-    clearInactivityTimer() {
-      if (this.inactivityTimer) {
-        clearTimeout(this.inactivityTimer)
-        this.inactivityTimer = null
-      }
+      this.readySince = tab === 'ready' ? Date.now() : null
     },
     initPusher() {
       this.pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
