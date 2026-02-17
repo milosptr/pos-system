@@ -26,6 +26,7 @@ class KitchenOrderResource extends JsonResource
                 'modifier' => $item->modifier,
                 'storno' => $item->storno,
                 'is_done' => $item->is_done,
+                'category_id' => $item->category_id,
             ]),
             'ready_at' => $this->ready_at,
             'created_at' => $this->created_at,

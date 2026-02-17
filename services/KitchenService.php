@@ -71,6 +71,8 @@ class KitchenService
                     'name' => $item['name'] ?? '',
                     'qty' => $item['qty'] ?? 1,
                     'modifier' => $item['modifier'] ?? null,
+                    'category_id' => $item['category_id'] ?? null,
+                    'sku' => $item['sku'] ?? null,
                 ];
             }
         }
@@ -144,6 +146,9 @@ class KitchenService
         foreach ($kitchenItems as $item) {
             $incomingExternalIds[] = $item->external_item_id;
 
+            $inventoryId = self::matchInventory($item->sku, $item->name);
+            $categoryId = $inventoryId ? Inventory::find($inventoryId)?->category_id : null;
+
             $kitchenOrder->items()->updateOrCreate(
                 ['external_item_id' => $item->external_item_id],
                 [
@@ -151,6 +156,8 @@ class KitchenService
                     'qty' => $item->qty,
                     'modifier' => $item->modifier,
                     'storno' => !$item->active,
+                    'category_id' => $categoryId,
+                    'sku' => $item->sku,
                 ]
             );
         }

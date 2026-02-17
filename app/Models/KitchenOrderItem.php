@@ -9,6 +9,8 @@ class KitchenOrderItem extends Model
     protected $fillable = [
         'kitchen_order_id',
         'external_item_id',
+        'category_id',
+        'sku',
         'name',
         'qty',
         'modifier',

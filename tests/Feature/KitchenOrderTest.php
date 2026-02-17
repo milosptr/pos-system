@@ -6,6 +6,8 @@ use App\Models\Category;
 use App\Models\Inventory;
 use App\Models\KitchenOrder;
 use App\Models\KitchenOrderItem;
+use App\Models\Order;
+use App\Models\Table;
 use App\Models\ThirdPartyOrder;
 use App\Models\ThirdPartyOrderItem;
 use App\Http\Middleware\VerifyExternalApiKey;
@@ -400,5 +402,101 @@ class KitchenOrderTest extends TestCase
 
         $pljeskavicaItem = $kitchenOrder->items->firstWhere('external_item_id', 3002);
         $this->assertFalse($pljeskavicaItem->is_done);
+    }
+
+    /**
+     * Test POS order saves category_id and sku to kitchen items.
+     */
+    public function test_pos_order_saves_category_id_and_sku()
+    {
+        // Create a kitchen category (parent_id = 1)
+        $category = Category::create([
+            'name' => 'Roštilj',
+            'parent_id' => 1,
+        ]);
+
+        $table = Table::create(['name' => 'Sto 10', 'table_number' => 10]);
+
+        $order = Order::create([
+            'table_id' => $table->id,
+            'total' => 600,
+            'order' => [
+                [
+                    'name' => 'Cevapi',
+                    'qty' => 2,
+                    'modifier' => null,
+                    'category_id' => $category->id,
+                    'sku' => '000055',
+                ],
+            ],
+        ]);
+
+        $kitchenOrder = \Services\KitchenService::processOrder($order);
+
+        $this->assertNotNull($kitchenOrder);
+        $item = $kitchenOrder->items->first();
+        $this->assertEquals($category->id, $item->category_id);
+        $this->assertEquals('000055', $item->sku);
+    }
+
+    /**
+     * Test third-party order resolves category_id via inventory lookup.
+     */
+    public function test_third_party_order_resolves_category_id()
+    {
+        $category = Category::create([
+            'name' => 'Roštilj',
+            'parent_id' => 1,
+        ]);
+
+        Inventory::create([
+            'name' => 'Cevapi',
+            'sku' => '000055',
+            'category_id' => $category->id,
+            'price' => 300,
+        ]);
+
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 500001,
+            'table_id' => 800,
+            'table_name' => 'Sto 8',
+            'total' => 300,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 5001,
+            'name' => 'Cevapi',
+            'qty' => 1,
+            'price' => 300,
+            'unit' => 'kom',
+            'sku' => '000055',
+            'print_station_id' => 2,
+            'active' => 1,
+        ]);
+
+        $kitchenOrder = \Services\KitchenService::processThirdPartyOrder($order);
+
+        $this->assertNotNull($kitchenOrder);
+        $item = $kitchenOrder->items->first();
+        $this->assertEquals($category->id, $item->category_id);
+        $this->assertEquals('000055', $item->sku);
+    }
+
+    /**
+     * Test API response includes category_id in kitchen order items.
+     */
+    public function test_api_response_includes_category_id()
+    {
+        $this->createKitchenOrderWithItems(['orderable_id' => '300'], [
+            ['name' => 'Cevapi', 'qty' => 2, 'modifier' => null, 'category_id' => 14, 'sku' => '000055'],
+        ]);
+
+        $response = $this->getJson('/api/kitchen/orders');
+        $response->assertStatus(200);
+
+        $items = $response->json('active.0.items');
+        $this->assertArrayHasKey('category_id', $items[0]);
+        $this->assertEquals(14, $items[0]['category_id']);
     }
 }

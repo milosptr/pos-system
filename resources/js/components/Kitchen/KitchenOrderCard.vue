@@ -33,25 +33,29 @@
 
     <!-- Items -->
     <ul class="divide-y divide-gray-800 px-4 py-2">
-      <li
-        v-for="item in order.items"
-        :key="item.id"
-        class="py-2 cursor-pointer select-none"
-        @click="toggleDone(item)"
-      >
-        <div class="flex items-center justify-between">
-          <div
-            class="font-semibold text-base"
-            :class="itemClass(item)"
-          >
-            {{ item.qty }}x {{ item.name }}
+      <template v-for="(entry, index) in sortedItems" :key="entry.separator ? 'sep' : entry.id">
+        <li v-if="entry.separator" class="py-1">
+          <div class="border-t border-dashed border-gray-600"></div>
+        </li>
+        <li
+          v-else
+          class="py-2 cursor-pointer select-none"
+          @click="toggleDone(entry)"
+        >
+          <div class="flex items-center justify-between">
+            <div
+              class="font-semibold text-base"
+              :class="itemClass(entry)"
+            >
+              {{ parseFloat(entry.qty) }}x {{ entry.name }}
+            </div>
+            <span v-if="entry.is_done && !entry.storno" class="text-green-500 text-sm ml-2">&#10003;</span>
           </div>
-          <span v-if="item.is_done && !item.storno" class="text-green-500 text-sm ml-2">&#10003;</span>
-        </div>
-        <div v-if="item.modifier" class="text-sm mt-0.5 pl-4" :class="item.storno ? 'text-red-400 line-through' : item.is_done ? 'text-gray-600' : 'text-gray-400'">
-          {{ item.modifier }}
-        </div>
-      </li>
+          <div v-if="entry.modifier" class="text-sm mt-0.5 pl-4" :class="entry.storno ? 'text-red-400 line-through' : entry.is_done ? 'text-gray-600' : 'text-gray-400'">
+            {{ entry.modifier }}
+          </div>
+        </li>
+      </template>
     </ul>
   </div>
 </template>
@@ -97,6 +101,39 @@ export default {
     readyTime() {
       if (!this.order.ready_at) return ''
       return dayjs(this.order.ready_at).format('HH:mm')
+    },
+    sortedItems() {
+      const topOrder = [14, 7, 9, 8, 1]
+      const bottomOrder = [10, 11, 12, 13, 15]
+
+      const topGroup = []
+      const bottomGroup = []
+
+      this.order.items.forEach(item => {
+        const catId = item.category_id
+        if (catId != null && topOrder.includes(catId)) {
+          topGroup.push(item)
+        } else {
+          bottomGroup.push(item)
+        }
+      })
+
+      topGroup.sort((a, b) => topOrder.indexOf(a.category_id) - topOrder.indexOf(b.category_id))
+      bottomGroup.sort((a, b) => {
+        const aIdx = bottomOrder.indexOf(a.category_id)
+        const bIdx = bottomOrder.indexOf(b.category_id)
+        const aPos = aIdx !== -1 ? aIdx : bottomOrder.length
+        const bPos = bIdx !== -1 ? bIdx : bottomOrder.length
+        return aPos - bPos
+      })
+
+      const result = [...topGroup]
+      if (topGroup.length > 0 && bottomGroup.length > 0) {
+        result.push({ separator: true })
+      }
+      result.push(...bottomGroup)
+
+      return result
     },
   },
   beforeUnmount() {
