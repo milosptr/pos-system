@@ -1,12 +1,12 @@
 <template>
   <div
-    class="bg-gray-900 rounded-r-lg shadow-md overflow-hidden"
-    :class="mode === 'ready' ? 'opacity-60' : ''"
+    class="bg-gray-900 rounded-lg shadow-md overflow-hidden border-l-4"
+    :class="[mode === 'ready' ? 'opacity-60' : '', mode === 'active' ? urgencyBorderClass : 'border-gray-700']"
   >
     <!-- Header -->
     <div
-      class="relative px-4 py-3 flex items-center justify-between overflow-hidden border-l-4"
-      :class="[headerClass, mode === 'active' ? urgencyBorderClass : 'border-gray-700']"
+      class="relative px-4 py-3 flex items-center justify-between overflow-hidden"
+      :class="headerClass"
       @click="onHeaderClick"
     >
       <!-- Fill animation -->
