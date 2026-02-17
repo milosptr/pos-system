@@ -1,8 +1,7 @@
 <template>
   <div class="h-screen flex flex-col bg-gray-950">
     <!-- Header -->
-    <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between flex-shrink-0">
-      <h1 class="text-gray-100 text-2xl font-bold tracking-wide">Kuhinja</h1>
+    <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 grid grid-cols-3 items-center flex-shrink-0">
       <div class="flex space-x-2">
         <button
           @click="setTab('active')"
@@ -33,6 +32,8 @@
           </span>
         </button>
       </div>
+      <h1 class="text-white text-lg font-bold tracking-wide text-center uppercase">Aktivne porudžbine</h1>
+      <span class="text-white text-lg font-semibold text-right">{{ currentTime }}</span>
     </header>
 
     <!-- Content -->
@@ -81,6 +82,9 @@ export default {
     },
     currentOrders() {
       return this.activeTab === 'active' ? this.activeOrders : this.readyOrders
+    },
+    currentTime() {
+      return this.now.format('HH:mm')
     },
   },
   mounted() {
