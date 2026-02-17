@@ -1,12 +1,12 @@
 <template>
   <div
-    class="bg-gray-900 rounded-lg shadow-md overflow-hidden"
+    class="bg-gray-900 rounded-r-lg shadow-md overflow-hidden"
     :class="mode === 'ready' ? 'opacity-60' : ''"
   >
     <!-- Header -->
     <div
-      class="relative px-4 py-3 flex items-center justify-between overflow-hidden"
-      :class="headerClass"
+      class="relative px-4 py-3 flex items-center justify-between overflow-hidden border-l-4"
+      :class="[headerClass, mode === 'active' ? urgencyBorderClass : 'border-gray-700']"
       @click="onHeaderClick"
     >
       <!-- Fill animation -->
@@ -89,8 +89,7 @@ export default {
       return this.counting ? 'bg-gray-800 cursor-pointer' : 'bg-gray-800 cursor-pointer hover:bg-gray-700'
     },
     elapsed() {
-      const created = dayjs(this.order.created_at)
-      const diffMinutes = this.now.diff(created, 'minute')
+      const diffMinutes = this.elapsedMinutes
       if (diffMinutes >= 60) {
         const hours = Math.floor(diffMinutes / 60)
         const mins = diffMinutes % 60
@@ -101,6 +100,22 @@ export default {
     readyTime() {
       if (!this.order.ready_at) return ''
       return dayjs(this.order.ready_at).format('HH:mm')
+    },
+    isTopGroupOnly() {
+      const topCategoryIds = [14, 7, 9, 8, 1]
+      return this.order.items.length > 0 && this.order.items.every(
+        item => item.category_id != null && topCategoryIds.includes(item.category_id)
+      )
+    },
+    elapsedMinutes() {
+      return this.now.diff(dayjs(this.order.created_at), 'minute')
+    },
+    urgencyBorderClass() {
+      const mins = this.elapsedMinutes
+      const [green, yellow] = this.isTopGroupOnly ? [5, 10] : [10, 20]
+      if (mins < green) return 'border-green-500'
+      if (mins < yellow) return 'border-yellow-500'
+      return 'border-red-500'
     },
     sortedItems() {
       const topOrder = [14, 7, 9, 8, 1]
