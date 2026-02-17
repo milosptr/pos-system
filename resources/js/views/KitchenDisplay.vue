@@ -1,7 +1,7 @@
 <template>
   <div class="h-screen flex flex-col bg-gray-950">
     <!-- Header -->
-    <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 grid grid-cols-3 items-center flex-shrink-0">
+    <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex md:grid md:grid-cols-3 items-center justify-between flex-shrink-0">
       <div class="flex space-x-2">
         <button
           @click="setTab('active')"
