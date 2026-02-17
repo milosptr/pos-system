@@ -35,7 +35,7 @@
     <ul class="divide-y divide-gray-800 px-4 py-2">
       <template v-for="(entry, index) in sortedItems" :key="entry.separator ? 'sep' : entry.id">
         <li v-if="entry.separator" class="py-1">
-          <div class="border-t border-dashed border-gray-600"></div>
+          <div class="border-t-2 border-white"></div>
         </li>
         <li
           v-else
