@@ -69,6 +69,9 @@ export default {
       timerInterval: null,
       readySince: null,
       now: dayjs(),
+      knownOrderIds: new Set(),
+      initialLoadDone: false,
+      notificationSound: new Audio('/sounds/antic_ios_17.mp3'),
     }
   },
   computed: {
@@ -86,6 +89,25 @@ export default {
     },
     currentTime() {
       return this.now.format('HH:mm')
+    },
+  },
+  watch: {
+    activeOrders(orders) {
+      const currentIds = new Set(orders.map(o => o.id))
+
+      if (!this.initialLoadDone) {
+        this.knownOrderIds = currentIds
+        this.initialLoadDone = true
+        return
+      }
+
+      const hasNewOrder = orders.some(o => !this.knownOrderIds.has(o.id))
+      if (hasNewOrder) {
+        this.notificationSound.currentTime = 0
+        this.notificationSound.play().catch(() => {})
+      }
+
+      this.knownOrderIds = currentIds
     },
   },
   mounted() {
