@@ -102,6 +102,14 @@ class OrderController extends Controller
     {
       $order = Order::find($id);
       $order->update($request->only(['order', 'total', 'table_id']));
+
+      try {
+          $order->load('table');
+          \Services\KitchenService::processOrder($order);
+      } catch (Exception $e) {
+          Log::error('[Kitchen] ' . $e->getMessage());
+      }
+
       try {
         if($order)
           app(Pusher::class)->trigger('broadcasting', 'tables-update', []);

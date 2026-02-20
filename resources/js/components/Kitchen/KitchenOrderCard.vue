@@ -57,6 +57,21 @@
         </li>
       </template>
     </ul>
+
+    <!-- Undo confirmation panel -->
+    <div v-if="showUndoConfirm" class="px-4 py-3 bg-gray-800 border-t border-gray-700">
+      <p class="text-gray-300 text-sm mb-2">Da li hocete da vratite porudzbinu u aktivne?</p>
+      <div class="flex gap-2">
+        <button
+          @click="confirmUndo"
+          class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-1.5 rounded transition-colors"
+        >Da</button>
+        <button
+          @click="showUndoConfirm = false"
+          class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium px-4 py-1.5 rounded transition-colors"
+        >Ne</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -81,11 +96,12 @@ export default {
       counting: false,
       fillWidth: '0%',
       countdownTimer: null,
+      showUndoConfirm: false,
     }
   },
   computed: {
     headerClass() {
-      if (this.mode === 'ready') return 'bg-gray-800'
+      if (this.mode === 'ready') return 'bg-gray-800 cursor-pointer hover:bg-gray-700'
       return this.counting ? 'bg-gray-800 cursor-pointer' : 'bg-gray-800 cursor-pointer hover:bg-gray-700'
     },
     elapsed() {
@@ -117,6 +133,11 @@ export default {
       if (mins < green) return 'border-green-500'
       if (mins < yellow) return 'border-yellow-500'
       return 'border-red-500'
+    },
+    allNonStornoDone() {
+      const nonStorno = this.order.items.filter(i => !i.storno)
+      if (nonStorno.length === 0) return false
+      return nonStorno.every(i => i.is_done)
     },
     sortedItems() {
       const topOrder = [14, 7, 9, 8, 1]
@@ -152,6 +173,16 @@ export default {
       return result
     },
   },
+  watch: {
+    allNonStornoDone(val) {
+      if (this.mode !== 'active') return
+      if (val && !this.counting) {
+        this.startCountdown()
+      } else if (!val && this.counting) {
+        this.cancelCountdown()
+      }
+    },
+  },
   beforeUnmount() {
     this.clearCountdown()
   },
@@ -166,8 +197,20 @@ export default {
       return 'text-gray-100'
     },
     onHeaderClick() {
-      if (this.mode !== 'active' || this.counting) return
+      if (this.mode === 'ready') {
+        this.showUndoConfirm = !this.showUndoConfirm
+        return
+      }
+      if (this.mode !== 'active') return
+      if (this.counting) {
+        this.cancelCountdown()
+        return
+      }
       this.startCountdown()
+    },
+    confirmUndo() {
+      this.$store.dispatch('undoReady', this.order.id)
+      this.showUndoConfirm = false
     },
     startCountdown() {
       this.counting = true

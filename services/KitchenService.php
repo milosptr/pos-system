@@ -13,6 +13,59 @@ use Illuminate\Support\Facades\Cache;
 class KitchenService
 {
     /**
+     * Format a table name with the appropriate prefix for kitchen display.
+     *
+     * @param string $tableName
+     * @return string
+     */
+    public static function formatTableName(string $tableName): string
+    {
+        $trimmed = trim($tableName);
+
+        if (strcasecmp($trimmed, 'N') === 0) {
+            return 'Nošenje';
+        }
+
+        if (ctype_digit($trimmed)) {
+            $n = (int) $trimmed;
+            if (($n >= 11 && $n <= 25) || in_array($n, [40, 50, 60])) {
+                return 'Bašta ' . $trimmed;
+            }
+            return 'Sala ' . $trimmed;
+        }
+
+        return $trimmed;
+    }
+
+    /**
+     * Check if an order should be filtered out from the kitchen display.
+     * Orders from table "Sima" containing only Kafa items are filtered out.
+     *
+     * @param string $tableName
+     * @param array $items
+     * @return bool
+     */
+    public static function shouldFilterOut(string $tableName, array $items): bool
+    {
+        if (strcasecmp(trim($tableName), 'sima') !== 0) {
+            return false;
+        }
+
+        if (empty($items)) {
+            return false;
+        }
+
+        foreach ($items as $item) {
+            $name = $item['name'] ?? '';
+            if (stripos($name, 'kafa') === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Get category IDs that belong to KUHINJA (parent_id = 1).
      *
      * @return array
@@ -73,6 +126,7 @@ class KitchenService
                     'modifier' => $item['modifier'] ?? null,
                     'category_id' => $item['category_id'] ?? null,
                     'sku' => $item['sku'] ?? null,
+                    'storno' => !empty($item['refund']),
                 ];
             }
         }
@@ -81,6 +135,19 @@ class KitchenService
         $kitchenItems = array_reverse($kitchenItems);
 
         if (empty($kitchenItems)) {
+            // Delete any existing kitchen order for this source order
+            KitchenOrder::where('orderable_type', 'order')
+                ->where('orderable_id', $order->id)
+                ->delete();
+            return null;
+        }
+
+        $tableName = $order->table->name;
+
+        if (self::shouldFilterOut($tableName, $kitchenItems)) {
+            KitchenOrder::where('orderable_type', 'order')
+                ->where('orderable_id', $order->id)
+                ->delete();
             return null;
         }
 
@@ -90,7 +157,7 @@ class KitchenService
                 'orderable_id' => $order->id,
             ],
             [
-                'table_name' => $order->table->name,
+                'table_name' => self::formatTableName($tableName),
             ]
         );
 
@@ -129,13 +196,27 @@ class KitchenService
             return null;
         }
 
+        $tableName = $order->table_name;
+        $itemsArray = $kitchenItems->map(fn($item) => ['name' => $item->name])->toArray();
+
+        if (self::shouldFilterOut($tableName, $itemsArray)) {
+            $existing = KitchenOrder::where('orderable_type', 'third_party_order')
+                ->where('orderable_id', $order->id)
+                ->first();
+            if ($existing) {
+                $existing->items()->delete();
+                $existing->delete();
+            }
+            return null;
+        }
+
         $kitchenOrder = KitchenOrder::updateOrCreate(
             [
                 'orderable_type' => 'third_party_order',
                 'orderable_id' => $order->id,
             ],
             [
-                'table_name' => $order->table_name,
+                'table_name' => self::formatTableName($tableName),
             ]
         );
 
