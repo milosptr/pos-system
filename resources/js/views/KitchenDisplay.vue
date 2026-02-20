@@ -71,7 +71,7 @@ export default {
       now: dayjs(),
       knownOrderIds: new Set(),
       initialLoadDone: false,
-      notificationSound: new Audio('/sounds/antic_ios_17.mp3'),
+      notificationSound: new Audio('/sounds/glass-tone.mp3'),
     }
   },
   computed: {
