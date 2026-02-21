@@ -31,6 +31,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\ThirdPartyInvoiceController;
 use App\Http\Controllers\ThirdPartyOrderController;
 use App\Http\Controllers\KitchenController;
+use App\Http\Controllers\SettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -198,6 +199,10 @@ Route::prefix('/backoffice')->group(function () {
 
     // Third-party orders
     Route::get('third-party-orders', [ThirdPartyOrderController::class, 'all']);
+
+    // Settings
+    Route::get('settings', [SettingsController::class, 'index']);
+    Route::put('settings', [SettingsController::class, 'update']);
 });
 
 // Kitchen Display
@@ -205,6 +210,11 @@ Route::get('kitchen/orders', [KitchenController::class, 'index']);
 Route::post('kitchen/orders/{id}/ready', [KitchenController::class, 'markReady']);
 Route::post('kitchen/orders/{id}/undo', [KitchenController::class, 'undoReady']);
 Route::post('kitchen/items/{id}/toggle-done', [KitchenController::class, 'toggleItemDone']);
+
+// Settings (external API)
+Route::group(['middleware' => ['external.api']], function () {
+    Route::get('settings', [SettingsController::class, 'index']);
+});
 
 // Third-party invoice/order import (external API)
 Route::group(['middleware' => ['external.api']], function () {
