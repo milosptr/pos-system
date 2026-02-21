@@ -246,6 +246,9 @@ class ThirdPartyInvoiceController extends Controller
         $externalOrderId = isset($firstRow['porudzbinaid']) ? (int) $firstRow['porudzbinaid'] : null;
         $discount = (float) ($firstRow['popust'] ?? 0);
         $stornoReferenceId = isset($firstRow['stornoreferenceid']) ? (int) $firstRow['stornoreferenceid'] * 100 : null;
+        $listastavki = isset($firstRow['listastavki']) && !empty($firstRow['listastavki'])
+            ? array_map('intval', array_map('trim', explode(',', $firstRow['listastavki'])))
+            : null;
         $invoicedAt = isset($firstRow['datum']) && !empty($firstRow['datum'])
             ? $firstRow['datum']
             : null;
@@ -376,6 +379,7 @@ class ThirdPartyInvoiceController extends Controller
                 $externalOrderId,
                 $tableId,
                 $tableName,
+                $listastavki,
                 $items,
                 $totalCents,
                 $paymentType,
@@ -398,12 +402,15 @@ class ThirdPartyInvoiceController extends Controller
                     'invoiced_at' => $invoicedAt,
                 ]);
 
-                // Delete all orders for this table if stoid is present
-                if ($tableId) {
+                // Clear orders: prefer item-level clearing via listastavki, fall back to table-level via stoid
+                if (!empty($listastavki)) {
+                    $ordersDeleted = ThirdPartyOrder::deleteByExternalItemIds($listastavki);
+                } elseif ($tableId) {
                     $tpoIds = ThirdPartyOrder::where('table_id', $tableId)->pluck('id')->toArray();
                     $ordersDeleted = ThirdPartyOrder::deleteByTableId($tableId);
                     if (!empty($tpoIds)) {
-                        KitchenOrder::where('orderable_type', 'third_party_order')->whereIn('orderable_id', $tpoIds)->delete();
+                        KitchenOrder::where('orderable_type', 'third_party_order')
+                            ->whereIn('orderable_id', $tpoIds)->delete();
                     }
                 }
 
