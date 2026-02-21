@@ -33,7 +33,7 @@
         </button>
       </div>
       <h1 class="hidden md:block text-white text-lg font-bold tracking-wide text-center uppercase">{{ activeTab === 'active' ? 'Aktivne porudžbine' : 'Izdate porudžbine' }}</h1>
-      <span class="text-white text-lg font-semibold text-right">{{ currentTime }}</span>
+      <span @click="goToCheckin" class="text-white text-lg font-semibold text-right cursor-pointer hover:text-gray-300 transition-colors">{{ currentTime }}</span>
     </header>
 
     <!-- Content -->
@@ -133,6 +133,10 @@ export default {
     setTab(tab) {
       this.$store.commit('setActiveTab', tab)
       this.readySince = tab === 'ready' ? Date.now() : null
+    },
+    goToCheckin() {
+      const sendBack = window.location.href
+      window.location.href = `http://192.168.200.30:81/checkin?sendBack=${encodeURIComponent(sendBack)}`
     },
     initPusher() {
       this.pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
