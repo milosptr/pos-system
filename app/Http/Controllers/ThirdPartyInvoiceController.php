@@ -246,9 +246,15 @@ class ThirdPartyInvoiceController extends Controller
         $externalOrderId = isset($firstRow['porudzbinaid']) ? (int) $firstRow['porudzbinaid'] : null;
         $discount = (float) ($firstRow['popust'] ?? 0);
         $stornoReferenceId = isset($firstRow['stornoreferenceid']) ? (int) $firstRow['stornoreferenceid'] * 100 : null;
-        $listastavki = isset($firstRow['listastavki']) && !empty($firstRow['listastavki'])
-            ? array_map('intval', array_map('trim', explode(',', $firstRow['listastavki'])))
-            : null;
+        $listastavki = collect($rows)
+            ->pluck('listastavki')
+            ->filter()
+            ->flatMap(fn ($val) => array_map('intval', array_map('trim', explode(',', $val))))
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values()
+            ->toArray();
+        $listastavki = !empty($listastavki) ? $listastavki : null;
         $invoicedAt = isset($firstRow['datum']) && !empty($firstRow['datum'])
             ? $firstRow['datum']
             : null;
