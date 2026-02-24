@@ -56,6 +56,7 @@ class ThirdPartyOrderController extends Controller
             $processedOrders = [];
 
             foreach ($orderGroups as $externalOrderId => $orderRows) {
+                $orderRows = self::mergeModifierRows($orderRows);
                 $firstRow = $orderRows->first();
 
                 // Extract order-level data (lowercase field names)
@@ -173,6 +174,63 @@ class ThirdPartyOrderController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Check if a row is a modifier-only row (not a real item).
+     * Modifier rows have modifikatorslobodan set and cena = 0.
+     */
+    private static function isModifierOnlyRow(array $row): bool
+    {
+        return !empty($row['modifikatorslobodan'])
+            && (int) ($row['cena'] ?? 0) === 0;
+    }
+
+    /**
+     * Merge modifier-only rows into their parent items.
+     * Ebar sends modifiers as separate rows with stavkaid = parent stavkaid + 1.
+     */
+    private static function mergeModifierRows($rows): \Illuminate\Support\Collection
+    {
+        $rows = collect($rows);
+        $indexed = $rows->keyBy('stavkaid');
+        $consumed = [];
+
+        foreach ($rows as $row) {
+            if (!self::isModifierOnlyRow($row)) {
+                continue;
+            }
+
+            $modifierStavkaId = $row['stavkaid'];
+            $parentStavkaId = $modifierStavkaId - 1;
+
+            if (!$indexed->has($parentStavkaId)) {
+                Log::warning('[ThirdPartyOrder] Orphan modifier row, no parent at stavkaid ' . $parentStavkaId, [
+                    'stavkaid' => $modifierStavkaId,
+                ]);
+                continue;
+            }
+
+            $parent = $indexed->get($parentStavkaId);
+            $modifierText = $row['modifikatorslobodan'];
+
+            if (!empty($parent['modifikatorslobodan'])) {
+                $parent['modifikatorslobodan'] .= ', ' . $modifierText;
+            } else {
+                $parent['modifikatorslobodan'] = $modifierText;
+            }
+
+            $indexed->put($parentStavkaId, $parent);
+            $consumed[] = $modifierStavkaId;
+        }
+
+        if (empty($consumed)) {
+            return $rows;
+        }
+
+        return $indexed->reject(function ($row, $stavkaid) use ($consumed) {
+            return in_array($stavkaid, $consumed);
+        })->values();
     }
 
     /**

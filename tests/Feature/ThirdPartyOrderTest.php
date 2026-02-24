@@ -1413,6 +1413,463 @@ class ThirdPartyOrderTest extends TestCase
         $this->assertEquals(1, ThirdPartyOrder::count());
     }
 
+    // ---------------------------------------------------------------
+    // Modifier row merging tests
+    // ---------------------------------------------------------------
+
+    /**
+     * Test modifier row is merged into parent item.
+     */
+    public function test_modifier_row_merged_into_parent_item()
+    {
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 350,
+                'naziv' => 'Palacinka',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200001,
+                'stavkaid' => 5000,
+                'stoid' => 500,
+                'modifikatorslobodan' => null,
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200001,
+                'stavkaid' => 5001,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'sa nutelom',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $requestData);
+
+        $response->assertStatus(201);
+
+        $this->assertEquals(1, ThirdPartyOrderItem::count());
+        $item = ThirdPartyOrderItem::first();
+        $this->assertEquals('Palacinka', $item->name);
+        $this->assertEquals(350, $item->price);
+        $this->assertEquals('sa nutelom', $item->modifier);
+    }
+
+    /**
+     * Test modifier row with empty naziv is merged.
+     */
+    public function test_modifier_row_with_empty_naziv_merged()
+    {
+        $requestData = [
+            [
+                'kolicina' => 2,
+                'cena' => 200,
+                'naziv' => 'Kafa',
+                'jm' => 'kom',
+                'sto' => '3',
+                'porudzbinaid' => 200002,
+                'stavkaid' => 6000,
+                'stoid' => 600,
+                'modifikatorslobodan' => null,
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '3',
+                'porudzbinaid' => 200002,
+                'stavkaid' => 6001,
+                'stoid' => 600,
+                'modifikatorslobodan' => 'sa mlekom',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $requestData);
+
+        $response->assertStatus(201);
+        $this->assertEquals(1, ThirdPartyOrderItem::count());
+
+        $item = ThirdPartyOrderItem::first();
+        $this->assertEquals('Kafa', $item->name);
+        $this->assertEquals('sa mlekom', $item->modifier);
+        $this->assertEquals(6000, $item->external_item_id);
+    }
+
+    /**
+     * Test normal item with inline modifier and cena > 0 is not affected.
+     */
+    public function test_normal_item_with_inline_modifier_not_affected()
+    {
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 400,
+                'naziv' => 'Palacinka sa nutelom',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200003,
+                'stavkaid' => 7000,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'extra slag',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $requestData);
+
+        $response->assertStatus(201);
+        $this->assertEquals(1, ThirdPartyOrderItem::count());
+
+        $item = ThirdPartyOrderItem::first();
+        $this->assertEquals('Palacinka sa nutelom', $item->name);
+        $this->assertEquals(400, $item->price);
+        $this->assertEquals('extra slag', $item->modifier);
+    }
+
+    /**
+     * Test multiple items each with their own modifier row.
+     */
+    public function test_multiple_items_each_with_modifier()
+    {
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 350,
+                'naziv' => 'Palacinka',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200004,
+                'stavkaid' => 8000,
+                'stoid' => 500,
+                'modifikatorslobodan' => null,
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200004,
+                'stavkaid' => 8001,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'sa nutelom',
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 200,
+                'naziv' => 'Kafa',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200004,
+                'stavkaid' => 8002,
+                'stoid' => 500,
+                'modifikatorslobodan' => null,
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200004,
+                'stavkaid' => 8003,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'sa mlekom',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $requestData);
+
+        $response->assertStatus(201);
+        $this->assertEquals(2, ThirdPartyOrderItem::count());
+
+        $palacinka = ThirdPartyOrderItem::where('external_item_id', 8000)->first();
+        $this->assertEquals('sa nutelom', $palacinka->modifier);
+
+        $kafa = ThirdPartyOrderItem::where('external_item_id', 8002)->first();
+        $this->assertEquals('sa mlekom', $kafa->modifier);
+    }
+
+    /**
+     * Test orphan modifier row (no parent at stavkaid-1) is kept as item.
+     */
+    public function test_orphan_modifier_row_kept_as_item()
+    {
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 350,
+                'naziv' => 'Palacinka',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200005,
+                'stavkaid' => 9000,
+                'stoid' => 500,
+                'modifikatorslobodan' => null,
+            ],
+            [
+                // Orphan: parent would be 9004, but that doesn't exist
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200005,
+                'stavkaid' => 9005,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'bez secera',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $requestData);
+
+        $response->assertStatus(201);
+        // Both items kept (orphan not consumed)
+        $this->assertEquals(2, ThirdPartyOrderItem::count());
+        $this->assertNull(ThirdPartyOrderItem::where('external_item_id', 9000)->first()->modifier);
+    }
+
+    /**
+     * Test modifier row does not affect order total (cena=0).
+     */
+    public function test_modifier_row_not_counted_in_total()
+    {
+        $requestData = [
+            [
+                'kolicina' => 2,
+                'cena' => 350,
+                'naziv' => 'Palacinka',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200006,
+                'stavkaid' => 10000,
+                'stoid' => 500,
+                'modifikatorslobodan' => null,
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200006,
+                'stavkaid' => 10001,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'sa nutelom',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $requestData);
+
+        $response->assertStatus(201);
+
+        $order = ThirdPartyOrder::first();
+        $this->assertEquals(700, $order->total); // 2 * 350 = 700, modifier cena=0 excluded
+    }
+
+    /**
+     * Test modifier text appended to existing parent modifier.
+     */
+    public function test_modifier_appended_to_existing_parent_modifier()
+    {
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 350,
+                'naziv' => 'Palacinka',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200007,
+                'stavkaid' => 11000,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'bez secera',
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200007,
+                'stavkaid' => 11001,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'sa nutelom',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $requestData);
+
+        $response->assertStatus(201);
+        $this->assertEquals(1, ThirdPartyOrderItem::count());
+
+        $item = ThirdPartyOrderItem::first();
+        $this->assertEquals('bez secera, sa nutelom', $item->modifier);
+    }
+
+    /**
+     * Test no ThirdPartyOrderItem record is saved for modifier stavkaid.
+     */
+    public function test_modifier_row_external_item_id_not_saved()
+    {
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 350,
+                'naziv' => 'Palacinka',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200008,
+                'stavkaid' => 12000,
+                'stoid' => 500,
+                'modifikatorslobodan' => null,
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200008,
+                'stavkaid' => 12001,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'sa nutelom',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $requestData);
+
+        $response->assertStatus(201);
+
+        // No item saved with modifier's stavkaid
+        $this->assertNull(ThirdPartyOrderItem::where('external_item_id', 12001)->first());
+        // Parent item exists
+        $this->assertNotNull(ThirdPartyOrderItem::where('external_item_id', 12000)->first());
+    }
+
+    /**
+     * Test previously saved modifier items get cleaned up on update.
+     */
+    public function test_update_cleans_up_old_modifier_items()
+    {
+        // Simulate old data: modifier was previously saved as a separate item
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 200009,
+            'table_id' => 500,
+            'table_name' => '5',
+            'total' => 350,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 13000,
+            'name' => 'Palacinka',
+            'qty' => 1,
+            'price' => 350,
+            'unit' => 'kom',
+            'active' => 1,
+        ]);
+
+        // Old phantom modifier item
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 13001,
+            'name' => '',
+            'qty' => 1,
+            'price' => 0,
+            'unit' => 'kom',
+            'active' => 1,
+            'modifier' => 'sa nutelom',
+        ]);
+
+        $this->assertEquals(2, ThirdPartyOrderItem::count());
+
+        // Now send updated data (with merging active)
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 350,
+                'naziv' => 'Palacinka',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200009,
+                'stavkaid' => 13000,
+                'stoid' => 500,
+                'modifikatorslobodan' => null,
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200009,
+                'stavkaid' => 13001,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'sa nutelom',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $requestData);
+
+        $response->assertStatus(201);
+
+        // Old phantom item cleaned up, only parent remains
+        $this->assertEquals(1, ThirdPartyOrderItem::count());
+        $item = ThirdPartyOrderItem::first();
+        $this->assertEquals(13000, $item->external_item_id);
+        $this->assertEquals('sa nutelom', $item->modifier);
+    }
+
+    /**
+     * Test storno for modifier stavkaid returns not_found.
+     */
+    public function test_storno_for_modifier_stavkaid_returns_not_found()
+    {
+        // Create order with merged modifier (no item for stavkaid 14001)
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 350,
+                'naziv' => 'Palacinka',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200010,
+                'stavkaid' => 14000,
+                'stoid' => 500,
+                'modifikatorslobodan' => null,
+            ],
+            [
+                'kolicina' => 1,
+                'cena' => 0,
+                'naziv' => '',
+                'jm' => 'kom',
+                'sto' => '5',
+                'porudzbinaid' => 200010,
+                'stavkaid' => 14001,
+                'stoid' => 500,
+                'modifikatorslobodan' => 'sa nutelom',
+            ],
+        ];
+
+        $this->postJson('/api/third-party-order', $requestData);
+        $this->assertEquals(1, ThirdPartyOrderItem::count());
+
+        // Try to storno the modifier stavkaid
+        $response = $this->postJson('/api/third-party-order-storno', [
+            ['stavkaId' => 14001, 'storno' => 1],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['not_found' => 1]);
+        $response->assertJsonFragment(['updated' => 0]);
+
+        // Parent item still active
+        $this->assertEquals(1, ThirdPartyOrderItem::where('external_item_id', 14000)->first()->active);
+    }
+
     /**
      * Test storno endpoint sets items to inactive.
      */

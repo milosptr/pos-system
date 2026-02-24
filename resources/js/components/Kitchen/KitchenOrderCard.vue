@@ -1,7 +1,6 @@
 <template>
   <div
     class="bg-gray-900 rounded-lg shadow-md overflow-hidden"
-    :class="mode === 'ready' ? 'opacity-60' : ''"
   >
     <!-- Header -->
     <div
@@ -51,7 +50,7 @@
             </div>
             <span v-if="entry.is_done && !entry.storno" class="text-green-500 text-sm ml-2">&#10003;</span>
           </div>
-          <div v-if="entry.modifier" class="text-sm mt-0.5 pl-4" :class="entry.storno ? 'text-red-400 line-through' : entry.is_done ? 'text-gray-600' : 'text-gray-400'">
+          <div v-if="entry.modifier" class="text-sm mt-0.5 pl-4" :class="entry.storno ? 'text-red-400 line-through' : (entry.is_done && mode !== 'ready') ? 'text-gray-600' : 'text-gray-400'">
             {{ entry.modifier }}
           </div>
         </li>
@@ -193,6 +192,7 @@ export default {
     },
     itemClass(item) {
       if (item.storno) return 'text-red-500 line-through'
+      if (this.mode === 'ready') return 'text-gray-100'
       if (item.is_done) return 'text-gray-600'
       return 'text-gray-100'
     },
