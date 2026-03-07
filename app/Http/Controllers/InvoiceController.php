@@ -94,6 +94,11 @@ class InvoiceController extends Controller
           } catch(Exception $e) {
             Log::error($e->getMessage());
           }
+          try {
+              app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+          } catch(Exception $e) {
+              Log::error($e->getMessage());
+          }
       }
       return InvoiceResource::collection(Invoice::whereBetween('created_at', WorkingDay::getWorkingDay())->orderBy('id', 'DESC')->get());
     }

@@ -113,6 +113,12 @@ class ThirdPartyInvoiceController extends Controller
                 'invoice_number' => $invoice->invoice_number,
             ]);
 
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Invoice marked as on the house',
@@ -174,6 +180,12 @@ class ThirdPartyInvoiceController extends Controller
                 'id' => $invoice->id,
                 'invoice_number' => $invoice->invoice_number,
             ]);
+
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+            }
 
             return response()->json([
                 'success' => true,
@@ -575,6 +587,12 @@ class ThirdPartyInvoiceController extends Controller
                 'id' => $invoice->id,
                 'invoice_number' => $invoice->invoice_number,
             ]);
+
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+            }
 
             return response()->json([
                 'success' => true,
