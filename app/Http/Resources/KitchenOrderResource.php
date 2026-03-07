@@ -19,6 +19,7 @@ class KitchenOrderResource extends JsonResource
             'orderable_type' => $this->orderable_type,
             'orderable_id' => $this->orderable_id,
             'table_name' => $this->table_name,
+            'waiter_name' => $this->waiter_name,
             'items' => $this->items->map(fn($item) => [
                 'id' => $item->id,
                 'name' => $item->name,

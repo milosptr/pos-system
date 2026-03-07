@@ -14,7 +14,10 @@
         class="absolute inset-0 bg-white/20"
         :style="{ width: fillWidth, transition: 'width 3s linear' }"
       ></div>
-      <span class="relative text-white font-bold text-lg">{{ order.table_name }}</span>
+      <span class="relative text-white font-bold text-lg">
+        {{ order.table_name }}
+        <span v-if="order.waiter_name" class="text-gray-400 font-normal text-sm ml-2">{{ order.waiter_name }}</span>
+      </span>
       <template v-if="mode === 'active'">
         <button
           v-if="counting"
@@ -28,6 +31,19 @@
       <template v-else>
         <span class="text-gray-400 text-sm font-medium">{{ readyTime }}</span>
       </template>
+    </div>
+
+    <!-- Waiter suggestions -->
+    <div v-if="showSuggestions && !order.waiter_name && mode === 'active'" class="px-3 py-2 bg-gray-800 flex flex-wrap gap-1.5">
+      <button
+        v-for="waiter in waiters"
+        :key="waiter.id"
+        @click="assignWaiter(waiter.name)"
+        class="px-3 py-1 rounded text-sm font-medium text-white hover:opacity-80 transition-opacity"
+        :style="{ backgroundColor: waiter.color || '#6B7280' }"
+      >
+        {{ waiter.name }}
+      </button>
     </div>
 
     <!-- Items -->
@@ -89,6 +105,10 @@ export default {
       type: Object,
       required: true,
     },
+    waiters: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -96,6 +116,8 @@ export default {
       fillWidth: '0%',
       countdownTimer: null,
       showUndoConfirm: false,
+      showSuggestions: true,
+      suggestionTimer: null,
     }
   },
   computed: {
@@ -172,7 +194,13 @@ export default {
       return result
     },
   },
+  mounted() {
+    this.initSuggestionTimer()
+  },
   watch: {
+    'order.id'() {
+      this.initSuggestionTimer()
+    },
     allNonStornoDone(val) {
       if (this.mode !== 'active') return
       if (val && !this.counting) {
@@ -184,8 +212,31 @@ export default {
   },
   beforeUnmount() {
     this.clearCountdown()
+    this.clearSuggestionTimer()
   },
   methods: {
+    initSuggestionTimer() {
+      this.clearSuggestionTimer()
+      if (this.order.waiter_name) {
+        this.showSuggestions = false
+        return
+      }
+      this.showSuggestions = true
+      this.suggestionTimer = setTimeout(() => {
+        this.showSuggestions = false
+      }, 60000)
+    },
+    clearSuggestionTimer() {
+      if (this.suggestionTimer) {
+        clearTimeout(this.suggestionTimer)
+        this.suggestionTimer = null
+      }
+    },
+    assignWaiter(name) {
+      this.$store.dispatch('assignWaiter', { orderId: this.order.id, waiterName: name })
+      this.showSuggestions = false
+      this.clearSuggestionTimer()
+    },
     toggleDone(item) {
       if (this.mode !== 'active') return
       this.$store.dispatch('toggleItemDone', { orderId: this.order.id, itemId: item.id })

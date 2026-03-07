@@ -209,6 +209,7 @@ Route::prefix('/backoffice')->group(function () {
 Route::get('kitchen/orders', [KitchenController::class, 'index']);
 Route::post('kitchen/orders/{id}/ready', [KitchenController::class, 'markReady']);
 Route::post('kitchen/orders/{id}/undo', [KitchenController::class, 'undoReady']);
+Route::post('kitchen/orders/{id}/assign-waiter', [KitchenController::class, 'assignWaiter']);
 Route::post('kitchen/items/{id}/toggle-done', [KitchenController::class, 'toggleItemDone']);
 
 // Settings (external API)

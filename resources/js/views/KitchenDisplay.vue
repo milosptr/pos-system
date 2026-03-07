@@ -44,6 +44,7 @@
             :order="order"
             :mode="activeTab"
             :now="now"
+            :waiters="waiters"
           />
         </div>
       </div>
@@ -84,6 +85,9 @@ export default {
     readyOrders() {
       return this.$store.getters.readyOrders
     },
+    waiters() {
+      return this.$store.getters.waiters
+    },
     currentOrders() {
       return this.activeTab === 'active' ? this.activeOrders : this.readyOrders
     },
@@ -112,9 +116,11 @@ export default {
   },
   mounted() {
     this.$store.dispatch('fetchOrders')
+    this.$store.dispatch('fetchWaiters')
     this.initPusher()
     this.pollInterval = setInterval(() => {
       this.$store.dispatch('fetchOrders')
+      this.$store.dispatch('fetchWaiters')
     }, 30000)
     this.timerInterval = setInterval(() => {
       this.now = dayjs()
@@ -145,6 +151,7 @@ export default {
       this.pusher.subscribe('broadcasting')
       this.pusher.bind('kitchen-update', () => {
         this.$store.dispatch('fetchOrders')
+        this.$store.dispatch('fetchWaiters')
       })
     },
   },

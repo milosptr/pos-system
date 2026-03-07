@@ -69,6 +69,27 @@ class KitchenController extends Controller
     }
 
     /**
+     * Assign a waiter to a kitchen order.
+     *
+     * @param int $id
+     * @return KitchenOrderResource
+     */
+    public function assignWaiter($id)
+    {
+        $kitchenOrder = KitchenOrder::findOrFail($id);
+        $kitchenOrder->update(['waiter_name' => request('waiter_name')]);
+        $kitchenOrder->load('items');
+
+        try {
+            app(Pusher::class)->trigger('broadcasting', 'kitchen-update', []);
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
+        }
+
+        return new KitchenOrderResource($kitchenOrder);
+    }
+
+    /**
      * Toggle the is_done state of a kitchen order item.
      *
      * @param int $id

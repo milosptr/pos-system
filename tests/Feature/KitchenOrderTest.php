@@ -484,6 +484,66 @@ class KitchenOrderTest extends TestCase
     }
 
     /**
+     * Test assigning a waiter to a kitchen order.
+     */
+    public function test_assign_waiter_to_kitchen_order()
+    {
+        $kitchenOrder = $this->createKitchenOrderWithItems();
+
+        $this->assertNull($kitchenOrder->waiter_name);
+
+        $response = $this->postJson("/api/kitchen/orders/{$kitchenOrder->id}/assign-waiter", [
+            'waiter_name' => 'Marko',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.waiter_name', 'Marko');
+
+        $kitchenOrder->refresh();
+        $this->assertEquals('Marko', $kitchenOrder->waiter_name);
+    }
+
+    /**
+     * Test waiter_name is included in index response.
+     */
+    public function test_waiter_name_included_in_index_response()
+    {
+        $this->createKitchenOrderWithItems([
+            'orderable_id' => '1',
+            'table_name' => 'Sto 1',
+            'waiter_name' => 'Jelena',
+        ]);
+
+        $response = $this->getJson('/api/kitchen/orders');
+        $response->assertStatus(200);
+        $this->assertEquals('Jelena', $response->json('active.0.waiter_name'));
+    }
+
+    /**
+     * Test waiter_name is nullable (orders without assignment).
+     */
+    public function test_waiter_name_is_nullable()
+    {
+        $kitchenOrder = $this->createKitchenOrderWithItems();
+
+        $response = $this->getJson('/api/kitchen/orders');
+        $response->assertStatus(200);
+        $this->assertNull($response->json('active.0.waiter_name'));
+    }
+
+    /**
+     * Test assigning waiter to non-existent order returns 404.
+     */
+    public function test_assign_waiter_to_nonexistent_order_returns_404()
+    {
+        $response = $this->postJson('/api/kitchen/orders/99999/assign-waiter', [
+            'waiter_name' => 'Marko',
+        ]);
+
+        $response->assertStatus(404);
+    }
+
+    /**
      * Test API response includes category_id in kitchen order items.
      */
     public function test_api_response_includes_category_id()

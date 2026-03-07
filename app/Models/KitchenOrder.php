@@ -10,6 +10,7 @@ class KitchenOrder extends Model
         'orderable_type',
         'orderable_id',
         'table_name',
+        'waiter_name',
         'ready_at',
     ];
 
