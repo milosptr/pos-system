@@ -16,7 +16,9 @@ const kitchenStore = createStore({
                 .then(response => response.json())
                 .then(result => {
                     const waiters = (result.data || []).filter(
-                        e => e.occupation === 0 && e.lastCheckin !== null
+                        e => e.occupation === 0 && e.lastCheckin !== null && e.lastCheckin.check_out === null
+                    ).sort(
+                        (a, b) => new Date(a.lastCheckin.check_in) - new Date(b.lastCheckin.check_in)
                     ).map(e => ({ id: e.id, name: e.name, color: e.color }))
                     commit('setWaiters', waiters)
                 })

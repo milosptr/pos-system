@@ -14,10 +14,8 @@
         class="absolute inset-0 bg-white/20"
         :style="{ width: fillWidth, transition: 'width 3s linear' }"
       ></div>
-      <span class="relative text-white font-bold text-lg">
-        {{ order.table_name }}
-        <span v-if="order.waiter_name" class="text-gray-400 font-normal text-sm ml-2">{{ order.waiter_name }}</span>
-      </span>
+      <span class="relative text-white font-bold text-lg">{{ order.table_name }}</span>
+      <span v-if="order.waiter_name" class="relative text-white font-normal text-lg">{{ order.waiter_name }}</span>
       <template v-if="mode === 'active'">
         <button
           v-if="counting"
@@ -46,6 +44,17 @@
       </button>
     </div>
 
+    <!-- Special modifiers banner -->
+    <div v-if="specialModifiers.length" class="divide-y divide-gray-800">
+      <div
+        v-for="(mod, i) in specialModifiers"
+        :key="'smod-' + i"
+        class="px-4 py-2 text-center font-bold text-white text-base bg-gray-800/50"
+      >
+        {{ mod }}
+      </div>
+    </div>
+
     <!-- Items -->
     <ul class="divide-y divide-gray-800 px-4 py-2">
       <template v-for="(entry, index) in sortedItems" :key="entry.separator ? 'sep' : entry.id">
@@ -66,7 +75,7 @@
             </div>
             <span v-if="entry.is_done && !entry.storno" class="text-green-500 text-sm ml-2">&#10003;</span>
           </div>
-          <div v-if="entry.modifier" class="text-sm mt-0.5 pl-4" :class="entry.storno ? 'text-red-400 line-through' : (entry.is_done && mode !== 'ready') ? 'text-gray-600' : 'text-gray-400'">
+          <div v-if="entry.modifier && !isSpecialModifier(entry.modifier)" class="text-sm mt-0.5 pl-4" :class="entry.storno ? 'text-red-400 line-through' : (entry.is_done && mode !== 'ready') ? 'text-gray-600' : 'text-gray-400'">
             {{ entry.modifier }}
           </div>
         </li>
@@ -160,6 +169,18 @@ export default {
       if (nonStorno.length === 0) return false
       return nonStorno.every(i => i.is_done)
     },
+    specialModifiers() {
+      const results = []
+      this.order.items.forEach(item => {
+        if (item.modifier && /^[\/-]\s*/.test(item.modifier)) {
+          const text = item.modifier.replace(/^[\/-]\s*/, '')
+          if (text) {
+            results.push(text.toUpperCase())
+          }
+        }
+      })
+      return results
+    },
     sortedItems() {
       const topOrder = [14, 7, 9, 8, 1]
       const bottomOrder = [10, 11, 12, 13, 15]
@@ -240,6 +261,9 @@ export default {
     toggleDone(item) {
       if (this.mode !== 'active') return
       this.$store.dispatch('toggleItemDone', { orderId: this.order.id, itemId: item.id })
+    },
+    isSpecialModifier(modifier) {
+      return /^[\/-]\s*/.test(modifier)
     },
     itemClass(item) {
       if (item.storno) return 'text-red-500 line-through'
