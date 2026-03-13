@@ -318,16 +318,16 @@ class KitchenOrderTest extends TestCase
         $order = ThirdPartyOrder::create([
             'external_order_id' => 400001,
             'table_id' => 900,
-            'table_name' => 'Sima',
-            'total' => 240,
+            'table_name' => 'Sto 9',
+            'total' => 600,
         ]);
 
         ThirdPartyOrderItem::create([
             'third_party_order_id' => $order->id,
             'external_item_id' => 4001,
-            'name' => 'Kafa',
+            'name' => 'Cevapi',
             'qty' => 2,
-            'price' => 120,
+            'price' => 300,
             'unit' => 'kom',
             'print_station_id' => 2,
             'active' => 1,
@@ -541,6 +541,129 @@ class KitchenOrderTest extends TestCase
         ]);
 
         $response->assertStatus(404);
+    }
+
+    /**
+     * Test processThirdPartyOrder sets waiter_name when provided.
+     */
+    public function test_process_third_party_order_sets_waiter_name()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 600001,
+            'table_id' => 100,
+            'table_name' => 'Sto 1',
+            'total' => 300,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 6001,
+            'name' => 'Cevapi',
+            'qty' => 1,
+            'price' => 300,
+            'unit' => 'kom',
+            'print_station_id' => 2,
+            'active' => 1,
+        ]);
+
+        $kitchenOrder = \Services\KitchenService::processThirdPartyOrder($order, 'Marko');
+
+        $this->assertNotNull($kitchenOrder);
+        $this->assertEquals('Marko', $kitchenOrder->waiter_name);
+    }
+
+    /**
+     * Test processThirdPartyOrder does not overwrite waiter_name when null.
+     */
+    public function test_process_third_party_order_preserves_waiter_name_when_null()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 600002,
+            'table_id' => 100,
+            'table_name' => 'Sto 1',
+            'total' => 300,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 6002,
+            'name' => 'Cevapi',
+            'qty' => 1,
+            'price' => 300,
+            'unit' => 'kom',
+            'print_station_id' => 2,
+            'active' => 1,
+        ]);
+
+        // First call with waiter name
+        $kitchenOrder = \Services\KitchenService::processThirdPartyOrder($order, 'Jelena');
+        $this->assertEquals('Jelena', $kitchenOrder->waiter_name);
+
+        // Second call without waiter name — should preserve existing
+        $kitchenOrder = \Services\KitchenService::processThirdPartyOrder($order, null);
+        $this->assertEquals('Jelena', $kitchenOrder->fresh()->waiter_name);
+    }
+
+    /**
+     * Test processThirdPartyOrder does not set waiter_name for empty string.
+     */
+    public function test_process_third_party_order_ignores_empty_waiter_name()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 600003,
+            'table_id' => 100,
+            'table_name' => 'Sto 1',
+            'total' => 300,
+        ]);
+
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 6003,
+            'name' => 'Cevapi',
+            'qty' => 1,
+            'price' => 300,
+            'unit' => 'kom',
+            'print_station_id' => 2,
+            'active' => 1,
+        ]);
+
+        $kitchenOrder = \Services\KitchenService::processThirdPartyOrder($order, '');
+
+        $this->assertNotNull($kitchenOrder);
+        $this->assertNull($kitchenOrder->waiter_name);
+    }
+
+    /**
+     * Test third-party order API passes konobar field to kitchen order.
+     */
+    public function test_third_party_order_api_passes_konobar_to_kitchen()
+    {
+        $this->withoutMiddleware(VerifyExternalApiKey::class);
+
+        $payload = [[
+            'porudzbinaid' => 600004,
+            'stoid' => 100,
+            'sto' => 'Sto 1',
+            'datum' => now()->toDateTimeString(),
+            'stavkaid' => 6004,
+            'naziv' => 'Cevapi',
+            'kolicina' => 1,
+            'cena' => 300,
+            'jm' => 'kom',
+            'stampanjenalogaid' => 2,
+            'konobar' => 'Petar',
+        ]];
+
+        $response = $this->postJson('/api/third-party-order', $payload);
+        $response->assertStatus(201);
+
+        $order = ThirdPartyOrder::where('external_order_id', 600004)->first();
+        $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->where('orderable_id', $order->id)
+            ->first();
+
+        $this->assertNotNull($kitchenOrder);
+        $this->assertEquals('Petar', $kitchenOrder->waiter_name);
     }
 
     /**

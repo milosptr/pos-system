@@ -62,6 +62,7 @@ class ThirdPartyOrderController extends Controller
                 // Extract order-level data (lowercase field names)
                 $tableId = isset($firstRow['stoid']) ? (int) $firstRow['stoid'] : null;
                 $tableName = (string) ($firstRow['sto'] ?? 'Unknown');
+                $waiterName = $firstRow['konobar'] ?? null;
 
                 // Parse order datetime from datum field
                 $orderedAt = isset($firstRow['datum']) && !empty($firstRow['datum'])
@@ -132,7 +133,7 @@ class ThirdPartyOrderController extends Controller
 
                 if (!$wasPreviouslyInvoiced) {
                     try {
-                        \Services\KitchenService::processThirdPartyOrder($order);
+                        \Services\KitchenService::processThirdPartyOrder($order, $waiterName);
                     } catch (\Exception $e) {
                         Log::error('[Kitchen] ' . $e->getMessage());
                     }

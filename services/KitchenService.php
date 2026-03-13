@@ -183,7 +183,7 @@ class KitchenService
      * @param ThirdPartyOrder $order
      * @return KitchenOrder|null
      */
-    public static function processThirdPartyOrder(ThirdPartyOrder $order): ?KitchenOrder
+    public static function processThirdPartyOrder(ThirdPartyOrder $order, ?string $waiterName = null): ?KitchenOrder
     {
         $order->load('items');
 
@@ -210,14 +210,20 @@ class KitchenService
             return null;
         }
 
+        $updateAttributes = [
+            'table_name' => self::formatTableName($tableName),
+        ];
+
+        if (is_string($waiterName) && $waiterName !== '') {
+            $updateAttributes['waiter_name'] = $waiterName;
+        }
+
         $kitchenOrder = KitchenOrder::updateOrCreate(
             [
                 'orderable_type' => 'third_party_order',
                 'orderable_id' => $order->id,
             ],
-            [
-                'table_name' => self::formatTableName($tableName),
-            ]
+            $updateAttributes
         );
 
         $existingExternalIds = $kitchenOrder->items()->pluck('external_item_id')->toArray();
