@@ -667,6 +667,38 @@ class KitchenOrderTest extends TestCase
     }
 
     /**
+     * Test third-party order API without konobar field leaves waiter_name null.
+     */
+    public function test_third_party_order_api_without_konobar_leaves_waiter_null()
+    {
+        $this->withoutMiddleware(VerifyExternalApiKey::class);
+
+        $payload = [[
+            'porudzbinaid' => 600005,
+            'stoid' => 100,
+            'sto' => 'Sto 1',
+            'datum' => now()->toDateTimeString(),
+            'stavkaid' => 6005,
+            'naziv' => 'Cevapi',
+            'kolicina' => 1,
+            'cena' => 300,
+            'jm' => 'kom',
+            'stampanjenalogaid' => 2,
+        ]];
+
+        $response = $this->postJson('/api/third-party-order', $payload);
+        $response->assertStatus(201);
+
+        $order = ThirdPartyOrder::where('external_order_id', 600005)->first();
+        $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->where('orderable_id', $order->id)
+            ->first();
+
+        $this->assertNotNull($kitchenOrder);
+        $this->assertNull($kitchenOrder->waiter_name);
+    }
+
+    /**
      * Test API response includes category_id in kitchen order items.
      */
     public function test_api_response_includes_category_id()
