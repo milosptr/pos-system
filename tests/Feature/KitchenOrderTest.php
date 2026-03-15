@@ -640,19 +640,33 @@ class KitchenOrderTest extends TestCase
     {
         $this->withoutMiddleware(VerifyExternalApiKey::class);
 
-        $payload = [[
-            'porudzbinaid' => 600004,
-            'stoid' => 100,
-            'sto' => 'Sto 1',
-            'datum' => now()->toDateTimeString(),
-            'stavkaid' => 6004,
-            'naziv' => 'Cevapi',
-            'kolicina' => 1,
-            'cena' => 300,
-            'jm' => 'kom',
-            'stampanjenalogaid' => 2,
-            'konobar' => 'Petar',
-        ]];
+        $payload = [
+            [
+                'porudzbinaid' => 600004,
+                'stoid' => 100,
+                'sto' => 'Sto 1',
+                'datum' => now()->toDateTimeString(),
+                'stavkaid' => 6004,
+                'naziv' => 'Cevapi',
+                'kolicina' => 1,
+                'cena' => 300,
+                'jm' => 'kom',
+                'stampanjenalogaid' => 1,
+            ],
+            [
+                'porudzbinaid' => 600004,
+                'stoid' => 100,
+                'sto' => 'Sto 1',
+                'datum' => now()->toDateTimeString(),
+                'stavkaid' => 6005,
+                'naziv' => 'Kafa',
+                'kolicina' => 1,
+                'cena' => 120,
+                'jm' => 'kom',
+                'stampanjenalogaid' => 2,
+                'konobar' => 'Petar',
+            ],
+        ];
 
         $response = $this->postJson('/api/third-party-order', $payload);
         $response->assertStatus(201);

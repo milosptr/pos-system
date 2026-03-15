@@ -62,7 +62,8 @@ class ThirdPartyOrderController extends Controller
                 // Extract order-level data (lowercase field names)
                 $tableId = isset($firstRow['stoid']) ? (int) $firstRow['stoid'] : null;
                 $tableName = (string) ($firstRow['sto'] ?? 'Unknown');
-                $waiterName = $firstRow['konobar'] ?? null;
+                $lastRow = $orderRows->last();
+                $waiterName = $lastRow['konobar'] ?? null;
 
                 // Parse order datetime from datum field
                 $orderedAt = isset($firstRow['datum']) && !empty($firstRow['datum'])
