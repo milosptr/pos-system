@@ -483,20 +483,18 @@ class ThirdPartyInvoiceController extends Controller
                     }
                 }
 
-                // Create sales records for matched items (skip if on-the-house)
-                if (!$isAutoOnTheHouse) {
-                    try {
-                        SalesService::createSalesForThirdParty(
-                            $matchedItems,
-                            $invoice->id,
-                            $invoiceDate
-                        );
-                    } catch (\Exception $e) {
-                        Log::error('[ThirdPartyInvoice] Sales creation failed', [
-                            'invoice_id' => $invoice->id,
-                            'error' => $e->getMessage(),
-                        ]);
-                    }
+                // Create sales records for matched items (including on-the-house — items were consumed)
+                try {
+                    SalesService::createSalesForThirdParty(
+                        $matchedItems,
+                        $invoice->id,
+                        $invoiceDate
+                    );
+                } catch (\Exception $e) {
+                    Log::error('[ThirdPartyInvoice] Sales creation failed', [
+                        'invoice_id' => $invoice->id,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             }
 
