@@ -85,8 +85,19 @@ class ReportsController extends Controller
         }
 
         if($type == 1) {
-            $stats = Sales::filterStats($request)->first();
-            $sales = Sales::filter($request)
+            $salesQuery = Sales::filter($request)
+              ->leftJoin('inventory', 'inventory.id', '=', 'sales.inventory_id')
+              ->leftJoin('invoices', 'invoices.id', '=', 'sales.invoice_id')
+              ->leftJoin('third_party_invoices', 'third_party_invoices.id', '=', 'sales.batch_id')
+              ->whereRaw('(sales.invoice_id IS NULL OR invoices.status != ?)', [Invoice::STATUS_REFUNDED])
+              ->whereRaw('(sales.batch_id IS NULL OR third_party_invoices.id IS NULL OR third_party_invoices.status != ?)', [ThirdPartyInvoice::STATUS_STORNO]);
+
+            $stats = (clone $salesQuery)
+              ->selectRaw('sum(sales.total) as total')
+              ->selectRaw('sum(sales.total) as income')
+              ->first();
+
+            $sales = (clone $salesQuery)
               ->selectRaw('sales.inventory_id,
                 sum(case when sales.type = 1 then sales.qty else 0 end) as epos,
                 sum(case when sales.type = 2 then sales.qty else 0 end) as ebar,
@@ -94,7 +105,6 @@ class ReportsController extends Controller
                 sum(sales.total) as total,
                 sales.category_name as category,
                 inventory.name as name')
-              ->leftJoin('inventory', 'inventory.id', '=', 'sales.inventory_id')
               ->groupBy('sales.inventory_id', 'inventory.name', 'sales.category_name', 'inventory.category_id')
               ->orderBy('inventory.category_id', 'ASC')
               ->orderBy('qty', 'DESC')

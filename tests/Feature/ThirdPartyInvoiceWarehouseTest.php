@@ -1219,4 +1219,86 @@ class ThirdPartyInvoiceWarehouseTest extends TestCase
         $this->assertFalse($payedInvoice->isStorno());
         $this->assertTrue($stornoInvoice->isStorno());
     }
+
+    /**
+     * Test that markAsOnTheHouse preserves sales records.
+     * On-the-house items were consumed and should appear in article sales reports.
+     */
+    public function test_mark_as_on_the_house_preserves_sales()
+    {
+        $inventory = $this->createInventoryWithWarehouse('Item OTH', 1.0, '000501');
+
+        $requestData = [
+            [
+                'kolicina' => 2,
+                'cena' => 150,
+                'naziv' => 'Item OTH',
+                'jm' => 'kom',
+                'gotovina' => 300,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'OTH-SALES',
+                'racunid' => 800,
+                'sto' => '5',
+                'porudzbinaid' => 99950,
+                'sifraArtikla' => 501,
+            ],
+        ];
+
+        $this->postJson('/api/third-party-invoice', $requestData);
+
+        $invoice = ThirdPartyInvoice::where('invoice_number', 'OTH-SALES00')->first();
+        $this->assertEquals(ThirdPartyInvoice::STATUS_PAYED, $invoice->status);
+        $this->assertEquals(1, Sales::where('batch_id', $invoice->id)->count());
+        $this->assertEquals(1, WarehouseStatus::where('batch_id', $invoice->id)->count());
+
+        // Mark as on-the-house
+        $result = $invoice->markAsOnTheHouse();
+        $this->assertTrue($result);
+        $this->assertEquals(ThirdPartyInvoice::STATUS_ON_THE_HOUSE, $invoice->status);
+
+        // Sales records should be preserved (items were consumed)
+        $this->assertEquals(1, Sales::where('batch_id', $invoice->id)->count());
+        // Warehouse records should also be preserved
+        $this->assertEquals(1, WarehouseStatus::where('batch_id', $invoice->id)->count());
+    }
+
+    /**
+     * Test that auto on-the-house invoices (sima/muzika tables) still create sales records.
+     */
+    public function test_auto_on_the_house_creates_sales()
+    {
+        $inventory = $this->createInventoryWithWarehouse('Auto OTH Item', 1.0, '000502');
+
+        $requestData = [
+            [
+                'kolicina' => 1,
+                'cena' => 200,
+                'naziv' => 'Auto OTH Item',
+                'jm' => 'kom',
+                'gotovina' => 200,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'brojracuna' => 'AUTO-OTH',
+                'racunid' => 801,
+                'sto' => 'sima', // Auto on-the-house table name
+                'porudzbinaid' => 99951,
+                'sifraArtikla' => 502,
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-invoice', $requestData);
+        $response->assertStatus(201);
+
+        $invoice = ThirdPartyInvoice::where('invoice_number', 'AUTO-OTH00')->first();
+
+        // Should be auto-marked as on-the-house
+        $this->assertEquals(ThirdPartyInvoice::STATUS_ON_THE_HOUSE, $invoice->status);
+
+        // Sales records should exist despite being on-the-house
+        $this->assertEquals(1, Sales::where('batch_id', $invoice->id)->count());
+
+        // Warehouse records should also exist (items were consumed)
+        $this->assertEquals(1, WarehouseStatus::where('batch_id', $invoice->id)->count());
+    }
 }

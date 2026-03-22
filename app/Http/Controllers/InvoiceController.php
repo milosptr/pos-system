@@ -87,13 +87,11 @@ class InvoiceController extends Controller
     {
       $invoice = Invoice::find($id);
       if($invoice) {
-          $invoice->update($request->all());
-          try {
-            Sales::where('invoice_id', $invoice->id)->delete();
-            WarehouseStatus::where('batch_id', (string) $invoice->id)->delete();
-          } catch(Exception $e) {
-            Log::error($e->getMessage());
-          }
+          DB::transaction(function () use ($invoice, $request) {
+              $invoice->update($request->all());
+              Sales::where('invoice_id', $invoice->id)->delete();
+              WarehouseStatus::where('batch_id', (string) $invoice->id)->delete();
+          });
           try {
               app(Pusher::class)->trigger('broadcasting', 'tables-update', []);
           } catch(Exception $e) {

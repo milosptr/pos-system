@@ -109,9 +109,9 @@ class ThirdPartyInvoice extends Model
     }
 
     /**
-     * Mark invoice as on the house and delete related sales records.
+     * Mark invoice as on the house.
      * Warehouse records are kept because items were still consumed.
-     * This method is transaction-safe.
+     * Sales records are kept so on-the-house items appear in article sales reports.
      *
      * @return bool True if processed, false if already on-the-house or stornoed
      */
@@ -121,12 +121,7 @@ class ThirdPartyInvoice extends Model
             return false;
         }
 
-        \Illuminate\Support\Facades\DB::transaction(function () {
-            $this->update(['status' => self::STATUS_ON_THE_HOUSE]);
-
-            // Only delete sales — warehouse records stay (items were consumed)
-            \App\Models\Sales::where('batch_id', $this->id)->delete();
-        });
+        $this->update(['status' => self::STATUS_ON_THE_HOUSE]);
 
         return true;
     }
