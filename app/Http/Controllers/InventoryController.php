@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Services\Pusher;
 use App\Exports\InventoryExport;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\InventoryResource;
 use App\Http\Resources\InventoryCollection;
@@ -58,7 +60,11 @@ class InventoryController extends Controller
      */
     public function store(InventoryStoreRequest $request)
     {
-        return new InventoryResource(Inventory::create($request->all()));
+        $item = Inventory::create($request->all());
+        Cache::forget('inventory-all');
+        Cache::forget('inventory');
+        $this->broadcastMenuUpdate();
+        return new InventoryResource($item);
     }
 
     /**
@@ -96,6 +102,7 @@ class InventoryController extends Controller
         $item->update($request->all());
         Cache::forget('inventory-all');
         Cache::forget('inventory');
+        $this->broadcastMenuUpdate();
         return new InventoryCollection(Inventory::all());
     }
 
@@ -110,11 +117,25 @@ class InventoryController extends Controller
         $inventory = Inventory::find($id);
         Cache::forget('inventory-all');
         Cache::forget('inventory');
+        $this->broadcastMenuUpdate();
         return $inventory->delete();
     }
 
     public function export()
     {
         return Excel::download(new InventoryExport, 'inventory.xlsx');
+    }
+
+    /**
+     * Notify the POS that the menu (items or categories) changed so it can
+     * re-fetch instead of showing a stale menu until a manual reload.
+     */
+    private function broadcastMenuUpdate()
+    {
+        try {
+            app(Pusher::class)->trigger('broadcasting', 'menu-update', []);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+        }
     }
 }

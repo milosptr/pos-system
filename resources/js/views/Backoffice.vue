@@ -310,6 +310,7 @@
 
 <script>
 import pusher from 'pusher-js'
+import { attachResync } from '../realtime'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {
   CubeIcon,
@@ -368,6 +369,8 @@ export default {
   data: () => ({
     navigation,
     sidebarOpen: false,
+    pusher: null,
+    teardownResync: null,
     bottomNavigation: [
       { name: 'Konobari aplikacija', href: '/', icon: DesktopComputerIcon, blank: false },
       { name: 'Raspored aplikacija', href: 'http://192.168.200.30:81/dashboard', icon: CalendarIcon, blank: true }
@@ -397,6 +400,10 @@ export default {
   mounted() {
     this.pusherInit()
   },
+  beforeUnmount() {
+    if (this.teardownResync) this.teardownResync()
+    if (this.pusher) this.pusher.disconnect()
+  },
   methods: {
     pusherInit() {
       const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
@@ -409,6 +416,14 @@ export default {
         this.$store.dispatch('getThirdPartyOrders')
       })
       pusher.bind('notifications', (data) => {
+        this.$store.dispatch('getTasks')
+      })
+      // Recover events missed while the socket was down (sleep / background / wifi drop).
+      this.pusher = pusher
+      this.teardownResync = attachResync(pusher, () => {
+        this.$store.dispatch('getStats')
+        this.$store.dispatch('getActiveTableOrders')
+        this.$store.dispatch('getThirdPartyOrders')
         this.$store.dispatch('getTasks')
       })
     },

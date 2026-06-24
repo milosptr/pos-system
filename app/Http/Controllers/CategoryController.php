@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Services\Pusher;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\CategoryCollection;
@@ -50,7 +52,11 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request)
     {
-        return new CategoryResource(Category::create($request->all()));
+        $category = Category::create($request->all());
+        Cache::forget('category-all');
+        Cache::forget('category-printing');
+        $this->broadcastMenuUpdate();
+        return new CategoryResource($category);
     }
 
     /**
@@ -88,6 +94,7 @@ class CategoryController extends Controller
         $category->update($request->all());
         Cache::forget('category-all');
         Cache::forget('category-printing');
+        $this->broadcastMenuUpdate();
         return new CategoryCollection(Category::all());
     }
 
@@ -102,6 +109,20 @@ class CategoryController extends Controller
         $category = Category::find($id);
         Cache::forget('category-all');
         Cache::forget('category-printing');
+        $this->broadcastMenuUpdate();
         return $category->delete();
+    }
+
+    /**
+     * Notify the POS that the menu (items or categories) changed so it can
+     * re-fetch instead of showing a stale menu until a manual reload.
+     */
+    private function broadcastMenuUpdate()
+    {
+        try {
+            app(Pusher::class)->trigger('broadcasting', 'menu-update', []);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+        }
     }
 }

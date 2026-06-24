@@ -69,6 +69,8 @@
 </template>
 
 <script>
+  import { attachResync } from '../../../realtime'
+
   const dateFormatOptions = {
     hour: 'numeric',
     minute: 'numeric',
@@ -79,18 +81,28 @@
     data: () => ({
       shifts: ['I', 'M', 'II'],
       schedules: [],
+      pusher: null,
+      teardownResync: null,
     }),
     mounted() {
       this.pusherInit()
       this.fetchSchedules()
     },
+    beforeUnmount() {
+      if (this.teardownResync) this.teardownResync()
+      if (this.pusher) this.pusher.disconnect()
+    },
     methods: {
       pusherInit() {
         const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, { 'cluster' : import.meta.env.VITE_PUSHER_APP_CLUSTER })
-        console.log(pusher)
         pusher.subscribe('broadcasting')
         pusher.bind('employee-checkin', (data) => {
-          console.log('fetching new info')
+          this.fetchSchedules()
+        })
+        // Recover check-in events missed while the socket was down, and tear down
+        // cleanly on unmount so revisiting Overview doesn't leak connections.
+        this.pusher = pusher
+        this.teardownResync = attachResync(pusher, () => {
           this.fetchSchedules()
         })
       },

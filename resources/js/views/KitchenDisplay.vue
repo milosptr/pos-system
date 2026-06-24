@@ -59,6 +59,7 @@
 
 <script>
 import Pusher from 'pusher-js'
+import { attachResync } from '../realtime'
 import KitchenOrderCard from '../components/Kitchen/KitchenOrderCard.vue'
 
 export default {
@@ -66,6 +67,7 @@ export default {
   data() {
     return {
       pusher: null,
+      teardownResync: null,
       pollInterval: null,
       timerInterval: null,
       readySince: null,
@@ -133,6 +135,7 @@ export default {
   beforeUnmount() {
     if (this.pollInterval) clearInterval(this.pollInterval)
     if (this.timerInterval) clearInterval(this.timerInterval)
+    if (this.teardownResync) this.teardownResync()
     if (this.pusher) this.pusher.disconnect()
   },
   methods: {
@@ -150,6 +153,15 @@ export default {
       })
       this.pusher.subscribe('broadcasting')
       this.pusher.bind('kitchen-update', () => {
+        this.$store.dispatch('fetchOrders')
+        this.$store.dispatch('fetchWaiters')
+      })
+      // A waiter clocking in/out (scheduler) changes who can be assigned orders.
+      this.pusher.bind('employee-checkin', () => {
+        this.$store.dispatch('fetchWaiters')
+      })
+      // Recover events missed while the socket was down (faster than the 30s poll).
+      this.teardownResync = attachResync(this.pusher, () => {
         this.$store.dispatch('fetchOrders')
         this.$store.dispatch('fetchWaiters')
       })
