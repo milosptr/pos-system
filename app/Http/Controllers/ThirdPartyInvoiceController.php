@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Inventory;
 use App\Models\Sales;
-use App\Models\KitchenOrder;
 use App\Models\ThirdPartyInvoice;
 use App\Models\ThirdPartyOrder;
 use App\Models\WarehouseStatus;
@@ -13,6 +12,7 @@ use App\Http\Resources\ThirdPartyInvoiceResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Services\KitchenService;
 use Services\Pusher;
 use Services\SalesService;
 use Services\WorkingDay;
@@ -426,10 +426,7 @@ class ThirdPartyInvoiceController extends Controller
                 } elseif ($tableId) {
                     $tpoIds = ThirdPartyOrder::where('table_id', $tableId)->pluck('id')->toArray();
                     $ordersDeleted = ThirdPartyOrder::deleteByTableId($tableId);
-                    if (!empty($tpoIds)) {
-                        KitchenOrder::where('orderable_type', 'third_party_order')
-                            ->whereIn('orderable_id', $tpoIds)->delete();
-                    }
+                    KitchenService::clearForInvoice('third_party_order', $tpoIds);
                 }
 
                 return $invoice;

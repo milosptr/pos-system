@@ -29,12 +29,29 @@ class KitchenController extends Controller
     /**
      * Mark a kitchen order as ready.
      *
+     * An order whose bill was already cashed out never reaches "Izdate" —
+     * nothing would clear it from there — so it is removed right away.
+     *
      * @param int $id
-     * @return KitchenOrderResource
+     * @return KitchenOrderResource|\Illuminate\Http\JsonResponse
      */
     public function markReady($id)
     {
         $kitchenOrder = KitchenOrder::findOrFail($id);
+
+        if ($kitchenOrder->isInvoiced()) {
+            $kitchenOrder->items()->delete();
+            $kitchenOrder->delete();
+
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'kitchen-update', []);
+            } catch (\Exception $e) {
+                \Log::error($e->getMessage());
+            }
+
+            return response()->json(['deleted' => true]);
+        }
+
         $kitchenOrder->update(['ready_at' => now()]);
         $kitchenOrder->load('items');
 

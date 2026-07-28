@@ -30,6 +30,7 @@ class KitchenOrderResource extends JsonResource
                 'category_id' => $item->category_id,
             ]),
             'ready_at' => $this->ready_at,
+            'invoiced_at' => $this->invoiced_at,
             'created_at' => $this->created_at,
         ];
     }
