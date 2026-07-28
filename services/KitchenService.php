@@ -107,6 +107,40 @@ class KitchenService
     }
 
     /**
+     * Clear kitchen orders whose bill was just cashed out.
+     *
+     * Orders already handed out ("Izdate") are deleted. Orders the kitchen is
+     * still preparing stay on the display and are only stamped as invoiced —
+     * they disappear once the kitchen marks them ready.
+     *
+     * @param string $orderableType 'order' or 'third_party_order'
+     * @param array $orderableIds
+     * @return void
+     */
+    public static function clearForInvoice(string $orderableType, array $orderableIds): void
+    {
+        if (empty($orderableIds)) {
+            return;
+        }
+
+        $readyKitchenOrders = KitchenOrder::where('orderable_type', $orderableType)
+            ->whereIn('orderable_id', $orderableIds)
+            ->ready()
+            ->get();
+
+        foreach ($readyKitchenOrders as $readyKitchenOrder) {
+            $readyKitchenOrder->items()->delete();
+            $readyKitchenOrder->delete();
+        }
+
+        KitchenOrder::where('orderable_type', $orderableType)
+            ->whereIn('orderable_id', $orderableIds)
+            ->active()
+            ->whereNull('invoiced_at')
+            ->update(['invoiced_at' => now()]);
+    }
+
+    /**
      * Process a POS order and create/update a kitchen order for kitchen items.
      *
      * @param Order $order

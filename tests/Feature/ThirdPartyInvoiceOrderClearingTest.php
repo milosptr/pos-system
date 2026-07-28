@@ -204,9 +204,10 @@ class ThirdPartyInvoiceOrderClearingTest extends TestCase
     }
 
     /**
-     * Test that deleteByExternalItemIds also deletes matching KitchenOrderItems.
+     * An active (not yet handed out) kitchen order keeps all of its items when
+     * the bill is paid — the kitchen still has to prepare that food.
      */
-    public function test_deleteByExternalItemIds_deletes_kitchen_order_items()
+    public function test_deleteByExternalItemIds_keeps_kitchen_items_of_active_orders()
     {
         $order = ThirdPartyOrder::create([
             'external_order_id' => 104130,
@@ -284,6 +285,61 @@ class ThirdPartyInvoiceOrderClearingTest extends TestCase
         ThirdPartyOrder::deleteByExternalItemIds([326984, 326998]);
 
         $this->assertEquals(
+            3,
+            KitchenOrderItem::count(),
+            'All kitchen items stay on the display — the kitchen has not handed this order out yet'
+        );
+        $this->assertNull(
+            $kitchenOrder->fresh()->invoiced_at,
+            'Order 327010 is still un-invoiced, so the kitchen order is not flagged as paid yet'
+        );
+    }
+
+    /**
+     * A kitchen order already handed out ("Izdate") is cleaned up as before.
+     */
+    public function test_deleteByExternalItemIds_deletes_kitchen_order_items_when_ready()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 104130,
+            'table_id' => 2,
+            'table_name' => '2',
+            'total' => 630,
+        ]);
+
+        foreach ([326984, 326998, 327010] as $externalItemId) {
+            ThirdPartyOrderItem::create([
+                'third_party_order_id' => $order->id,
+                'external_item_id' => $externalItemId,
+                'name' => 'Item ' . $externalItemId,
+                'qty' => 1,
+                'price' => 210,
+                'unit' => 'kom',
+                'active' => 1,
+            ]);
+        }
+
+        $kitchenOrder = KitchenOrder::create([
+            'orderable_type' => 'third_party_order',
+            'orderable_id' => $order->id,
+            'table_name' => 'Sala 2',
+            'ready_at' => now(),
+        ]);
+
+        foreach ([326984, 326998, 327010] as $externalItemId) {
+            KitchenOrderItem::create([
+                'kitchen_order_id' => $kitchenOrder->id,
+                'external_item_id' => $externalItemId,
+                'name' => 'Item ' . $externalItemId,
+                'qty' => 1,
+                'storno' => false,
+                'is_done' => false,
+            ]);
+        }
+
+        ThirdPartyOrder::deleteByExternalItemIds([326984, 326998]);
+
+        $this->assertEquals(
             1,
             KitchenOrderItem::count(),
             'Only the kitchen item for 327010 should remain after deleting items 326984 and 326998'
@@ -295,9 +351,10 @@ class ThirdPartyInvoiceOrderClearingTest extends TestCase
     }
 
     /**
-     * Test full cascade: items deleted -> order empty -> kitchen order also deleted.
+     * Whole order paid while the kitchen is still preparing it: the kitchen
+     * order survives, flagged as invoiced, so the food still gets made.
      */
-    public function test_deleteByExternalItemIds_deletes_kitchen_order_when_order_empty()
+    public function test_deleteByExternalItemIds_flags_active_kitchen_order_when_order_empty()
     {
         $order = ThirdPartyOrder::create([
             'external_order_id' => 104130,
@@ -361,14 +418,76 @@ class ThirdPartyInvoiceOrderClearingTest extends TestCase
             'ThirdPartyOrder should be soft-deleted when all items are removed'
         );
         $this->assertEquals(
+            1,
+            KitchenOrder::count(),
+            'KitchenOrder should stay on the display — the kitchen has not handed it out yet'
+        );
+        $this->assertEquals(
+            2,
+            KitchenOrderItem::count(),
+            'Kitchen items stay so the kitchen still knows what to prepare'
+        );
+        $this->assertNotNull(
+            $kitchenOrder->fresh()->invoiced_at,
+            'KitchenOrder should be flagged as invoiced so it disappears once marked ready'
+        );
+    }
+
+    /**
+     * Same scenario, but the kitchen already handed the order out: it is
+     * deleted at invoice time, as before.
+     */
+    public function test_deleteByExternalItemIds_deletes_ready_kitchen_order_when_order_empty()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 104130,
+            'table_id' => 2,
+            'table_name' => '2',
+            'total' => 420,
+        ]);
+
+        foreach ([326984, 326998] as $externalItemId) {
+            ThirdPartyOrderItem::create([
+                'third_party_order_id' => $order->id,
+                'external_item_id' => $externalItemId,
+                'name' => 'Item ' . $externalItemId,
+                'qty' => 1,
+                'price' => 210,
+                'unit' => 'kom',
+                'active' => 1,
+            ]);
+        }
+
+        $kitchenOrder = KitchenOrder::create([
+            'orderable_type' => 'third_party_order',
+            'orderable_id' => $order->id,
+            'table_name' => 'Sala 2',
+            'ready_at' => now(),
+        ]);
+
+        foreach ([326984, 326998] as $externalItemId) {
+            KitchenOrderItem::create([
+                'kitchen_order_id' => $kitchenOrder->id,
+                'external_item_id' => $externalItemId,
+                'name' => 'Item ' . $externalItemId,
+                'qty' => 1,
+                'storno' => false,
+                'is_done' => false,
+            ]);
+        }
+
+        $deleted = ThirdPartyOrder::deleteByExternalItemIds([326984, 326998]);
+
+        $this->assertEquals(1, $deleted, 'Should delete 1 order');
+        $this->assertEquals(
             0,
             KitchenOrder::count(),
-            'KitchenOrder should be deleted when its parent order has no items left'
+            'A kitchen order already in "Izdate" should be deleted when its parent order is paid'
         );
         $this->assertEquals(
             0,
             KitchenOrderItem::count(),
-            'KitchenOrderItems should be deleted along with their kitchen order items'
+            'Its items should go with it'
         );
     }
 
@@ -460,9 +579,13 @@ class ThirdPartyInvoiceOrderClearingTest extends TestCase
             'Kitchen order should persist because the parent order still has items'
         );
         $this->assertEquals(
-            1,
+            3,
             KitchenOrderItem::count(),
-            'Only kitchen item 327010 should remain'
+            'Kitchen items are untouched while the order is still being prepared'
+        );
+        $this->assertNull(
+            $kitchenOrder->fresh()->invoiced_at,
+            'A partially invoiced order is not flagged as paid'
         );
     }
 
@@ -1414,9 +1537,10 @@ class ThirdPartyInvoiceOrderClearingTest extends TestCase
     // =========================================================================
 
     /**
-     * Test that kitchen orders are cleared when an invoice clears all items.
+     * An invoice clearing all items keeps an unfinished kitchen order on the
+     * display and flags it as paid.
      */
-    public function test_kitchen_orders_cleared_when_invoice_clears_all_items()
+    public function test_active_kitchen_order_survives_invoice_and_is_flagged()
     {
         $order = ThirdPartyOrder::create([
             'external_order_id' => 104130,
@@ -1495,21 +1619,107 @@ class ThirdPartyInvoiceOrderClearingTest extends TestCase
         $response->assertStatus(201);
 
         $this->assertEquals(
+            1,
+            KitchenOrder::count(),
+            'Kitchen order should stay on the display so the kitchen can finish it'
+        );
+        $this->assertEquals(
+            2,
+            KitchenOrderItem::count(),
+            'Kitchen order items should stay with it'
+        );
+        $this->assertNotNull(
+            $kitchenOrder->fresh()->invoiced_at,
+            'Kitchen order should be flagged as invoiced'
+        );
+
+        // Marking it ready now removes it instead of moving it to "Izdate"
+        $this->postJson("/api/kitchen/orders/{$kitchenOrder->id}/ready")->assertStatus(200);
+
+        $this->assertEquals(0, KitchenOrder::count(), 'Paid order should disappear when marked ready');
+        $this->assertEquals(0, KitchenOrderItem::count(), 'Its items should go with it');
+    }
+
+    /**
+     * A kitchen order already handed out is deleted by the invoice, as before.
+     */
+    public function test_ready_kitchen_order_is_deleted_by_invoice()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 104130,
+            'table_id' => 2,
+            'table_name' => '2',
+            'total' => 420,
+        ]);
+
+        foreach ([326984, 326998] as $externalItemId) {
+            ThirdPartyOrderItem::create([
+                'third_party_order_id' => $order->id,
+                'external_item_id' => $externalItemId,
+                'name' => 'Item ' . $externalItemId,
+                'qty' => 1,
+                'price' => 210,
+                'unit' => 'kom',
+                'active' => 1,
+            ]);
+        }
+
+        $kitchenOrder = KitchenOrder::create([
+            'orderable_type' => 'third_party_order',
+            'orderable_id' => $order->id,
+            'table_name' => 'Sala 2',
+            'ready_at' => now(),
+        ]);
+
+        foreach ([326984, 326998] as $externalItemId) {
+            KitchenOrderItem::create([
+                'kitchen_order_id' => $kitchenOrder->id,
+                'external_item_id' => $externalItemId,
+                'name' => 'Item ' . $externalItemId,
+                'qty' => 1,
+                'storno' => false,
+                'is_done' => false,
+            ]);
+        }
+
+        $response = $this->postJson('/api/third-party-invoice', [
+            [
+                'kolicina' => 2,
+                'cena' => 210,
+                'naziv' => 'Drinks',
+                'jm' => 'kom',
+                'gotovina' => 420,
+                'kartica' => 0,
+                'prenosnaracun' => 0,
+                'datum' => '2026-02-23 22:01:10',
+                'brojracuna' => 29926,
+                'sto' => '2',
+                'stoid' => 2,
+                'racunid' => 42949,
+                'stornirano' => 0,
+                'listastavki' => '326984, 326998',
+            ],
+        ]);
+
+        $response->assertStatus(201);
+
+        $this->assertEquals(
             0,
             KitchenOrder::count(),
-            'Kitchen order should be deleted when all its items are cleared via invoice'
+            'Kitchen order already in "Izdate" should be deleted when the bill is paid'
         );
         $this->assertEquals(
             0,
             KitchenOrderItem::count(),
-            'Kitchen order items should be deleted when cleared via invoice listastavki'
+            'Kitchen order items should be deleted with it'
         );
     }
 
     /**
-     * Test that the kitchen display API excludes cleared orders after invoice processing.
+     * The kitchen display keeps listing an unfinished order after its bill is
+     * paid, and drops it the moment the kitchen marks it ready.
      */
-    public function test_kitchen_display_api_excludes_cleared_orders()
+    public function test_kitchen_display_api_keeps_active_order_after_invoice()
     {
         // Create order and kitchen order
         $order = ThirdPartyOrder::create([
@@ -1572,14 +1782,27 @@ class ThirdPartyInvoiceOrderClearingTest extends TestCase
 
         $response->assertStatus(201);
 
-        // Verify kitchen order is gone from the API
+        // The order is still being prepared, so it stays in the active list
         $kitchenResponse = $this->getJson('/api/kitchen/orders');
         $kitchenResponse->assertStatus(200);
         $activeOrders = $kitchenResponse->json('active');
-        $this->assertEmpty(
+        $this->assertCount(
+            1,
             $activeOrders,
-            'Kitchen order should NOT appear in active list after invoice cleared its items'
+            'Kitchen order should still appear in the active list after its bill was paid'
         );
+        $this->assertNotNull(
+            $activeOrders[0]['invoiced_at'],
+            'The API should expose invoiced_at so the display can mark it as paid'
+        );
+
+        // Once the kitchen marks it ready it disappears instead of moving to "Izdate"
+        $this->postJson("/api/kitchen/orders/{$kitchenOrder->id}/ready")->assertStatus(200);
+
+        $kitchenResponse = $this->getJson('/api/kitchen/orders');
+        $kitchenResponse->assertStatus(200);
+        $this->assertEmpty($kitchenResponse->json('active'), 'Should be gone from active');
+        $this->assertEmpty($kitchenResponse->json('ready'), 'Should never reach "Izdate"');
     }
 
     // =========================================================================

@@ -9,9 +9,9 @@ use Services\Pusher;
 use App\Models\Order;
 use App\Models\Sales;
 use App\Models\Invoice;
-use App\Models\KitchenOrder;
 use Services\WorkingDay;
 use Services\SalesService;
+use Services\KitchenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -56,14 +56,12 @@ class InvoiceController extends Controller
         if ($invoice) {
             if($orderID) {
                 Order::where('id', $orderID)->delete();
-                KitchenOrder::where('orderable_type', 'order')->where('orderable_id', $orderID)->delete();
+                KitchenService::clearForInvoice('order', [$orderID]);
             }
             if(!$orderID) {
                 $orderIds = Order::where('table_id', $request->get('table_id'))->pluck('id')->toArray();
                 Order::where('table_id', $request->get('table_id'))->delete();
-                if (!empty($orderIds)) {
-                    KitchenOrder::where('orderable_type', 'order')->whereIn('orderable_id', $orderIds)->delete();
-                }
+                KitchenService::clearForInvoice('order', $orderIds);
             }
             if($invoice->status !== Invoice::STATUS_REFUNDED) {
                 SalesService::parseAndSaveOrder($request->get('order'), $invoice);

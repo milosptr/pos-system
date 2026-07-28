@@ -4,12 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Inventory;
+use App\Models\Invoice;
 use App\Models\KitchenOrder;
 use App\Models\KitchenOrderItem;
 use App\Models\Order;
 use App\Models\Table;
 use App\Models\ThirdPartyOrder;
 use App\Models\ThirdPartyOrderItem;
+use App\Models\User;
 use App\Http\Middleware\VerifyExternalApiKey;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -55,6 +57,90 @@ class KitchenOrderTest extends TestCase
 
         $kitchenOrder->refresh();
         $this->assertNotNull($kitchenOrder->ready_at);
+    }
+
+    /**
+     * An order whose bill was already paid is removed when the kitchen marks it
+     * ready — it must never land in "Izdate", because nothing clears it there.
+     */
+    public function test_invoiced_kitchen_order_is_deleted_on_mark_ready()
+    {
+        $kitchenOrder = $this->createKitchenOrderWithItems(['invoiced_at' => now()]);
+
+        $response = $this->postJson("/api/kitchen/orders/{$kitchenOrder->id}/ready");
+
+        $response->assertStatus(200);
+        $response->assertJson(['deleted' => true]);
+
+        $this->assertEquals(0, KitchenOrder::count(), 'The paid order should be gone');
+        $this->assertEquals(0, KitchenOrderItem::count(), 'Its items should be gone too');
+
+        $index = $this->getJson('/api/kitchen/orders');
+        $this->assertEmpty($index->json('active'));
+        $this->assertEmpty($index->json('ready'), 'A paid order should never reach "Izdate"');
+    }
+
+    /**
+     * Cashing out a POS table keeps unfinished kitchen orders on the display
+     * (flagged as paid) and clears only the ones already handed out.
+     */
+    public function test_pos_invoice_keeps_active_kitchen_order_and_deletes_ready_one()
+    {
+        $waiter = User::create([
+            'name' => 'Miloš',
+            'username' => 'milos',
+            'password' => bcrypt('secret'),
+        ]);
+        $table = Table::create(['name' => '5', 'area' => 1, 'table_number' => 5]);
+
+        $stillCooking = Order::create(['table_id' => $table->id, 'total' => 500, 'order' => []]);
+        $alreadyServed = Order::create(['table_id' => $table->id, 'total' => 300, 'order' => []]);
+
+        $activeKitchenOrder = $this->createKitchenOrderWithItems([
+            'orderable_id' => $stillCooking->id,
+        ]);
+        $readyKitchenOrder = $this->createKitchenOrderWithItems([
+            'orderable_id' => $alreadyServed->id,
+            'ready_at' => now(),
+        ]);
+
+        $response = $this->postJson('/api/invoices', [
+            'user_id' => $waiter->id,
+            'table_id' => $table->id,
+            'total' => 800,
+            'status' => Invoice::STATUS_REFUNDED,
+            'order' => [['name' => 'Cevapi', 'qty' => 2, 'price' => 400]],
+        ]);
+
+        $response->assertStatus(201);
+
+        $this->assertEquals(0, Order::count(), 'Both POS orders should be cashed out');
+
+        $this->assertNull(
+            KitchenOrder::find($readyKitchenOrder->id),
+            'The order already in "Izdate" should be deleted by the invoice'
+        );
+        $this->assertNotNull(
+            KitchenOrder::find($activeKitchenOrder->id),
+            'The order the kitchen is still preparing should stay on the display'
+        );
+        $this->assertNotNull(
+            $activeKitchenOrder->fresh()->invoiced_at,
+            'It should be flagged as invoiced so it disappears once marked ready'
+        );
+    }
+
+    /**
+     * The kitchen display exposes invoiced_at so a paid order can be marked.
+     */
+    public function test_invoiced_at_is_returned_in_index()
+    {
+        $this->createKitchenOrderWithItems(['invoiced_at' => now()]);
+
+        $response = $this->getJson('/api/kitchen/orders');
+
+        $response->assertStatus(200);
+        $this->assertNotNull($response->json('active.0.invoiced_at'));
     }
 
     /**

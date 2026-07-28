@@ -90,8 +90,20 @@ class ThirdPartyOrder extends Model
             return 0;
         }
 
-        // 2. Delete the specific kitchen order items
-        KitchenOrderItem::whereIn('external_item_id', $externalItemIds)->delete();
+        // 2. Delete the specific kitchen order items, but only for orders the
+        //    kitchen already handed out. Food still being prepared stays on the
+        //    display even though the bill was just paid.
+        $readyKitchenOrderIds = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->whereIn('orderable_id', $affectedOrderIds)
+            ->ready()
+            ->pluck('id')
+            ->toArray();
+
+        if (!empty($readyKitchenOrderIds)) {
+            KitchenOrderItem::whereIn('kitchen_order_id', $readyKitchenOrderIds)
+                ->whereIn('external_item_id', $externalItemIds)
+                ->delete();
+        }
 
         // 3. Delete the specific third-party order items
         ThirdPartyOrderItem::whereIn('external_item_id', $externalItemIds)->delete();
@@ -102,17 +114,27 @@ class ThirdPartyOrder extends Model
             $order = static::find($orderId);
             if (!$order) continue;
 
+            $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
+                ->where('orderable_id', $orderId)
+                ->first();
+
             if ($order->items()->count() === 0) {
-                KitchenOrder::where('orderable_type', 'third_party_order')
-                    ->where('orderable_id', $orderId)
-                    ->delete();
+                // Whole order paid: drop the kitchen order if it was already
+                // handed out, otherwise let the kitchen finish it and mark it
+                // as invoiced so it disappears the moment they do.
+                if ($kitchenOrder) {
+                    if ($kitchenOrder->ready_at !== null) {
+                        $kitchenOrder->items()->delete();
+                        $kitchenOrder->delete();
+                    } elseif ($kitchenOrder->invoiced_at === null) {
+                        $kitchenOrder->update(['invoiced_at' => now()]);
+                    }
+                }
                 $order->delete();
                 $ordersDeleted++;
             } else {
-                // Order still has items — clean up kitchen order if no kitchen items remain
-                $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
-                    ->where('orderable_id', $orderId)
-                    ->first();
+                // Order still has un-invoiced items — clean up the kitchen order
+                // only if it ran out of kitchen items
                 if ($kitchenOrder && $kitchenOrder->items()->count() === 0) {
                     $kitchenOrder->delete();
                 }
