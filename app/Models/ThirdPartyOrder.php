@@ -71,6 +71,7 @@ class ThirdPartyOrder extends Model
     public static function deleteByTableId(int $tableId): int
     {
         $orderIds = static::where('table_id', $tableId)->pluck('id');
+        ThirdPartyOrderItem::whereIn('third_party_order_id', $orderIds)->update(['invoiced_at' => now()]);
         ThirdPartyOrderItem::whereIn('third_party_order_id', $orderIds)->delete();
         // Stamp before soft-deleting: a trashed row with invoiced_at set means
         // "closed by an invoice", as opposed to the 4am cleanup.
@@ -111,7 +112,9 @@ class ThirdPartyOrder extends Model
                 ->delete();
         }
 
-        // 3. Delete the specific third-party order items
+        // 3. Delete the specific third-party order items. Stamp them first so a
+        //    resend can tell "paid" apart from "pruned by an earlier sync".
+        ThirdPartyOrderItem::whereIn('external_item_id', $externalItemIds)->update(['invoiced_at' => now()]);
         ThirdPartyOrderItem::whereIn('external_item_id', $externalItemIds)->delete();
 
         // 4. Clean up empty orders and their kitchen orders

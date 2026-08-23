@@ -323,9 +323,18 @@ class KitchenService
             );
         }
 
-        // Remove items no longer present in the order
+        // Remove items no longer present in the order — but keep items whose
+        // bill was paid while the kitchen is still preparing them (their TPO
+        // item is soft-deleted with the invoiced stamp; the invoice path
+        // deliberately left them on the display for active kitchen orders).
+        $paidItemIds = $order->items()
+            ->onlyTrashed()
+            ->whereNotNull('invoiced_at')
+            ->pluck('external_item_id')
+            ->toArray();
+
         $kitchenOrder->items()
-            ->whereNotIn('external_item_id', $incomingExternalIds)
+            ->whereNotIn('external_item_id', array_merge($incomingExternalIds, $paidItemIds))
             ->delete();
 
         // Only reset ready_at if new items were actually added. New items also

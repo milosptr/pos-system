@@ -182,7 +182,10 @@ class ThirdPartyOrderBatchTest extends TestCase
 
         $response = $this->postJson('/api/third-party-order', $payload);
 
-        $response->assertStatus(201);
+        // Non-2xx (the pre-batch contract) so a retrying client resends; the
+        // good groups below stay committed and a resend is idempotent.
+        $response->assertStatus(500);
+        $response->assertJsonPath('success', false);
         $response->assertJsonPath('summary.processed', 2);
         $response->assertJsonPath('summary.failed.0.external_order_id', 230002);
 
@@ -420,5 +423,135 @@ class ThirdPartyOrderBatchTest extends TestCase
             'No duplicate row for the paid item'
         );
         $this->assertEquals(500, $order->total, 'The paid item stays out of the total');
+    }
+
+    public function test_resend_keeps_paid_but_unprepared_dish_on_the_kitchen_display()
+    {
+        // Two kitchen dishes on one order, kitchen still preparing both
+        $this->postJson('/api/third-party-order', [
+            $this->orderRow(610001, 6101, ['cena' => 100]),
+            $this->orderRow(610001, 6102, ['cena' => 200]),
+        ])->assertStatus(201);
+
+        $order = ThirdPartyOrder::where('external_order_id', 610001)->first();
+        $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->where('orderable_id', $order->id)
+            ->first();
+        $this->assertEquals(2, $kitchenOrder->items()->count());
+
+        // A partial invoice pays dish 6101; the active kitchen order keeps it
+        // (the kitchen still has to cook it)
+        $this->closeByInvoice([6101]);
+        $this->assertEquals(2, $kitchenOrder->items()->count());
+
+        // Any table change makes ebar resend the whole order
+        $this->postJson('/api/third-party-order', [
+            $this->orderRow(610001, 6101, ['cena' => 100]),
+            $this->orderRow(610001, 6102, ['cena' => 200]),
+        ])->assertStatus(201);
+
+        $this->assertEquals(
+            2,
+            $kitchenOrder->fresh()->items()->count(),
+            'The paid-but-unprepared dish must survive a routine resend'
+        );
+        $order = $order->fresh();
+        $this->assertEquals(1, $order->items()->count(), 'Paid item stays off the order');
+        $this->assertEquals(200, $order->total, 'Paid item stays out of the total');
+    }
+
+    public function test_item_removed_then_readded_with_same_id_is_restored()
+    {
+        // Order with dishes A + B
+        $this->postJson('/api/third-party-order', [
+            $this->orderRow(620001, 6201, ['cena' => 100]),
+            $this->orderRow(620001, 6202, ['cena' => 200]),
+        ])->assertStatus(201);
+
+        // Waiter removes B: the next sync omits it, so it gets pruned
+        $this->postJson('/api/third-party-order', [
+            $this->orderRow(620001, 6201, ['cena' => 100]),
+        ])->assertStatus(201);
+
+        $order = ThirdPartyOrder::where('external_order_id', 620001)->first();
+        $this->assertEquals(1, $order->items()->count());
+
+        // Waiter re-adds it and ebar resends both rows
+        $this->postJson('/api/third-party-order', [
+            $this->orderRow(620001, 6201, ['cena' => 100]),
+            $this->orderRow(620001, 6202, ['cena' => 200]),
+        ])->assertStatus(201);
+
+        $order = $order->fresh();
+        $this->assertEquals(2, $order->items()->count(), 'The re-added item must come back');
+        $this->assertEquals(
+            1,
+            ThirdPartyOrderItem::withTrashed()->where('external_item_id', 6202)->count(),
+            'Restored, not duplicated'
+        );
+        $this->assertEquals(300, $order->total);
+
+        $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->where('orderable_id', $order->id)
+            ->first();
+        $this->assertEquals(2, $kitchenOrder->items()->count(), 'Back on the kitchen display too');
+    }
+
+    public function test_stornoed_bill_reopens_the_table_the_same_working_day()
+    {
+        // 1. Table synced, then cashed out through the real invoice endpoint
+        //    (stoid path: stamps invoiced_at and soft-deletes the order)
+        $this->postJson('/api/third-party-order', [
+            $this->orderRow(630001, 6301, ['stoid' => 12, 'sto' => '12']),
+        ])->assertStatus(201);
+
+        $this->postJson('/api/third-party-invoice', [[
+            'kolicina' => 1,
+            'cena' => 100,
+            'naziv' => 'Item 6301',
+            'jm' => 'kom',
+            'gotovina' => 100,
+            'kartica' => 0,
+            'prenosnaracun' => 0,
+            'datum' => now()->toDateTimeString(),
+            'brojracuna' => 88001,
+            'racunid' => 88001,
+            'sto' => '12',
+            'stoid' => 12,
+            'porudzbinaid' => 630001,
+            'stornirano' => 0,
+        ]])->assertStatus(201);
+
+        $trashed = ThirdPartyOrder::onlyTrashed()->where('external_order_id', 630001)->first();
+        $this->assertNotNull($trashed);
+        $this->assertNotNull($trashed->invoiced_at, 'Invoice close stamps the order');
+
+        // Sanity: while the bill stands, a resend is skipped
+        $this->postJson('/api/third-party-order', [
+            $this->orderRow(630001, 6301, ['stoid' => 12, 'sto' => '12']),
+        ])->assertJsonPath('summary.skipped_invoiced', [630001]);
+
+        // 2. The bill is stornoed — the table is open again
+        $this->postJson('/api/third-party-invoice', [[
+            'stornoreferenceid' => 88001,
+            'datum' => now()->toDateTimeString(),
+        ]])->assertStatus(200);
+
+        // 3. ebar resends the order: it must come back and reach the kitchen
+        $response = $this->postJson('/api/third-party-order', [
+            $this->orderRow(630001, 6301, ['stoid' => 12, 'sto' => '12']),
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('summary.skipped_invoiced', []);
+
+        $reopened = ThirdPartyOrder::where('external_order_id', 630001)->first();
+        $this->assertNotNull($reopened, 'Storno must reopen the table for resends');
+        $this->assertNotNull(
+            KitchenOrder::where('orderable_type', 'third_party_order')
+                ->where('orderable_id', $reopened->id)
+                ->first(),
+            'The reopened order reaches the kitchen display'
+        );
     }
 }

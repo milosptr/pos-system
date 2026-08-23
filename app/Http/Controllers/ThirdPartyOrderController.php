@@ -186,7 +186,11 @@ class ThirdPartyOrderController extends Controller
             }
         }
 
-        $allFailed = !empty($summary['failed']) && empty($processedOrders) && empty($summary['skipped_invoiced']);
+        // Any failed group means a non-2xx, matching the old all-or-nothing
+        // contract so a retrying client resends (resends are idempotent, so
+        // the already-committed groups are no-ops and the failed one gets
+        // another chance).
+        $anyFailed = !empty($summary['failed']);
 
         Log::info('[ThirdPartyOrder] Orders processed', [
             'summary' => array_merge($summary, [
@@ -196,15 +200,15 @@ class ThirdPartyOrderController extends Controller
         ]);
 
         return response()->json([
-            'success' => !$allFailed,
-            'message' => $allFailed
-                ? 'Failed to process orders'
+            'success' => !$anyFailed,
+            'message' => $anyFailed
+                ? count($processedOrders) . ' order(s) processed, ' . count($summary['failed']) . ' failed'
                 : count($processedOrders) . ' order(s) processed',
             'data' => ThirdPartyOrderResource::collection(
-                collect($processedOrders)->map->load('items')
+                (new \Illuminate\Database\Eloquent\Collection($processedOrders))->load('items')
             ),
             'summary' => $summary,
-        ], $allFailed ? 500 : 201);
+        ], $anyFailed ? 500 : 201);
     }
 
     /**
@@ -283,9 +287,15 @@ class ThirdPartyOrderController extends Controller
             $existingItem = $existingItems->get($externalItemId);
 
             if ($existingItem && $existingItem->trashed()) {
-                // Already paid via a partial invoice — stays out of the order
-                // and out of the total.
-                continue;
+                if ($existingItem->invoiced_at !== null) {
+                    // Already paid via a partial invoice — stays out of the
+                    // order and out of the total.
+                    continue;
+                }
+
+                // Pruned by an earlier sync (removed from the order) and now
+                // re-added with the same stavkaid: bring it back.
+                $existingItem->restore();
             }
 
             $qty = (float) ($row['kolicina'] ?? 0);
