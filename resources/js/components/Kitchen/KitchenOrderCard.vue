@@ -14,7 +14,15 @@
         class="absolute inset-0 bg-white/20"
         :style="{ width: fillWidth, transition: 'width 3s linear' }"
       ></div>
-      <span class="relative text-white font-bold text-lg">{{ order.table_name }}</span>
+      <div class="relative flex items-center gap-2">
+        <span class="text-white font-bold text-lg">{{ order.table_name }}</span>
+        <span
+          v-if="order.invoiced_at && mode === 'active'"
+          class="inline-flex items-center px-2 py-0.5 rounded bg-yellow-400 text-gray-900 text-xs font-bold tracking-wide"
+        >
+          PLAĆENO
+        </span>
+      </div>
       <span v-if="order.waiter_name" class="relative text-white font-normal text-lg">{{ order.waiter_name }}</span>
       <template v-if="mode === 'active'">
         <button

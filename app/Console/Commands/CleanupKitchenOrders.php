@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\KitchenOrder;
 use App\Models\KitchenOrderItem;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CleanupKitchenOrders extends Command
 {
@@ -17,10 +17,10 @@ class CleanupKitchenOrders extends Command
     {
         $count = KitchenOrder::count();
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        Schema::disableForeignKeyConstraints();
         KitchenOrderItem::truncate();
         KitchenOrder::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        Schema::enableForeignKeyConstraints();
 
         $this->info("Deleted {$count} kitchen orders.");
 

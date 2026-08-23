@@ -21,12 +21,14 @@ class ThirdPartyOrderItem extends Model
         'sku',
         'print_station_id',
         'active',
+        'invoiced_at',
     ];
 
     protected $casts = [
         'qty' => 'decimal:2',
         'price' => 'integer',
         'active' => 'integer',
+        'invoiced_at' => 'datetime',
     ];
 
     public function order()

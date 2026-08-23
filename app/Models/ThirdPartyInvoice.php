@@ -103,6 +103,18 @@ class ThirdPartyInvoice extends Model
 
             // Delete related sales records
             \App\Models\Sales::where('batch_id', $this->id)->delete();
+
+            // The payment is cancelled, so the order it settled is open again:
+            // clear the invoiced stamp so a resend from the external system is
+            // no longer skipped as "already paid". (A listastavki invoice that
+            // closed several porudzbine only carries this one external id —
+            // same granularity as the storno reference itself.)
+            if ($this->external_order_id) {
+                ThirdPartyOrder::onlyTrashed()
+                    ->where('external_order_id', $this->external_order_id)
+                    ->whereNotNull('invoiced_at')
+                    ->update(['invoiced_at' => null]);
+            }
         });
 
         return true;

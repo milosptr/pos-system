@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Services\KitchenService;
 
 class ThirdPartyOrder extends Model
 {
@@ -16,11 +17,13 @@ class ThirdPartyOrder extends Model
         'table_name',
         'total',
         'ordered_at',
+        'invoiced_at',
     ];
 
     protected $casts = [
         'total' => 'integer',
         'ordered_at' => 'datetime',
+        'invoiced_at' => 'datetime',
     ];
 
     protected static function booted()
@@ -68,7 +71,11 @@ class ThirdPartyOrder extends Model
     public static function deleteByTableId(int $tableId): int
     {
         $orderIds = static::where('table_id', $tableId)->pluck('id');
+        ThirdPartyOrderItem::whereIn('third_party_order_id', $orderIds)->update(['invoiced_at' => now()]);
         ThirdPartyOrderItem::whereIn('third_party_order_id', $orderIds)->delete();
+        // Stamp before soft-deleting: a trashed row with invoiced_at set means
+        // "closed by an invoice", as opposed to the 4am cleanup.
+        static::where('table_id', $tableId)->update(['invoiced_at' => now()]);
         return static::where('table_id', $tableId)->delete();
     }
 
@@ -90,10 +97,24 @@ class ThirdPartyOrder extends Model
             return 0;
         }
 
-        // 2. Delete the specific kitchen order items
-        KitchenOrderItem::whereIn('external_item_id', $externalItemIds)->delete();
+        // 2. Delete the specific kitchen order items, but only for orders the
+        //    kitchen already handed out. Food still being prepared stays on the
+        //    display even though the bill was just paid.
+        $readyKitchenOrderIds = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->whereIn('orderable_id', $affectedOrderIds)
+            ->ready()
+            ->pluck('id')
+            ->toArray();
 
-        // 3. Delete the specific third-party order items
+        if (!empty($readyKitchenOrderIds)) {
+            KitchenOrderItem::whereIn('kitchen_order_id', $readyKitchenOrderIds)
+                ->whereIn('external_item_id', $externalItemIds)
+                ->delete();
+        }
+
+        // 3. Delete the specific third-party order items. Stamp them first so a
+        //    resend can tell "paid" apart from "pruned by an earlier sync".
+        ThirdPartyOrderItem::whereIn('external_item_id', $externalItemIds)->update(['invoiced_at' => now()]);
         ThirdPartyOrderItem::whereIn('external_item_id', $externalItemIds)->delete();
 
         // 4. Clean up empty orders and their kitchen orders
@@ -103,15 +124,19 @@ class ThirdPartyOrder extends Model
             if (!$order) continue;
 
             if ($order->items()->count() === 0) {
-                KitchenOrder::where('orderable_type', 'third_party_order')
-                    ->where('orderable_id', $orderId)
-                    ->delete();
+                // Whole order paid: ready kitchen orders are removed, unfinished
+                // ones stay on the display flagged as invoiced.
+                KitchenService::clearForInvoice('third_party_order', [$orderId]);
+                $order->update(['invoiced_at' => now()]);
                 $order->delete();
                 $ordersDeleted++;
             } else {
-                // Order still has items — clean up kitchen order if no kitchen items remain
+                // Order still has un-invoiced items. Active kitchen orders keep
+                // all their items (step 2 only touched ready ones), so only a
+                // handed-out kitchen order can have run out of kitchen items.
                 $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
                     ->where('orderable_id', $orderId)
+                    ->ready()
                     ->first();
                 if ($kitchenOrder && $kitchenOrder->items()->count() === 0) {
                     $kitchenOrder->delete();
