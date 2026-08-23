@@ -131,6 +131,128 @@ class KitchenOrderTest extends TestCase
     }
 
     /**
+     * The same cash-out through the real path waiters use (a PAYED invoice,
+     * which also runs SalesService) keeps the unfinished kitchen order too.
+     */
+    public function test_paid_pos_invoice_runs_sales_and_keeps_active_kitchen_order()
+    {
+        $waiter = User::create([
+            'name' => 'Miloš',
+            'username' => 'milos2',
+            'password' => bcrypt('secret'),
+        ]);
+        $table = Table::create(['name' => '6', 'area' => 1, 'table_number' => 6]);
+
+        $stillCooking = Order::create(['table_id' => $table->id, 'total' => 500, 'order' => []]);
+        $alreadyServed = Order::create(['table_id' => $table->id, 'total' => 300, 'order' => []]);
+
+        $activeKitchenOrder = $this->createKitchenOrderWithItems([
+            'orderable_id' => $stillCooking->id,
+        ]);
+        $readyKitchenOrder = $this->createKitchenOrderWithItems([
+            'orderable_id' => $alreadyServed->id,
+            'ready_at' => now(),
+        ]);
+
+        $response = $this->postJson('/api/invoices', [
+            'user_id' => $waiter->id,
+            'table_id' => $table->id,
+            'total' => 800,
+            'status' => \App\Models\Invoice::STATUS_PAYED,
+            'order' => [[
+                'id' => 1,
+                'name' => 'Cevapi',
+                'qty' => 2,
+                'price' => 400,
+                'category_id' => 1,
+                'category_name' => 'Roštilj',
+                'table_id' => $table->id,
+                'sku' => '000055',
+            ]],
+        ]);
+
+        $response->assertStatus(201);
+
+        $this->assertEquals(0, Order::count(), 'Both POS orders should be cashed out');
+        $this->assertEquals(
+            1,
+            \App\Models\Sales::count(),
+            'A PAYED invoice must record the sale'
+        );
+
+        $this->assertNull(
+            KitchenOrder::find($readyKitchenOrder->id),
+            'The order already in "Izdate" should be deleted by the invoice'
+        );
+        $activeKitchenOrder = $activeKitchenOrder->fresh();
+        $this->assertNotNull(
+            $activeKitchenOrder,
+            'The order the kitchen is still preparing should stay on the display'
+        );
+        $this->assertNotNull($activeKitchenOrder->invoiced_at);
+    }
+
+    /**
+     * New items arriving on a kitchen order already flagged as invoiced mean
+     * the order is no longer fully paid — the flag (and ready state) must be
+     * cleared so the fresh food does not vanish on the next "ready".
+     */
+    public function test_new_items_clear_invoiced_flag_on_kitchen_order()
+    {
+        $order = ThirdPartyOrder::create([
+            'external_order_id' => 700001,
+            'table_id' => 7,
+            'table_name' => '7',
+            'total' => 300,
+        ]);
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 71,
+            'name' => 'Cevapi',
+            'qty' => 1,
+            'price' => 300,
+            'unit' => 'kom',
+            'active' => 1,
+            'print_station_id' => 2,
+        ]);
+
+        $kitchenOrder = KitchenOrder::create([
+            'orderable_type' => 'third_party_order',
+            'orderable_id' => $order->id,
+            'table_name' => 'Sala 7',
+            'ready_at' => now(),
+            'invoiced_at' => now(),
+        ]);
+        KitchenOrderItem::create([
+            'kitchen_order_id' => $kitchenOrder->id,
+            'external_item_id' => 71,
+            'name' => 'Cevapi',
+            'qty' => 1,
+            'storno' => false,
+            'is_done' => false,
+        ]);
+
+        // A new (unpaid) item lands on the order
+        ThirdPartyOrderItem::create([
+            'third_party_order_id' => $order->id,
+            'external_item_id' => 72,
+            'name' => 'Pljeskavica',
+            'qty' => 1,
+            'price' => 350,
+            'unit' => 'kom',
+            'active' => 1,
+            'print_station_id' => 2,
+        ]);
+
+        \Services\KitchenService::processThirdPartyOrder($order->fresh());
+
+        $kitchenOrder = $kitchenOrder->fresh();
+        $this->assertNull($kitchenOrder->invoiced_at, 'New items mean the order is no longer fully paid');
+        $this->assertNull($kitchenOrder->ready_at, 'New items put the order back into "Aktivne"');
+        $this->assertEquals(2, $kitchenOrder->items()->count());
+    }
+
+    /**
      * The kitchen display exposes invoiced_at so a paid order can be marked.
      */
     public function test_invoiced_at_is_returned_in_index()
@@ -339,7 +461,8 @@ class KitchenOrderTest extends TestCase
     }
 
     /**
-     * Test invoiced orders are not re-added to kitchen display.
+     * An order already closed by an invoice this working day is skipped when
+     * the external system resends it — no ghost table, no kitchen dispatch.
      */
     public function test_invoiced_orders_not_re_added_to_kitchen()
     {
@@ -371,29 +494,33 @@ class KitchenOrderTest extends TestCase
             ->first();
         $this->assertNotNull($kitchenOrder, 'Kitchen order should exist after initial import');
 
-        // 2. Simulate invoice: soft-delete the order + hard-delete kitchen order
-        $order->delete(); // soft delete
-        $kitchenOrder->items()->delete();
-        $kitchenOrder->delete();
+        // 2. Close the order through the real invoice path (stamps invoiced_at)
+        ThirdPartyOrder::deleteByExternalItemIds([9001]);
 
         $this->assertNull(ThirdPartyOrder::find($order->id), 'Order should be soft-deleted');
-        $this->assertTrue(ThirdPartyOrder::onlyTrashed()->where('external_order_id', 999001)->exists());
-        $this->assertEquals(0, KitchenOrder::where('orderable_type', 'third_party_order')
-            ->where('orderable_id', $order->id)->count());
+        $trashed = ThirdPartyOrder::onlyTrashed()->where('external_order_id', 999001)->first();
+        $this->assertNotNull($trashed);
+        $this->assertNotNull($trashed->invoiced_at, 'Invoice path should stamp invoiced_at');
 
         // 3. Re-send the same order (ebar sends all orders for the table)
         $response = $this->postJson('/api/third-party-order', $payload);
         $response->assertStatus(201);
+        $response->assertJsonPath('summary.skipped_invoiced', [999001]);
 
-        // A new ThirdPartyOrder row is created (updateOrCreate doesn't find soft-deleted)
-        $newOrder = ThirdPartyOrder::where('external_order_id', 999001)->first();
-        $this->assertNotNull($newOrder);
+        // 4. The paid order does not come back at all — no ghost table row...
+        $this->assertNull(
+            ThirdPartyOrder::where('external_order_id', 999001)->first(),
+            'A resent paid order must not reappear as a live order'
+        );
 
-        // 4. Verify NO kitchen order was created for the re-sent invoiced order
-        $kitchenOrders = KitchenOrder::where('orderable_type', 'third_party_order')
-            ->where('orderable_id', $newOrder->id)
-            ->get();
-        $this->assertCount(0, $kitchenOrders, 'Invoiced order should NOT be re-added to kitchen');
+        // ...and no new kitchen dispatch: only the original (still unfinished,
+        // now flagged as invoiced) kitchen order remains on the display.
+        $this->assertEquals(
+            1,
+            KitchenOrder::where('orderable_type', 'third_party_order')->count(),
+            'Invoiced order should NOT be re-added to kitchen'
+        );
+        $this->assertNotNull($kitchenOrder->fresh()->invoiced_at);
     }
 
     /**

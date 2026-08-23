@@ -13,6 +13,20 @@ use Illuminate\Support\Facades\Cache;
 class KitchenService
 {
     /**
+     * Request-scoped memo for inventory lookups. A batch payload repeats the
+     * same articles across tables; without this every kitchen item costs an
+     * unindexable inventory scan.
+     */
+    private static array $inventoryMatchCache = [];
+    private static array $inventoryCategoryCache = [];
+
+    public static function resetInventoryCache(): void
+    {
+        self::$inventoryMatchCache = [];
+        self::$inventoryCategoryCache = [];
+    }
+
+    /**
      * Format a table name with the appropriate prefix for kitchen display.
      *
      * @param string $tableName
@@ -86,24 +100,43 @@ class KitchenService
      */
     public static function matchInventory(?string $sku, ?string $name): ?int
     {
+        $cacheKey = ($sku ?? "\0") . '|' . ($name ?? "\0");
+        if (array_key_exists($cacheKey, self::$inventoryMatchCache)) {
+            return self::$inventoryMatchCache[$cacheKey];
+        }
+
+        $result = null;
+
         // First, try to match by SKU as integer comparison
         if ($sku !== null && $sku !== '') {
             $skuInt = (int) $sku;
             $inventory = Inventory::whereRaw('sku + 0 = ?', [$skuInt])->first();
             if ($inventory) {
-                return $inventory->id;
+                $result = $inventory->id;
             }
         }
 
         // Fallback: try to match by name (case-insensitive)
-        if ($name) {
+        if ($result === null && $name) {
             $inventory = Inventory::whereRaw('LOWER(name) = ?', [strtolower($name)])->first();
             if ($inventory) {
-                return $inventory->id;
+                $result = $inventory->id;
             }
         }
 
-        return null;
+        return self::$inventoryMatchCache[$cacheKey] = $result;
+    }
+
+    /**
+     * Memoized lookup of an inventory item's category.
+     */
+    private static function inventoryCategoryId(int $inventoryId): ?int
+    {
+        if (!array_key_exists($inventoryId, self::$inventoryCategoryCache)) {
+            self::$inventoryCategoryCache[$inventoryId] = Inventory::find($inventoryId)?->category_id;
+        }
+
+        return self::$inventoryCategoryCache[$inventoryId];
     }
 
     /**
@@ -144,9 +177,11 @@ class KitchenService
      * Process a POS order and create/update a kitchen order for kitchen items.
      *
      * @param Order $order
+     * @param bool $broadcast Set false when the caller batches several orders
+     *                        and fires a single broadcast at the end.
      * @return KitchenOrder|null
      */
-    public static function processOrder(Order $order): ?KitchenOrder
+    public static function processOrder(Order $order, bool $broadcast = true): ?KitchenOrder
     {
         $kitchenCategoryIds = self::getKitchenCategoryIds();
         $orderItems = $order->order ?? [];
@@ -201,10 +236,12 @@ class KitchenService
             $kitchenOrder->items()->create($item);
         }
 
-        try {
-            app(Pusher::class)->trigger('broadcasting', 'kitchen-update', []);
-        } catch (\Exception $e) {
-            \Log::error($e->getMessage());
+        if ($broadcast) {
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'kitchen-update', []);
+            } catch (\Exception $e) {
+                \Log::error($e->getMessage());
+            }
         }
 
         return $kitchenOrder;
@@ -215,9 +252,12 @@ class KitchenService
      * Uses print_station_id == 2 to detect kitchen items.
      *
      * @param ThirdPartyOrder $order
+     * @param string|null $waiterName
+     * @param bool $broadcast Set false when the caller batches several orders
+     *                        and fires a single broadcast at the end.
      * @return KitchenOrder|null
      */
-    public static function processThirdPartyOrder(ThirdPartyOrder $order, ?string $waiterName = null): ?KitchenOrder
+    public static function processThirdPartyOrder(ThirdPartyOrder $order, ?string $waiterName = null, bool $broadcast = true): ?KitchenOrder
     {
         $order->load('items');
 
@@ -268,7 +308,7 @@ class KitchenService
             $incomingExternalIds[] = $item->external_item_id;
 
             $inventoryId = self::matchInventory($item->sku, $item->name);
-            $categoryId = $inventoryId ? Inventory::find($inventoryId)?->category_id : null;
+            $categoryId = $inventoryId ? self::inventoryCategoryId($inventoryId) : null;
 
             $kitchenOrder->items()->updateOrCreate(
                 ['external_item_id' => $item->external_item_id],
@@ -288,16 +328,20 @@ class KitchenService
             ->whereNotIn('external_item_id', $incomingExternalIds)
             ->delete();
 
-        // Only reset ready_at if new items were actually added
+        // Only reset ready_at if new items were actually added. New items also
+        // mean the order is no longer fully paid, so the invoiced flag must go
+        // too — otherwise the fresh food would vanish on the next "ready".
         $hasNewItems = !empty(array_diff($incomingExternalIds, $existingExternalIds));
-        if ($kitchenOrder->ready_at !== null && $hasNewItems) {
-            $kitchenOrder->update(['ready_at' => null]);
+        if ($hasNewItems && ($kitchenOrder->ready_at !== null || $kitchenOrder->invoiced_at !== null)) {
+            $kitchenOrder->update(['ready_at' => null, 'invoiced_at' => null]);
         }
 
-        try {
-            app(Pusher::class)->trigger('broadcasting', 'kitchen-update', []);
-        } catch (\Exception $e) {
-            \Log::error($e->getMessage());
+        if ($broadcast) {
+            try {
+                app(Pusher::class)->trigger('broadcasting', 'kitchen-update', []);
+            } catch (\Exception $e) {
+                \Log::error($e->getMessage());
+            }
         }
 
         return $kitchenOrder;
