@@ -225,14 +225,17 @@ class ThirdPartyOrderController extends Controller
      */
     private function processOrderGroup(int $externalOrderId, $orderRows, array &$summary): ?ThirdPartyOrder
     {
+        // Read the waiter off the raw rows, before modifier rows are merged
+        // away: the external system stamps "konobar" on the last row it sends,
+        // and that row is very often a modifier row which the merge drops.
+        $waiterName = self::extractWaiterName($orderRows);
+
         $orderRows = self::mergeModifierRows($orderRows);
         $firstRow = $orderRows->first();
 
         // Extract order-level data (lowercase field names)
         $tableId = isset($firstRow['stoid']) ? (int) $firstRow['stoid'] : null;
         $tableName = (string) ($firstRow['sto'] ?? 'Unknown');
-        $lastRow = $orderRows->last();
-        $waiterName = $lastRow['konobar'] ?? null;
 
         // Parse order datetime from datum field
         $orderedAt = isset($firstRow['datum']) && !empty($firstRow['datum'])
@@ -371,6 +374,31 @@ class ThirdPartyOrderController extends Controller
             ->where('status', '!=', ThirdPartyInvoice::STATUS_STORNO)
             ->whereBetween('created_at', [$dayStart, $dayEnd])
             ->exists();
+    }
+
+    /**
+     * Pull the waiter name out of an order's rows.
+     *
+     * The external system fills "konobar" on only some of the rows — in
+     * practice the last one, whatever kind of row that is — so scan every row
+     * and keep the last non-empty value instead of trusting a fixed position.
+     *
+     * @param \Illuminate\Support\Collection $rows
+     * @return string|null
+     */
+    private static function extractWaiterName($rows): ?string
+    {
+        $name = collect($rows)
+            ->map(function ($row) {
+                $value = is_array($row) ? ($row['konobar'] ?? null) : null;
+                return is_string($value) ? trim($value) : null;
+            })
+            ->filter(function ($value) {
+                return $value !== null && $value !== '';
+            })
+            ->last();
+
+        return $name ?: null;
     }
 
     /**
