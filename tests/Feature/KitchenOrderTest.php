@@ -894,6 +894,108 @@ class KitchenOrderTest extends TestCase
     }
 
     /**
+     * The external system stamps konobar on the last row it sends, which is
+     * often a modifier-only row. That row is merged into its parent item and
+     * dropped, so the waiter has to be read before the merge.
+     */
+    public function test_third_party_order_api_reads_konobar_from_modifier_row()
+    {
+        $this->withoutMiddleware(VerifyExternalApiKey::class);
+
+        $payload = [
+            [
+                'porudzbinaid' => 600014,
+                'stoid' => 754,
+                'sto' => '15',
+                'datum' => now()->toDateTimeString(),
+                'stavkaid' => 437461,
+                'naziv' => 'Cevapi',
+                'kolicina' => 1,
+                'cena' => 300,
+                'jm' => 'kom',
+                'stampanjenalogaid' => 2,
+            ],
+            [
+                'porudzbinaid' => 600014,
+                'stoid' => 754,
+                'sto' => '15',
+                'datum' => now()->toDateTimeString(),
+                'stavkaid' => 437462,
+                'naziv' => null,
+                'kolicina' => 1,
+                'cena' => 0,
+                'jm' => null,
+                'stampanjenalogaid' => null,
+                'modifikatorslobodan' => 'sve zajedno',
+                'konobar' => 'Srdjan',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $payload);
+        $response->assertStatus(201);
+
+        $order = ThirdPartyOrder::where('external_order_id', 600014)->first();
+        $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->where('orderable_id', $order->id)
+            ->first();
+
+        $this->assertNotNull($kitchenOrder);
+        $this->assertEquals('Srdjan', $kitchenOrder->waiter_name);
+
+        // The modifier row itself must still be merged away, not kept as an item.
+        $this->assertEquals(1, $kitchenOrder->items()->count());
+        $this->assertEquals('sve zajedno', $kitchenOrder->items()->first()->modifier);
+    }
+
+    /**
+     * A blank konobar on the last row must not shadow a real name sent earlier.
+     */
+    public function test_third_party_order_api_ignores_blank_konobar_on_later_row()
+    {
+        $this->withoutMiddleware(VerifyExternalApiKey::class);
+
+        $payload = [
+            [
+                'porudzbinaid' => 600015,
+                'stoid' => 100,
+                'sto' => 'Sto 1',
+                'datum' => now()->toDateTimeString(),
+                'stavkaid' => 6015,
+                'naziv' => 'Cevapi',
+                'kolicina' => 1,
+                'cena' => 300,
+                'jm' => 'kom',
+                'stampanjenalogaid' => 2,
+                'konobar' => 'Srdjan',
+            ],
+            [
+                'porudzbinaid' => 600015,
+                'stoid' => 100,
+                'sto' => 'Sto 1',
+                'datum' => now()->toDateTimeString(),
+                'stavkaid' => 6016,
+                'naziv' => 'Kafa',
+                'kolicina' => 1,
+                'cena' => 120,
+                'jm' => 'kom',
+                'stampanjenalogaid' => 2,
+                'konobar' => '   ',
+            ],
+        ];
+
+        $response = $this->postJson('/api/third-party-order', $payload);
+        $response->assertStatus(201);
+
+        $order = ThirdPartyOrder::where('external_order_id', 600015)->first();
+        $kitchenOrder = KitchenOrder::where('orderable_type', 'third_party_order')
+            ->where('orderable_id', $order->id)
+            ->first();
+
+        $this->assertNotNull($kitchenOrder);
+        $this->assertEquals('Srdjan', $kitchenOrder->waiter_name);
+    }
+
+    /**
      * Test third-party order API without konobar field leaves waiter_name null.
      */
     public function test_third_party_order_api_without_konobar_leaves_waiter_null()
