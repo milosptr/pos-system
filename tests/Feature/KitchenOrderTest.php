@@ -948,9 +948,12 @@ class KitchenOrderTest extends TestCase
     }
 
     /**
-     * A blank konobar on the last row must not shadow a real name sent earlier.
+     * An empty konobar on the last row must not shadow a real name sent on an
+     * earlier row. Note the global TrimStrings + ConvertEmptyStringsToNull
+     * middleware turn a whitespace-only konobar into null before the
+     * controller sees it, so both shapes arrive here as null.
      */
-    public function test_third_party_order_api_ignores_blank_konobar_on_later_row()
+    public function test_third_party_order_api_ignores_empty_konobar_on_later_row()
     {
         $this->withoutMiddleware(VerifyExternalApiKey::class);
 
@@ -979,7 +982,7 @@ class KitchenOrderTest extends TestCase
                 'cena' => 120,
                 'jm' => 'kom',
                 'stampanjenalogaid' => 2,
-                'konobar' => '   ',
+                'konobar' => null,
             ],
         ];
 
