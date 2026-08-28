@@ -36,7 +36,7 @@
       v-if="order.invoiced_at && mode === 'active'"
       class="px-4 py-2 text-center font-bold text-white text-base tracking-wide bg-green-600"
     >
-      PLAĆENO
+      NAPLAĆENO
     </div>
 
     <!-- Waiter suggestions -->
