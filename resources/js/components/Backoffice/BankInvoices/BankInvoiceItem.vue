@@ -28,7 +28,7 @@
       <div class="text-sm leading-6 text-gray-900">{{ invoice?.client_account?.name }}</div>
       <div v-if="invoice?.reference_number" class="text-sm leading-6 text-gray-900">
         <span class="mt-1 text-sm leading-5 text-gray-400" @click.stop="clickToCopy(invoice.reference_number)">
-          <span v-if="invoice.payment_model" class="font-semibold text-gray-600">{{ invoice.payment_model }}</span>
+          <span v-if="paymentModel" class="font-semibold text-gray-600">{{ paymentModel }}</span>
           {{ invoice.reference_number }}
         </span>
       </div>
@@ -149,10 +149,16 @@ import BankInvoiceUpdateModal from './BankInvoiceUpdateModal.vue'
       items: [],
     }),
     computed: {
+      // Model 00 means the slip carries no model at all, so printing it would
+      // be noise next to the poziv na broj.
+      paymentModel() {
+        const model = (this.invoice.payment_model || '').trim()
+        return Number(model) > 0 ? model : null
+      },
       details() {
         return [
           { label: 'Broj računa', value: this.invoice.invoice_number },
-          { label: 'Model', value: this.invoice.payment_model },
+          { label: 'Model', value: this.paymentModel },
           { label: 'Poziv na broj', value: this.invoice.reference_number },
           { label: 'Datum izdavanja', value: this.invoice.issue_date ? this.$filters.formatDate(this.invoice.issue_date) : null },
           { label: 'Datum prometa', value: this.invoice.transaction_date ? this.$filters.formatDate(this.invoice.transaction_date) : null },
