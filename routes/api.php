@@ -87,6 +87,7 @@ Route::post('invoices/{id}/refund', [InvoiceController::class, 'refund']);
 // Bank Accounts
 Route::get('bank-accounts', [ClientBankAccountController::class, 'index']);
 Route::post('bank-accounts', [ClientBankAccountController::class, 'store']);
+Route::post('bank-accounts/pibs', [ClientBankAccountController::class, 'assignPibs']);
 // Bank Invoices
 Route::get('bank-invoices', [ClientInvoiceController::class, 'index']);
 Route::post('bank-invoices', [ClientInvoiceController::class, 'store']);

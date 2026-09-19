@@ -342,7 +342,7 @@ class EfaktureService
         return preg_replace('/\D/', '', (string) $value);
     }
 
-    private static function normalizeName($value): string
+    public static function normalizeName($value): string
     {
         return mb_strtolower(trim((string) $value));
     }

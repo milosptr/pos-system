@@ -32,7 +32,8 @@
           />
         </div>
       </div>
-      <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+      <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex gap-3">
+        <div @click="addPibsModal = true" class="relative inline-flex items-center px-4 py-2 border border-gray-400 shadow-sm text-sm font-medium rounded-md text-gray-900 bg-white hover:bg-gray-100 focus:outline-none">Dodaj PIB-ove</div>
         <div @click="addInvoiceModal = true" class="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Dodaj račun</div>
       </div>
     </div>
@@ -87,12 +88,14 @@
       </table>
     </div>
     <AddBankInvoiceModal v-if="addInvoiceModal" @addInvoice="addNewInvoice" @close="addInvoiceModal = false" />
+    <AddPibsModal v-if="addPibsModal" @pibsAssigned="fetchBankAccounts" @close="addPibsModal = false" />
   </div>
 </template>
 
 <script>
   import BankInvoiceItem from './BankInvoiceItem.vue'
   import AddBankInvoiceModal from './AddBankInvoiceModal.vue'
+  import AddPibsModal from './AddPibsModal.vue'
   import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 
   const customShortcuts = () => {
@@ -199,6 +202,7 @@
   export default {
     components: {
       AddBankInvoiceModal,
+      AddPibsModal,
       BankInvoiceItem,
       Switch,
       SwitchGroup,
@@ -220,6 +224,7 @@
       totalIncomingInvoices: 0,
       totalHistoryInvoices: 0,
       addInvoiceModal: false,
+      addPibsModal: false,
       customShortcuts,
       formatter: {
         date: 'YYYY-MM-DD',
