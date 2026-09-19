@@ -15,7 +15,8 @@
 
         <div class="flex-auto">
           <div class="flex items-start gap-x-3">
-            <div class="text-sm font-medium leading-6 text-gray-900" @click.stop="clickToCopy(invoice.amount)">{{ $filters.formatPrice(invoice.amount, true) }} RSD</div>
+            <div class="text-sm font-medium leading-6 cursor-pointer" :class="copied === 'amount' ? 'text-green-600' : 'text-gray-900'" title="Klikni da kopiraš iznos" @click.stop="clickToCopy(invoice.amount, 'amount')">{{ $filters.formatPrice(invoice.amount, true) }} RSD</div>
+            <div v-if="copied === 'amount'" class="text-xs font-medium leading-6 text-green-600">Kopirano</div>
             <div v-if="invoice.status === 0" class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-gray-600 bg-gray-50 ring-gray-500/10">Neplaćeno</div>
             <div v-if="invoice.status === 1" class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-green-700 bg-green-50 ring-green-600/20">Plaćeno</div>
             <div v-if="invoice.status === 2" class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-red-700 bg-red-50 ring-red-600/10">Otkazano</div>
@@ -27,10 +28,11 @@
     <td class="py-2 pr-6 sm:table-cell px-4 border-b border-gray-200">
       <div class="text-sm leading-6 text-gray-900">{{ invoice?.client_account?.name }}</div>
       <div v-if="invoice?.reference_number" class="text-sm leading-6 text-gray-900">
-        <span class="mt-1 text-sm leading-5 text-gray-400" @click.stop="clickToCopy(invoice.reference_number)">
-          <span v-if="paymentModel" class="font-semibold text-gray-600">{{ paymentModel }}</span>
+        <span class="mt-1 text-sm leading-5 cursor-pointer" :class="copied === 'reference' ? 'text-green-600' : 'text-gray-400'" title="Klikni da kopiraš poziv na broj" @click.stop="clickToCopy(invoice.reference_number, 'reference')">
+          <span v-if="paymentModel" class="font-semibold" :class="copied === 'reference' ? 'text-green-600' : 'text-gray-600'">{{ paymentModel }}</span>
           {{ invoice.reference_number }}
         </span>
+        <span v-if="copied === 'reference'" class="ml-2 text-xs font-medium text-green-600">Kopirano</span>
       </div>
 
     </td>
@@ -125,6 +127,8 @@
   import BankInvoicePayModal from './BankInvoicePayModal.vue'
 import BankInvoiceUpdateModal from './BankInvoiceUpdateModal.vue'
 
+  const COPIED_FEEDBACK_MS = 1500
+
   export default {
     props: {
       invoice: {
@@ -147,7 +151,11 @@ import BankInvoiceUpdateModal from './BankInvoiceUpdateModal.vue'
       itemsLoaded: false,
       itemsError: false,
       items: [],
+      copied: null,
     }),
+    beforeUnmount() {
+      clearTimeout(this.copiedTimeout)
+    },
     computed: {
       // Model 00 means the slip carries no model at all, so printing it would
       // be noise next to the poziv na broj.
@@ -200,12 +208,18 @@ import BankInvoiceUpdateModal from './BankInvoiceUpdateModal.vue'
       togglePayModal() {
         this.showPayModal = !this.showPayModal
       },
-      clickToCopy(value) {
-        try {
-          this.$copyText(value.toString())
-        } catch (err) {
-          console.error('Failed to copy: ', value);
-        }
+      clickToCopy(value, field) {
+        this.$copyText(value.toString())
+          .then(() => {
+            this.copied = field
+            clearTimeout(this.copiedTimeout)
+            this.copiedTimeout = setTimeout(() => {
+              this.copied = null
+            }, COPIED_FEEDBACK_MS)
+          })
+          .catch((error) => {
+            console.error('Failed to copy: ', error)
+          })
       },
       updateInvoiceStatus(status) {
         axios.put(`/api/bank-invoices/${this.invoice.id}`, {
