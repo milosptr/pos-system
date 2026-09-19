@@ -321,6 +321,19 @@ class EfaktureImportTest extends TestCase
         $this->assertEquals('41262209401158702026', ClientInvoice::first()->reference_number);
     }
 
+    public function test_a_single_invoice_posted_on_its_own_is_accepted()
+    {
+        // Not wrapped in an array, which is what one invoice per POST looks
+        // like when the sender forgets the list.
+        $response = $this->postJson('/api/efakture', $this->jkspInvoice());
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('summary.processed', 1);
+        $response->assertJsonPath('summary.items', 3);
+        $this->assertEquals(1, ClientInvoice::count());
+        $this->assertEquals('115870-2026', ClientInvoice::first()->invoice_number);
+    }
+
     public function test_a_body_that_is_a_json_string_is_named_as_such()
     {
         // What json.dumps() followed by requests.post(json=...) puts on the wire.

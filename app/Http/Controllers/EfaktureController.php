@@ -34,6 +34,22 @@ class EfaktureController extends Controller
     {
         $rows = $request->all();
 
+        if (empty($rows)) {
+            Log::warning('[Efakture] Empty data provided', [
+                'ip' => $request->ip(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'No data provided',
+            ], 422);
+        }
+
+        // One invoice posted on its own rather than wrapped in an array. That
+        // is the everyday case, so take it rather than iterating its keys.
+        if (!self::isList($rows)) {
+            $rows = [$rows];
+        }
+
         if (count($rows) <= self::LOG_FULL_BODY_MAX_ROWS) {
             Log::info('[Efakture] Incoming request', [
                 'body' => $rows,
@@ -45,16 +61,6 @@ class EfaktureController extends Controller
                 'sef_ids' => collect($rows)->pluck('sef_id')->filter()->values()->toArray(),
                 'ip' => $request->ip(),
             ]);
-        }
-
-        if (empty($rows)) {
-            Log::warning('[Efakture] Empty data provided', [
-                'ip' => $request->ip(),
-            ]);
-            return response()->json([
-                'success' => false,
-                'message' => 'No data provided',
-            ], 422);
         }
 
         // A body that is not a list of invoices at all, most often a JSON
@@ -199,6 +205,11 @@ class EfaktureController extends Controller
             'message' => $message,
             'summary' => $summary,
         ], $summary['processed'] > 0 && !$anyFailed ? 201 : 200);
+    }
+
+    private static function isList(array $rows): bool
+    {
+        return array_keys($rows) === range(0, count($rows) - 1);
     }
 
     /**
