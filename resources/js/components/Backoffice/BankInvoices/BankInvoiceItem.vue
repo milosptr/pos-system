@@ -26,8 +26,11 @@
     </td>
     <td class="py-2 pr-6 sm:table-cell px-4 border-b border-gray-200">
       <div class="text-sm leading-6 text-gray-900">{{ invoice?.client_account?.name }}</div>
-      <div class="text-sm leading-6 text-gray-900">
-        <span class="mt-1 text-sm leading-5 text-gray-400" @click.stop="clickToCopy(invoice.reference_number)">{{ invoice?.reference_number ? ` ${invoice.reference_number}` : '' }}</span>
+      <div v-if="invoice?.reference_number" class="text-sm leading-6 text-gray-900">
+        <span class="mt-1 text-sm leading-5 text-gray-400" @click.stop="clickToCopy(invoice.reference_number)">
+          <span v-if="invoice.payment_model" class="font-semibold text-gray-600">{{ invoice.payment_model }}</span>
+          {{ invoice.reference_number }}
+        </span>
       </div>
 
     </td>
