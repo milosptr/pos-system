@@ -331,6 +331,7 @@ import {
   UserGroupIcon,
   ClockIcon,
   DocumentTextIcon,
+  TrendingUpIcon,
   ArchiveIcon,
   ServerIcon
 } from '@heroicons/vue/outline'
@@ -346,6 +347,7 @@ const navigation = [
   { name: 'Obaveštenja', href: 'tasks', icon: BellIcon, current: false },
   { name: 'Klijenti', href: 'clients', icon: UserGroupIcon, current: false },
   { name: 'Fakture', href: 'bank-invoices', icon: DocumentTextIcon, current: false },
+  { name: 'Cene dobavljača', href: 'supplier-prices', icon: TrendingUpIcon, current: false },
   { name: 'Dolasci', href: 'arrivals', icon: ClockIcon, current: false },
   { name: 'Magacin', href: 'warehouse', icon: ArchiveIcon, current: false },
   // { name: 'Connections Log', href: 'connection-logs', icon: WifiIcon, current: false },

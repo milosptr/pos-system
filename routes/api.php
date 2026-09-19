@@ -23,6 +23,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ValidatePinController;
 use App\Http\Controllers\RefundReasonController;
 use App\Http\Controllers\ClientInvoiceController;
+use App\Http\Controllers\SupplierPriceController;
 use App\Http\Controllers\ConnectionsLogController;
 use App\Http\Controllers\InventoryPricingController;
 use App\Http\Controllers\ClientBankAccountController;
@@ -93,6 +94,8 @@ Route::get('bank-invoices', [ClientInvoiceController::class, 'index']);
 Route::post('bank-invoices', [ClientInvoiceController::class, 'store']);
 Route::get('bank-invoices/{id}/items', [ClientInvoiceController::class, 'items']);
 Route::put('bank-invoices/{id}', [ClientInvoiceController::class, 'update']);
+// Supplier prices
+Route::get('supplier-prices', [SupplierPriceController::class, 'index']);
 
 // Sales
 Route::get('sales/imports', [SalesImportDetaisController::class, 'index']);

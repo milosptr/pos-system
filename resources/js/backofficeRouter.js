@@ -20,6 +20,7 @@ import BackofficeArrivals from './components/Backoffice/BackofficeArrivals.vue'
 import BackofficeImportedSales from './components/Backoffice/Reports/BackofficeImportedSales.vue'
 import BackofficeWarehouse from './components/Backoffice/Warehouse/BackofficeWarehouse.vue'
 import BankInvoices from './components/Backoffice/BankInvoices/BankInvoices.vue'
+import SupplierPrices from './components/Backoffice/SupplierPrices/SupplierPrices.vue'
 import BackofficeWarehouseNew from '@/js/components/Backoffice/Warehouse/BackofficeWarehouseNew.vue'
 import BackofficeBackups from '@/js/components/Backoffice/BackofficeBackups.vue'
 
@@ -112,6 +113,11 @@ const routes = [
         path: '/bank-invoices',
         name: 'bank-invoices',
         component: BankInvoices
+      },
+      {
+        path: '/supplier-prices',
+        name: 'supplier-prices',
+        component: SupplierPrices
       },
       {
         path: '/arrivals',
