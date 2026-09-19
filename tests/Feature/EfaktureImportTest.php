@@ -297,6 +297,30 @@ class EfaktureImportTest extends TestCase
         $this->assertEquals(0, ClientInvoice::count());
     }
 
+    public function test_a_placeholder_poziv_na_broj_falls_back_to_the_invoice_number()
+    {
+        $this->import([$this->invoice(['poziv_na_broj' => '--'])])->assertStatus(201);
+
+        $this->assertEquals('115870-2026', ClientInvoice::first()->reference_number);
+    }
+
+    public function test_a_missing_poziv_na_broj_falls_back_to_the_invoice_number()
+    {
+        $invoice = $this->jkspInvoice();
+        unset($invoice['poziv_na_broj']);
+
+        $this->import([$invoice])->assertStatus(201);
+
+        $this->assertEquals('115870-2026', ClientInvoice::first()->reference_number);
+    }
+
+    public function test_a_real_poziv_na_broj_is_kept()
+    {
+        $this->import([$this->jkspInvoice()])->assertStatus(201);
+
+        $this->assertEquals('41262209401158702026', ClientInvoice::first()->reference_number);
+    }
+
     public function test_an_empty_valuta_is_treated_as_rsd()
     {
         $this->import([$this->invoice(['valuta' => ''])])->assertStatus(201);

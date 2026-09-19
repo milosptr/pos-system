@@ -72,16 +72,15 @@ class EfaktureService
         }
 
         $bankAccount = trim((string) ($row['tekuci_racun'] ?? ''));
-        $referenceNumber = trim((string) ($row['poziv_na_broj'] ?? ''));
-        $invoiceNumber = trim((string) ($row['broj_racuna'] ?? ''));
+        $invoiceNumber = self::clip(trim((string) ($row['broj_racuna'] ?? '')), self::MAX_INVOICE_NUMBER);
 
         return [
             'sef_id' => (int) $sefId,
-            'invoice_number' => self::clip($invoiceNumber, self::MAX_INVOICE_NUMBER),
+            'invoice_number' => $invoiceNumber,
             'supplier_name' => self::clip($supplierName, self::MAX_SUPPLIER_NAME),
             'pib' => self::clip(self::digits($row['dobavljac_pib'] ?? null), self::MAX_PIB) ?? '',
             'bank_account' => $bankAccount !== '' ? $bankAccount : null,
-            'reference_number' => $referenceNumber !== '' ? $referenceNumber : null,
+            'reference_number' => self::referenceNumber($row['poziv_na_broj'] ?? null, $invoiceNumber),
             'payment_model' => self::clip(self::digits($row['model'] ?? null), self::MAX_PAYMENT_MODEL),
             'issue_date' => $issueDate,
             'payment_deadline' => self::optionalDate($row, 'rok_dospeca', $issueDate),
@@ -89,6 +88,17 @@ class EfaktureService
             'amount' => $amount,
             'items' => self::normalizeItems($row['stavke'] ?? [], $sefId),
         ];
+    }
+
+    /**
+     * SEF sends "--" when the supplier left the poziv na broj off the invoice.
+     * The invoice number is then the only thing worth pasting into e-banking.
+     */
+    private static function referenceNumber($raw, ?string $invoiceNumber): ?string
+    {
+        $value = trim((string) $raw);
+
+        return preg_match('/[\p{L}\p{N}]/u', $value) === 1 ? $value : $invoiceNumber;
     }
 
     public static function alreadyImported(int $sefId): bool
