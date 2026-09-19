@@ -40,7 +40,7 @@
             <th class="font-medium py-2 px-4">Artikal</th>
             <th class="font-medium py-2 px-4">Trenutna cena</th>
             <th class="font-medium py-2 px-4">Promena</th>
-            <th class="font-medium py-2 px-4">Kretanje</th>
+            <th class="font-medium py-2 px-4">Ranije cene</th>
             <th class="font-medium py-2 px-4"></th>
           </tr>
         </thead>

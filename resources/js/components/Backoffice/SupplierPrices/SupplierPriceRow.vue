@@ -4,24 +4,28 @@
       <div class="text-sm leading-5 text-gray-900">{{ article.name }}</div>
       <div class="text-xs leading-5 text-gray-400">{{ article.unit }}</div>
     </td>
-    <td class="py-3 px-4 border-b border-gray-200">
+    <td class="py-3 px-4 border-b border-gray-200 whitespace-nowrap">
       <div class="text-sm font-semibold leading-5 text-gray-900">{{ price(latest.unit_price) }}</div>
       <div class="text-xs leading-5 text-gray-400">{{ $filters.formatDate(latest.date) }}</div>
     </td>
-    <td class="py-3 px-4 border-b border-gray-200">
+    <td class="py-3 px-4 border-b border-gray-200 whitespace-nowrap">
       <span v-if="changeText" class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset" :class="direction === 'up' ? 'text-red-700 bg-red-50 ring-red-600/10' : 'text-green-700 bg-green-50 ring-green-600/20'">
         {{ changeText }}
       </span>
-      <span v-else class="text-xs text-gray-400">Bez promene</span>
+      <span v-else class="text-xs text-gray-400">{{ earlier.length ? 'Ista cena' : 'Prva cena' }}</span>
     </td>
     <td class="py-3 px-4 border-b border-gray-200">
-      <div class="flex items-center gap-3">
-        <svg v-if="points" :width="SPARK_WIDTH" :height="SPARK_HEIGHT" :viewBox="`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`" fill="none" class="flex-none">
-          <polyline :points="points" :stroke="trendColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          <circle :cx="lastPoint.x" :cy="lastPoint.y" r="2.5" :fill="trendColor" />
-        </svg>
-        <span class="text-xs text-gray-400">{{ trendLabel }}</span>
+      <div v-if="earlier.length" class="flex flex-wrap items-end gap-x-2 gap-y-1">
+        <template v-for="entry in earlier" :key="entry.date + entry.invoice_number">
+          <div>
+            <div class="text-xs leading-4 text-gray-400">{{ shortDate(entry.date) }}</div>
+            <div class="text-sm leading-5 text-gray-600">{{ price(entry.unit_price) }}</div>
+          </div>
+          <span class="text-sm leading-5 text-gray-300">→</span>
+        </template>
+        <span class="text-xs leading-5 text-gray-400">sada</span>
       </div>
+      <span v-else class="text-sm text-gray-300">—</span>
     </td>
     <td class="py-3 px-4 border-b border-gray-200">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-gray-400 transition-transform" :class="[expanded && 'rotate-180']">
@@ -56,15 +60,7 @@
 </template>
 
 <script>
-  const SPARK_WIDTH = 72
-  const SPARK_HEIGHT = 22
-  const SPARK_PADDING = 3
-
-  const TREND_COLORS = {
-    up: '#dc2626',
-    down: '#15803d',
-    flat: '#9ca3af',
-  }
+  const SHORT_DATE_FORMAT = 'DD.MM.YY.'
 
   export default {
     props: {
@@ -75,16 +71,14 @@
     },
     data: () => ({
       expanded: false,
-      SPARK_WIDTH,
-      SPARK_HEIGHT,
     }),
     computed: {
       latest() {
         return this.article.entries[0]
       },
-      // Oldest first, the way a trend is read.
-      trend() {
-        return [...this.article.entries].reverse()
+      // Oldest first, the way the eye reads a sequence.
+      earlier() {
+        return this.article.entries.slice(1).reverse()
       },
       direction() {
         if (!this.article.changed) {
@@ -100,42 +94,6 @@
         }
         const arrow = this.direction === 'up' ? '↑' : '↓'
         return this.article.change === null ? arrow : `${arrow} ${Math.abs(this.article.change).toFixed(1)}%`
-      },
-      overallDirection() {
-        const values = this.trend.map((entry) => entry.unit_price)
-        if (values.length < 2 || values[0] === values[values.length - 1]) {
-          return 'flat'
-        }
-        return values[values.length - 1] > values[0] ? 'up' : 'down'
-      },
-      trendColor() {
-        return TREND_COLORS[this.overallDirection]
-      },
-      trendLabel() {
-        if (this.trend.length < 2) {
-          return 'Prva cena'
-        }
-        return `${this.trend.length} cene od ${this.$filters.formatDate(this.trend[0].date)}`
-      },
-      coordinates() {
-        const values = this.trend.map((entry) => entry.unit_price)
-        if (values.length < 2) {
-          return null
-        }
-        const min = Math.min(...values)
-        const span = Math.max(...values) - min || 1
-        const step = SPARK_WIDTH / (values.length - 1)
-        const height = SPARK_HEIGHT - SPARK_PADDING * 2
-        return values.map((value, index) => ({
-          x: index * step,
-          y: SPARK_PADDING + height - ((value - min) / span) * height,
-        }))
-      },
-      points() {
-        return this.coordinates ? this.coordinates.map(({ x, y }) => `${x},${y}`).join(' ') : null
-      },
-      lastPoint() {
-        return this.coordinates[this.coordinates.length - 1]
       },
       rows() {
         return this.article.entries.map((entry, index) => {
@@ -153,9 +111,12 @@
       price(value) {
         return value ? this.$filters.formatPrice(value, true) : '-'
       },
+      shortDate(value) {
+        return dayjs(value).format(SHORT_DATE_FORMAT)
+      },
       stepText(step, older) {
         if (step === null || step === 0) {
-          return step === null ? '-' : 'Bez promene'
+          return step === null ? '-' : 'Ista cena'
         }
         const percent = older.unit_price > 0 ? ` (${Math.abs((step / older.unit_price) * 100).toFixed(1)}%)` : ''
         return `${step > 0 ? '+' : '−'}${this.$filters.formatPrice(Math.abs(step), true)}${percent}`
