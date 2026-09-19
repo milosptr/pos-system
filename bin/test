@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+set -e
+cd "$(dirname "$0")/.."
+
+compose="docker compose -f docker-compose.test.yml"
+
+if [ ! -d vendor ]; then
+  $compose run --rm php composer install --no-interaction
+fi
+
+$compose run --rm php ./vendor/bin/phpunit "$@"
