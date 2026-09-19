@@ -1,5 +1,5 @@
 <template>
-  <tr class="w-full grid grid-cols-2 sm:grid-cols-3">
+  <tr class="w-full grid grid-cols-2 sm:grid-cols-3 cursor-pointer hover:bg-gray-50" @click="toggleDetails">
     <td class="relative col-span-2 sm:col-span-1 w-full py-2 px-4 sm:border-b border-gray-200">
       <div class="flex gap-x-6">
         <svg v-if="invoice.status === 0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="hidden h-6 w-5 flex-none text-gray-400 sm:block">
@@ -15,7 +15,7 @@
 
         <div class="flex-auto">
           <div class="flex items-start gap-x-3">
-            <div class="text-sm font-medium leading-6 text-gray-900" @click="clickToCopy(invoice.amount)">{{ $filters.formatPrice(invoice.amount, true) }} RSD</div>
+            <div class="text-sm font-medium leading-6 text-gray-900" @click.stop="clickToCopy(invoice.amount)">{{ $filters.formatPrice(invoice.amount, true) }} RSD</div>
             <div v-if="invoice.status === 0" class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-gray-600 bg-gray-50 ring-gray-500/10">Neplaćeno</div>
             <div v-if="invoice.status === 1" class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-green-700 bg-green-50 ring-green-600/20">Plaćeno</div>
             <div v-if="invoice.status === 2" class="rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset text-red-700 bg-red-50 ring-red-600/10">Otkazano</div>
@@ -27,7 +27,7 @@
     <td class="py-2 pr-6 sm:table-cell px-4 border-b border-gray-200">
       <div class="text-sm leading-6 text-gray-900">{{ invoice?.client_account?.name }}</div>
       <div class="text-sm leading-6 text-gray-900">
-        <span class="mt-1 text-sm leading-5 text-gray-400" @click="clickToCopy(invoice.reference_number)">{{ invoice?.reference_number ? ` ${invoice.reference_number}` : '' }}</span>
+        <span class="mt-1 text-sm leading-5 text-gray-400" @click.stop="clickToCopy(invoice.reference_number)">{{ invoice?.reference_number ? ` ${invoice.reference_number}` : '' }}</span>
       </div>
 
     </td>
@@ -37,11 +37,14 @@
           <div class="mt-1 text-xs leading-5 text-gray-900 text-left" v-if="invoice.created_at !== invoice.transaction_date">Datum prometa</div>
           <div class="mt-1 text-xs leading-5 text-gray-400 text-left">{{ invoice.created_at !== invoice.transaction_date ? $filters.formatDate(invoice.transaction_date) : '' }}</div>
         </div>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 flex-none text-gray-400 transition-transform" :class="[expanded && 'rotate-180']">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
         <div class="relative">
-          <svg @click="toggleMenu" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-6 w-5 flex-none text-gray-600">
+          <svg @click.stop="toggleMenu" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-6 w-5 flex-none text-gray-600">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"></path>
           </svg>
-          <div v-if="showMenu">
+          <div v-if="showMenu" @click.stop>
             <div class="fixed top-0 left-0 bg-black bg-opacity-[1%] w-full h-screen z-[100]" @click="toggleMenu" />
             <div class="bg-white shadow-sm absolute top-0 right-0 z-[101] w-64 rounded-md border border-gray-200">
               <div class="grid grid-cols-1">
@@ -65,6 +68,51 @@
         <BankInvoiceDeleteModal v-if="showDeleteInvoiceModal" @close="showDeleteInvoiceModal = false" @updateInvoice="showDeleteInvoiceModal = false; $emit('updateInvoiceStatus')" :invoice="invoice" />
         <BankInvoiceUpdateModal v-if="showUpdateModal" @close="showUpdateModal = false" @updateInvoice="showUpdateModal = false; $emit('updateInvoiceStatus')" :invoice="invoice" />
       </div>
+    </td>
+  </tr>
+  <tr v-if="expanded" class="border-b border-gray-200 bg-gray-50">
+    <td colspan="3" class="px-4 py-4">
+      <dl class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
+        <div v-for="detail in details" :key="detail.label">
+          <dt class="text-xs leading-5 text-gray-400">{{ detail.label }}</dt>
+          <dd class="text-sm leading-5 text-gray-900">{{ detail.value }}</dd>
+        </div>
+      </dl>
+
+      <div v-if="loadingItems" class="mt-4 text-sm text-gray-400">Učitavanje stavki...</div>
+      <div v-else-if="itemsError" class="mt-4 text-sm text-red-600">
+        Greška pri učitavanju stavki.
+        <span class="underline cursor-pointer" @click.stop="fetchItems">Pokušaj ponovo</span>
+      </div>
+      <div v-else-if="!items.length" class="mt-4 text-sm text-gray-400">Nema stavki za ovu fakturu.</div>
+      <table v-else class="mt-4 w-full text-left text-xs">
+        <thead>
+          <tr class="text-gray-400 border-b border-gray-200">
+            <th class="font-medium py-1 pr-3">Rb</th>
+            <th class="font-medium py-1 pr-3">Šifra</th>
+            <th class="font-medium py-1 pr-3">Naziv</th>
+            <th class="font-medium py-1 pr-3 text-right">Količina</th>
+            <th class="font-medium py-1 pr-3">JM</th>
+            <th class="font-medium py-1 pr-3 text-right">Cena</th>
+            <th class="font-medium py-1 pr-3 text-right">Cena sa PDV</th>
+            <th class="font-medium py-1 pr-3 text-right">Osnovica</th>
+            <th class="font-medium py-1 text-right">PDV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in items" :key="item.id" class="text-gray-900 border-b border-gray-100 last:border-0">
+            <td class="py-1 pr-3 text-gray-400">{{ item.position }}</td>
+            <td class="py-1 pr-3 text-gray-400">{{ item.sku }}</td>
+            <td class="py-1 pr-3">{{ item.name }}</td>
+            <td class="py-1 pr-3 text-right">{{ item.quantity }}</td>
+            <td class="py-1 pr-3 text-gray-400">{{ item.unit }}</td>
+            <td class="py-1 pr-3 text-right">{{ $filters.formatPrice(item.unit_price, true) }}</td>
+            <td class="py-1 pr-3 text-right">{{ item.unit_price_gross ? $filters.formatPrice(item.unit_price_gross, true) : '-' }}</td>
+            <td class="py-1 pr-3 text-right">{{ $filters.formatPrice(item.net_amount, true) }}</td>
+            <td class="py-1 text-right text-gray-400">{{ item.vat_rate }}%</td>
+          </tr>
+        </tbody>
+      </table>
     </td>
   </tr>
 </template>
@@ -91,8 +139,52 @@ import BankInvoiceUpdateModal from './BankInvoiceUpdateModal.vue'
       showPayModal: false,
       showUpdateModal: false,
       showDeleteInvoiceModal: false,
+      expanded: false,
+      loadingItems: false,
+      itemsLoaded: false,
+      itemsError: false,
+      items: [],
     }),
+    computed: {
+      details() {
+        return [
+          { label: 'Broj računa', value: this.invoice.invoice_number },
+          { label: 'Model', value: this.invoice.payment_model },
+          { label: 'Poziv na broj', value: this.invoice.reference_number },
+          { label: 'Datum izdavanja', value: this.invoice.issue_date ? this.$filters.formatDate(this.invoice.issue_date) : null },
+          { label: 'Datum prometa', value: this.invoice.transaction_date ? this.$filters.formatDate(this.invoice.transaction_date) : null },
+          { label: 'Datum valute', value: this.invoice.payment_deadline ? this.$filters.formatDate(this.invoice.payment_deadline) : null },
+          { label: 'PIB', value: this.invoice.supplier_pib || this.invoice?.client_account?.pib },
+          { label: 'Tekući račun', value: this.invoice.supplier_bank_account || this.invoice?.client_account?.bank_account },
+          { label: 'SEF ID', value: this.invoice.sef_id },
+          { label: 'Plaćeno', value: this.invoice.processed_at ? this.$filters.formatDate(this.invoice.processed_at) : null },
+        ].filter((detail) => detail.value)
+      },
+    },
     methods: {
+      toggleDetails() {
+        this.expanded = !this.expanded
+        if (this.expanded && !this.itemsLoaded) {
+          this.fetchItems()
+        }
+      },
+      fetchItems() {
+        this.loadingItems = true
+        this.itemsError = false
+        axios.get(`/api/bank-invoices/${this.invoice.id}/items`)
+          .then((response) => {
+            this.items = response.data
+            this.itemsLoaded = true
+          })
+          .catch((error) => {
+            // Never let a failed request read as "this invoice has no items".
+            this.itemsError = true
+            console.error('Failed to load invoice items: ', error)
+          })
+          .finally(() => {
+            this.loadingItems = false
+          })
+      },
       toggleMenu() {
         this.showMenu = !this.showMenu
       },

@@ -57,6 +57,17 @@ class ClientInvoiceController extends Controller
         return $invoice;
     }
 
+    public function items($id)
+    {
+        $invoice = ClientInvoice::find($id);
+
+        if (!$invoice) {
+            return response()->json(['message' => 'Invoice not found'], 404);
+        }
+
+        return $invoice->items()->orderBy('position')->get();
+    }
+
     public function store(Request $request)
     {
         $invoice = ClientInvoice::create($request->all());

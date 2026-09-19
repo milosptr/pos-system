@@ -90,6 +90,7 @@ Route::post('bank-accounts', [ClientBankAccountController::class, 'store']);
 // Bank Invoices
 Route::get('bank-invoices', [ClientInvoiceController::class, 'index']);
 Route::post('bank-invoices', [ClientInvoiceController::class, 'store']);
+Route::get('bank-invoices/{id}/items', [ClientInvoiceController::class, 'items']);
 Route::put('bank-invoices/{id}', [ClientInvoiceController::class, 'update']);
 
 // Sales
