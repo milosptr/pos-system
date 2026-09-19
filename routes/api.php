@@ -32,6 +32,7 @@ use App\Http\Controllers\ThirdPartyInvoiceController;
 use App\Http\Controllers\ThirdPartyOrderController;
 use App\Http\Controllers\KitchenController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\EfaktureController;
 
 /*
 |--------------------------------------------------------------------------
@@ -226,4 +227,9 @@ Route::group(['middleware' => ['external.api']], function () {
     Route::post('third-party-invoices/{id}/storno', [ThirdPartyInvoiceController::class, 'storno']);
     Route::post('third-party-order', [ThirdPartyOrderController::class, 'store']);
     Route::post('third-party-order-storno', [ThirdPartyOrderController::class, 'storno']);
+});
+
+// Supplier invoices pulled from SEF / e-fakture (external API)
+Route::group(['middleware' => ['external.api']], function () {
+    Route::post('efakture', [EfaktureController::class, 'store']);
 });

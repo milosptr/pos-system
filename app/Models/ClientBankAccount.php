@@ -15,6 +15,7 @@ class ClientBankAccount extends Model
 
     protected $fillable = [
       'name',
+      'pib',
       'bank_account',
       'reference_number',
       'active'

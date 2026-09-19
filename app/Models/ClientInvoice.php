@@ -16,8 +16,14 @@ class ClientInvoice extends Model
 
 
     protected $fillable = [
+      'sef_id',
+      'invoice_number',
       'client_account',
+      'supplier_pib',
+      'supplier_bank_account',
       'reference_number',
+      'payment_model',
+      'issue_date', // datum izdavanja
       'payment_deadline', // datum valute
       'transaction_date', // datum prometa
       'processed_at', // datum transakcije
@@ -25,8 +31,17 @@ class ClientInvoice extends Model
       'status'
     ];
 
+    protected $casts = [
+      'sef_id' => 'integer'
+    ];
+
     public function clientAccount()
     {
         return $this->belongsTo(ClientBankAccount::class, 'client_account');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(ClientInvoiceItem::class, 'client_invoice_id');
     }
 }
