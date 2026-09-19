@@ -13,13 +13,15 @@ class SupplierPriceController extends Controller
             'client_account' => 'required|uuid|exists:client_bank_accounts,id',
             'search' => 'nullable|string',
             'changed' => 'nullable|boolean',
+            'sort' => 'nullable|in:' . SupplierPriceService::SORT_CHANGE . ',' . SupplierPriceService::SORT_NAME,
         ]);
 
         return [
             'articles' => SupplierPriceService::history(
                 $request->input('client_account'),
                 $request->input('search'),
-                $request->boolean('changed')
+                $request->boolean('changed'),
+                $request->input('sort', SupplierPriceService::SORT_CHANGE)
             ),
         ];
     }

@@ -18,7 +18,7 @@
       </label>
     </div>
 
-    <p class="mt-4 text-xs text-gray-400">Cene su bez PDV-a. Klikni na artikal da vidiš sve cene i račune.</p>
+    <p class="mt-4 text-xs text-gray-400">Cene su bez PDV-a, od najstarije ka najnovijoj. Klikni na artikal za cenu sa PDV-om i broj računa.</p>
 
     <div class="mx-auto mt-2">
       <div v-if="!clientAccount" class="bg-white border-2 border-gray-200 rounded-md px-4 py-6 text-sm text-gray-400">
@@ -38,9 +38,13 @@
         <thead>
           <tr class="text-xs text-gray-400 bg-gray-50 border-b border-gray-200">
             <th class="font-medium py-2 px-4">Artikal</th>
-            <th class="font-medium py-2 px-4">Trenutna cena</th>
-            <th class="font-medium py-2 px-4">Promena</th>
-            <th class="font-medium py-2 px-4">Ranije cene</th>
+            <th class="font-medium py-2 px-4">
+              <div class="flex justify-between items-baseline">
+                <span>Ranije cene</span>
+                <span class="w-20 text-right text-gray-900">Trenutna</span>
+              </div>
+            </th>
+            <th class="font-medium py-2 px-4 text-right">Promena</th>
             <th class="font-medium py-2 px-4"></th>
           </tr>
         </thead>

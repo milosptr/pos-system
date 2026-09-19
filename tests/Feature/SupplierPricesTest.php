@@ -170,8 +170,10 @@ class SupplierPricesTest extends TestCase
 
         $all = $this->prices(['client_account' => $supplier->id]);
         $all->assertJsonCount(2, 'articles');
-        $all->assertJsonPath('articles.0.changed', false);
-        $all->assertJsonPath('articles.0.change', null);
+
+        $hleb = collect($all->json('articles'))->firstWhere('name', 'HLEB 500g');
+        $this->assertFalse($hleb['changed']);
+        $this->assertNull($hleb['change']);
 
         $changed = $this->prices(['client_account' => $supplier->id, 'changed' => 1]);
         $changed->assertJsonCount(1, 'articles');
@@ -212,6 +214,49 @@ class SupplierPricesTest extends TestCase
         $this->prices(['client_account' => $supplier->id])
             ->assertStatus(200)
             ->assertJsonCount(0, 'articles');
+    }
+
+    public function test_the_biggest_mover_comes_first_and_the_rest_fall_in_behind_it()
+    {
+        $supplier = $this->supplier();
+
+        $this->item($this->invoice($supplier, '2026-08-01', 101), ['name' => 'VELIKI SKOK', 'unit_price' => 10.0]);
+        $this->item($this->invoice($supplier, '2026-09-01', 102), ['name' => 'VELIKI SKOK', 'unit_price' => 20.0]);
+        $this->item($this->invoice($supplier, '2026-08-01', 103), ['name' => 'MALI SKOK', 'unit_price' => 100.0]);
+        $this->item($this->invoice($supplier, '2026-09-01', 104), ['name' => 'MALI SKOK', 'unit_price' => 102.0]);
+        $this->item($this->invoice($supplier, '2026-08-01', 105), ['name' => 'ISTA CENA', 'unit_price' => 50.0]);
+        $this->item($this->invoice($supplier, '2026-09-01', 106), ['name' => 'ISTA CENA', 'unit_price' => 50.0]);
+        $this->item($this->invoice($supplier, '2026-09-01', 107), ['name' => 'PRVA CENA', 'unit_price' => 70.0]);
+
+        $response = $this->prices(['client_account' => $supplier->id]);
+
+        $this->assertEquals(
+            ['VELIKI SKOK', 'MALI SKOK', 'ISTA CENA', 'PRVA CENA'],
+            array_column($response->json('articles'), 'name')
+        );
+    }
+
+    public function test_the_articles_can_be_sorted_by_name_instead()
+    {
+        $supplier = $this->supplier();
+
+        $this->item($this->invoice($supplier, '2026-08-01', 101), ['name' => 'VELIKI SKOK', 'unit_price' => 10.0]);
+        $this->item($this->invoice($supplier, '2026-09-01', 102), ['name' => 'VELIKI SKOK', 'unit_price' => 20.0]);
+        $this->item($this->invoice($supplier, '2026-09-01', 103), ['name' => 'PRVA CENA', 'unit_price' => 70.0]);
+
+        $response = $this->prices(['client_account' => $supplier->id, 'sort' => 'name']);
+
+        $this->assertEquals(
+            ['PRVA CENA', 'VELIKI SKOK'],
+            array_column($response->json('articles'), 'name')
+        );
+    }
+
+    public function test_an_unknown_sort_is_refused()
+    {
+        $supplier = $this->supplier();
+
+        $this->prices(['client_account' => $supplier->id, 'sort' => 'cena'])->assertStatus(422);
     }
 
     public function test_a_missing_or_unknown_supplier_is_refused()

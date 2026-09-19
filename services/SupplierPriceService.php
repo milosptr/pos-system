@@ -18,7 +18,18 @@ class SupplierPriceService
 
     private const PERCENT_SCALE = 1;
 
-    public static function history(string $supplierId, ?string $search = null, bool $changedOnly = false): array
+    public const SORT_CHANGE = 'change';
+    public const SORT_NAME = 'name';
+
+    /**
+     * Ranks below every real percentage, so the articles whose price actually
+     * moved come first and the rest fall into a sensible order behind them.
+     */
+    private const RANK_ROSE_FROM_ZERO = -1.0;
+    private const RANK_UNCHANGED = -2.0;
+    private const RANK_NO_HISTORY = -3.0;
+
+    public static function history(string $supplierId, ?string $search = null, bool $changedOnly = false, string $sort = self::SORT_CHANGE): array
     {
         $articles = [];
 
@@ -33,9 +44,35 @@ class SupplierPriceService
             $articles = array_values(array_filter($articles, fn (array $article) => $article['changed']));
         }
 
-        usort($articles, fn (array $a, array $b) => strcmp(self::normalize($a['name']), self::normalize($b['name'])));
+        return self::sorted($articles, $sort);
+    }
+
+    /**
+     * Biggest mover first by default: alphabetical order is the one order that
+     * cannot answer "what got more expensive" across two hundred articles.
+     */
+    private static function sorted(array $articles, string $sort): array
+    {
+        usort($articles, function (array $a, array $b) use ($sort) {
+            $byRank = $sort === self::SORT_NAME ? 0 : self::rank($b) <=> self::rank($a);
+
+            return $byRank !== 0 ? $byRank : strcmp(self::normalize($a['name']), self::normalize($b['name']));
+        });
 
         return $articles;
+    }
+
+    private static function rank(array $article): float
+    {
+        if ($article['change'] !== null) {
+            return abs($article['change']);
+        }
+
+        if ($article['changed']) {
+            return self::RANK_ROSE_FROM_ZERO;
+        }
+
+        return count($article['entries']) > 1 ? self::RANK_UNCHANGED : self::RANK_NO_HISTORY;
     }
 
     /**
