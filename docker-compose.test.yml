@@ -1,0 +1,37 @@
+name: pos-test
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+    working_dir: /app
+    volumes:
+      - .:/app
+      - composer-cache:/root/.composer/cache
+    environment:
+      APP_ENV: testing
+      DB_HOST: mysql
+      DB_DATABASE: app_testing
+      DB_USERNAME: root
+      DB_PASSWORD: secret
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: app_testing
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-psecret"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  composer-cache:

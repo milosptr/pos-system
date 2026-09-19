@@ -1,0 +1,43 @@
+name: pos-dev
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+    working_dir: /app
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    ports:
+      - "8080:8000"
+    volumes:
+      - .:/app
+      - composer-cache:/root/.composer/cache
+    environment:
+      APP_ENV: local
+      DB_HOST: mysql
+      DB_DATABASE: app
+      DB_USERNAME: root
+      DB_PASSWORD: secret
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: app
+    ports:
+      - "3307:3306"
+    volumes:
+      - dev-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-psecret"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  composer-cache:
+  dev-mysql:

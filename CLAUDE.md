@@ -23,11 +23,24 @@ yarn build        # Build frontend assets for production
 
 ### Testing
 ```bash
-./vendor/bin/phpunit                          # Run all tests
-./vendor/bin/phpunit tests/Unit               # Run unit tests only
-./vendor/bin/phpunit tests/Feature            # Run feature tests only
-./vendor/bin/phpunit --filter=TestClassName   # Run specific test
+./bin/test                          # Run all tests (docker: php 8.2 + mysql 8)
+./bin/test tests/Feature            # Run feature tests only
+./bin/test --filter=TestClassName   # Run specific test
 ```
+
+`bin/test` runs PHPUnit inside `docker-compose.test.yml`, against a throwaway MySQL
+container and the `app_testing` database from `.env.testing`. Run it this way rather
+than calling `./vendor/bin/phpunit` directly: `RefreshDatabase` issues `migrate:fresh`,
+so pointing the suite at the `.env` database would drop the real dev data.
+
+Tests render Blade layouts, so `public/build` has to exist. Build it once with:
+```bash
+docker run --rm -v "$PWD":/app -w /app node:18-alpine sh -c "yarn install && yarn build"
+```
+
+Known baseline: 14 tests in `tests/Feature/Auth` fail. They are leftover Laravel Breeze
+scaffolding — `/register` no longer exists in `routes/auth.php`, and `UserFactory` omits
+the `username` the `users` table requires. Unrelated to application code.
 
 ### Database
 ```bash
