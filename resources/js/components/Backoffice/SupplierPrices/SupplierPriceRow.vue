@@ -1,6 +1,6 @@
 <template>
   <tr class="cursor-pointer hover:bg-gray-50" :class="[expanded && 'bg-gray-50']" @click="expanded = !expanded">
-    <td class="py-2 px-4">
+    <td class="py-2 px-4 overflow-hidden" :title="article.name">
       <div class="flex items-baseline gap-1.5">
         <span class="text-sm text-gray-900 truncate">{{ article.name }}</span>
         <span class="text-xs text-gray-400 flex-none">{{ article.unit }}</span>
@@ -63,6 +63,9 @@
   // How much of the row a price has to hold before its number fits beside the
   // bar; anything shorter lives in the tooltip.
   const LABEL_MIN_PERCENT = 13
+
+  // Past this point a label has no room before the Trenutna column.
+  const LABEL_MAX_LEFT_PERCENT = 82
 
   const NOTABLE_CHANGE_PERCENT = 3
   const BIG_CHANGE_PERCENT = 10
@@ -143,7 +146,11 @@
             left,
             width,
             tone: isCurrent ? CURRENT_TONES[tone] : SEGMENT_TONES[tone],
-            label: width >= LABEL_MIN_PERCENT ? this.price(level.unit_price) : null,
+            // The current price already has a column of its own, and a label
+            // near the right edge would run into it.
+            label: !isCurrent && width >= LABEL_MIN_PERCENT && left <= LABEL_MAX_LEFT_PERCENT
+              ? this.price(level.unit_price)
+              : null,
             tooltip: this.tooltip(level),
           }
         })

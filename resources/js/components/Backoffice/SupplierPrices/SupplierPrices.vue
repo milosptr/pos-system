@@ -59,7 +59,7 @@
       <div v-else-if="!visibleArticles.length" class="bg-white ring-1 ring-gray-200 rounded-lg px-4 py-6 text-sm text-gray-400">
         Nema artikala u ovoj grupi.
       </div>
-      <table v-else class="w-full text-left bg-white ring-1 ring-gray-200 rounded-lg overflow-hidden">
+      <table v-else class="w-full table-fixed text-left bg-white ring-1 ring-gray-200 rounded-lg overflow-hidden">
         <thead>
           <tr class="text-xs text-gray-400 bg-gray-50 border-b border-gray-200">
             <th class="font-medium py-2 px-4 w-64">Artikal</th>
@@ -68,7 +68,7 @@
                 <span v-for="tick in ticks" :key="tick.at" class="absolute top-0 leading-4" :style="{ left: tick.at + '%' }">{{ tick.label }}</span>
               </div>
             </th>
-            <th class="font-medium py-2 px-4 text-right w-24">Trenutna</th>
+            <th class="font-medium py-2 px-4 text-right w-28">Trenutna</th>
             <th class="font-medium py-2 pr-4 text-right w-28">Promena</th>
             <th class="font-medium py-2 pr-4 w-8"></th>
           </tr>
@@ -101,6 +101,10 @@
     { months: 12, label: '12m' },
     { months: 24, label: 'Sve' },
   ]
+
+  // A supplier first invoiced last week would otherwise get an axis a few
+  // days wide, with no month on it and nothing to read the bar against.
+  const MIN_WINDOW_MONTHS = 2
 
   // Below this the month labels start touching, so only every second or third
   // one is drawn.
@@ -139,11 +143,13 @@
       priceWindow() {
         const to = dayjs().endOf('day')
         const wanted = to.subtract(this.windowMonths, 'month')
+        const shortest = to.subtract(MIN_WINDOW_MONTHS, 'month')
         const oldest = this.articles.reduce((earliest, article) => {
           const first = dayjs(article.first.date)
           return !earliest || first.isBefore(earliest) ? first : earliest
         }, null)
-        const from = oldest && oldest.isAfter(wanted) ? oldest.subtract(7, 'day') : wanted
+        const clamped = oldest && oldest.isAfter(wanted) ? oldest.subtract(7, 'day') : wanted
+        const from = clamped.isAfter(shortest) ? shortest : clamped
         return { from: from.valueOf(), to: to.valueOf() }
       },
       ticks() {
