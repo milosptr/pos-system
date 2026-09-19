@@ -321,6 +321,24 @@ class EfaktureImportTest extends TestCase
         $this->assertEquals('41262209401158702026', ClientInvoice::first()->reference_number);
     }
 
+    public function test_a_body_that_is_a_json_string_is_named_as_such()
+    {
+        // What json.dumps() followed by requests.post(json=...) puts on the wire.
+        $response = $this->call(
+            'POST',
+            '/api/efakture',
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_ACCEPT' => 'application/json'],
+            json_encode(json_encode([$this->jkspInvoice()]))
+        );
+
+        $response->assertStatus(422);
+        $response->assertJsonPath('message', 'Body must be a JSON array of invoice objects, not a string');
+        $this->assertEquals(0, ClientInvoice::count());
+    }
+
     public function test_an_empty_valuta_is_treated_as_rsd()
     {
         $this->import([$this->invoice(['valuta' => ''])])->assertStatus(201);

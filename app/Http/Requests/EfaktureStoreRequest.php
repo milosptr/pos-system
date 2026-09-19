@@ -19,15 +19,15 @@ class EfaktureStoreRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * Per-invoice validation happens in the controller so one bad invoice
-     * lands in the failed list instead of rejecting the whole batch.
+     * All validation happens in the controller: a bad invoice lands in the
+     * failed list instead of rejecting the batch, and a body that is not a
+     * list of invoices gets an error that says so, rather than Laravel's
+     * "The 0 must be an array."
      *
      * @return array<string, mixed>
      */
     public function rules()
     {
-        return [
-            '*' => 'array',
-        ];
+        return [];
     }
 }

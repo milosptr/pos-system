@@ -57,6 +57,18 @@ class EfaktureController extends Controller
             ], 422);
         }
 
+        // A body that is not a list of invoices at all, most often a JSON
+        // string that was encoded twice on the way out.
+        if (!collect($rows)->contains(fn ($row) => is_array($row))) {
+            Log::warning('[Efakture] Body is not a list of invoices', [
+                'ip' => $request->ip(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Body must be a JSON array of invoice objects, not a string',
+            ], 422);
+        }
+
         if (count($rows) > self::MAX_ROWS) {
             Log::warning('[Efakture] Payload too large', [
                 'rows' => count($rows),
