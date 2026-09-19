@@ -8,7 +8,11 @@ use Illuminate\Support\Collection;
 
 class SupplierPriceService
 {
-    public const HISTORY_LENGTH = 5;
+    /**
+     * How many observations travel to the browser per article. The row shows
+     * the last few; the rest are there for the expanded history.
+     */
+    public const HISTORY_LENGTH = 24;
 
     /**
      * The scale of unit_price and unit_price_gross in client_invoice_items.
@@ -113,7 +117,68 @@ class SupplierPriceService
 
     private static function buildArticle(array $lines): array
     {
-        $entries = [];
+        $observations = self::observations($lines);
+        $oldest = end($observations);
+        $latest = $observations[0]['unit_price'];
+        $previous = count($observations) > 1 ? $observations[1]['unit_price'] : null;
+
+        return [
+            'name' => $lines[0]->name,
+            'unit' => $lines[0]->unit,
+            'levels' => self::levels($observations),
+            'entries' => array_slice($observations, 0, self::HISTORY_LENGTH),
+            'observations' => count($observations),
+            'first' => $oldest,
+            'change' => self::changePercent($latest, $previous),
+            'changed' => $previous !== null && !self::samePrice($latest, $previous),
+            // What the price has done over the whole history, not just since
+            // the invoice before this one.
+            'total_change' => count($observations) > 1 ? self::changePercent($latest, $oldest['unit_price']) : null,
+        ];
+    }
+
+    /**
+     * A price the supplier charged, and for how long. Invoicing weekly at a
+     * steady price is one level, not twelve: without this a stable article
+     * fills its whole history with the same number and the change that
+     * matters falls off the end.
+     *
+     * Oldest first, each level running from the first invoice that charged it
+     * until the first invoice that did not.
+     */
+    private static function levels(array $observations): array
+    {
+        $levels = [];
+
+        foreach (array_reverse($observations) as $observation) {
+            $current = count($levels) > 0 ? $levels[count($levels) - 1] : null;
+
+            if ($current !== null && self::samePrice($current['unit_price'], $observation['unit_price'])) {
+                $levels[count($levels) - 1]['to'] = $observation['date'];
+                $levels[count($levels) - 1]['invoices']++;
+                continue;
+            }
+
+            $levels[] = [
+                'unit_price' => $observation['unit_price'],
+                'unit_price_gross' => $observation['unit_price_gross'],
+                'from' => $observation['date'],
+                'to' => $observation['date'],
+                'invoices' => 1,
+                'change' => $current === null ? null : self::changePercent($observation['unit_price'], $current['unit_price']),
+            ];
+        }
+
+        return $levels;
+    }
+
+    /**
+     * One price per invoice: the first line wins, and the query has already
+     * put the highest position first so a correction beats what it corrects.
+     */
+    private static function observations(array $lines): array
+    {
+        $observations = [];
         $invoicesSeen = [];
 
         foreach ($lines as $line) {
@@ -123,28 +188,15 @@ class SupplierPriceService
 
             $invoicesSeen[$line->client_invoice_id] = true;
 
-            $entries[] = [
+            $observations[] = [
                 'date' => $line->issue_date,
                 'invoice_number' => $line->invoice_number,
                 'unit_price' => (float) $line->unit_price,
                 'unit_price_gross' => $line->unit_price_gross === null ? null : (float) $line->unit_price_gross,
             ];
-
-            if (count($entries) === self::HISTORY_LENGTH) {
-                break;
-            }
         }
 
-        $latest = $entries[0]['unit_price'];
-        $previous = count($entries) > 1 ? $entries[1]['unit_price'] : null;
-
-        return [
-            'name' => $lines[0]->name,
-            'unit' => $lines[0]->unit,
-            'entries' => $entries,
-            'change' => self::changePercent($latest, $previous),
-            'changed' => $previous !== null && !self::samePrice($latest, $previous),
-        ];
+        return $observations;
     }
 
     /**
