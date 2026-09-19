@@ -65,7 +65,11 @@
     methods: {
       updateInvoice() {
         const amount = this.transaction.amount.toString()
-        this.transaction.amount = parseFloat(this.invoice.amount = amount.replace('.', '').replace(',', '.'))
+        // A comma means it was retyped in Serbian format; without one the
+        // field still holds the number the API sent, dot decimal and all.
+        this.transaction.amount = amount.includes(',')
+          ? parseFloat(amount.replace(/\./g, '').replace(',', '.'))
+          : parseFloat(amount)
 
         axios.put(`/api/bank-invoices/${this.invoice.id}`, this.transaction)
           .then(() => {
