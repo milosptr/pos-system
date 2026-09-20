@@ -5,6 +5,7 @@
         <span class="text-sm text-gray-900 truncate">{{ article.name }}</span>
         <span class="text-xs text-gray-400 flex-none">{{ article.unit }}</span>
       </div>
+      <div v-if="showSupplier" class="text-xs text-gray-400 truncate">{{ article.supplier }}</div>
     </td>
     <td class="py-2 pr-4 border-r border-gray-300">
       <div class="relative h-7">
@@ -18,7 +19,7 @@
       </div>
     </td>
     <td class="py-2 px-4 text-right text-sm font-semibold text-gray-900 tabular-nums whitespace-nowrap">
-      {{ price(current.unit_price) }}
+      {{ price(current.unit_price_gross) }}
     </td>
     <td class="py-2 pr-4 text-right whitespace-nowrap">
       <span v-if="changeText" class="rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset" :class="badgeClass">{{ changeText }}</span>
@@ -45,8 +46,8 @@
         <tbody>
           <tr v-for="row in rows" :key="row.date + row.invoice_number" class="border-b border-gray-100 last:border-0" :class="row.step ? 'text-gray-900' : 'text-gray-400'">
             <td class="py-1 pr-3">{{ $filters.formatDate(row.date) }}</td>
-            <td class="py-1 pr-3 text-right tabular-nums">{{ price(row.unit_price) }}</td>
-            <td class="py-1 pr-3 text-right tabular-nums text-gray-400">{{ price(row.unit_price_gross) }}</td>
+            <td class="py-1 pr-3 text-right tabular-nums text-gray-400">{{ price(row.unit_price) }}</td>
+            <td class="py-1 pr-3 text-right tabular-nums">{{ price(row.unit_price_gross) }}</td>
             <td class="py-1 pr-3 text-right tabular-nums" :class="stepClass(row.step)">{{ row.stepText }}</td>
             <td class="py-1 text-gray-400">{{ row.invoice_number }}</td>
           </tr>
@@ -111,6 +112,10 @@
         type: Array,
         required: true,
       },
+      showSupplier: {
+        type: Boolean,
+        default: false,
+      },
     },
     data: () => ({
       expanded: false,
@@ -149,7 +154,7 @@
             // The current price already has a column of its own, and a label
             // near the right edge would run into it.
             label: !isCurrent && width >= LABEL_MIN_PERCENT && left <= LABEL_MAX_LEFT_PERCENT
-              ? this.price(level.unit_price)
+              ? this.price(level.price)
               : null,
             tooltip: this.tooltip(level),
           }
@@ -178,7 +183,7 @@
       rows() {
         return this.article.entries.map((entry, index) => {
           const older = this.article.entries[index + 1]
-          const step = older ? entry.unit_price - older.unit_price : null
+          const step = older ? entry.unit_price_gross - older.unit_price_gross : null
           return { ...entry, step, stepText: this.stepLabel(step, older) }
         })
       },
@@ -203,7 +208,7 @@
         return step > 0 ? 'text-red-600' : 'text-green-700'
       },
       tooltip(level) {
-        const parts = [this.price(level.unit_price), `od ${this.$filters.formatDate(level.from)}`]
+        const parts = [this.price(level.price), `od ${this.$filters.formatDate(level.from)}`]
         if (level.invoices > 1) {
           parts.push(`${level.invoices} računa`)
         }
@@ -219,7 +224,7 @@
         if (step === 0) {
           return 'ista cena'
         }
-        const percent = older.unit_price > 0 ? ` (${this.percent((step / older.unit_price) * 100)})` : ''
+        const percent = older.unit_price_gross > 0 ? ` (${this.percent((step / older.unit_price_gross) * 100)})` : ''
         return `${step > 0 ? '+' : '−'}${this.$filters.formatPrice(Math.abs(step), true)}${percent}`
       },
     },

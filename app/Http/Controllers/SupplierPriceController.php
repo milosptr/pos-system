@@ -10,7 +10,7 @@ class SupplierPriceController extends Controller
     public function index(Request $request)
     {
         $request->validate([
-            'client_account' => 'required|uuid|exists:client_bank_accounts,id',
+            'client_account' => 'nullable|uuid|exists:client_bank_accounts,id',
             'search' => 'nullable|string',
             'changed' => 'nullable|boolean',
             'sort' => 'nullable|in:' . SupplierPriceService::SORT_CHANGE . ',' . SupplierPriceService::SORT_NAME,

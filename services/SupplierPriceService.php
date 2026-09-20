@@ -20,6 +20,15 @@ class SupplierPriceService
      */
     private const PRICE_SCALE = 4;
 
+    private const PERCENT = 100.0;
+
+    /**
+     * Money, as the exporter writes it: cena_sa_pdv arrives rounded to the
+     * para, so a derived gross price has to land on the same number or the
+     * two spellings of one price read as a change.
+     */
+    private const MONEY_SCALE = 2;
+
     private const PERCENT_SCALE = 1;
 
     public const SORT_CHANGE = 'change';
@@ -33,12 +42,18 @@ class SupplierPriceService
     private const RANK_UNCHANGED = -2.0;
     private const RANK_NO_HISTORY = -3.0;
 
-    public static function history(string $supplierId, ?string $search = null, bool $changedOnly = false, string $sort = self::SORT_CHANGE): array
+    /**
+     * Without a supplier the whole book is answered at once, which is how the
+     * screen opens: everything the restaurant buys, minus the suppliers whose
+     * prices it has been told not to track. Ask for one of those by name and
+     * it still answers, or there would be no way back.
+     */
+    public static function history(?string $supplierId = null, ?string $search = null, bool $changedOnly = false, string $sort = self::SORT_CHANGE): array
     {
         $articles = [];
 
         foreach (self::loadLines($supplierId, $search) as $line) {
-            $key = self::articleKey($line->name, $line->unit);
+            $key = self::articleKey($line->client_account, $line->name, $line->unit);
             $articles[$key][] = $line;
         }
 
@@ -59,8 +74,9 @@ class SupplierPriceService
     {
         usort($articles, function (array $a, array $b) use ($sort) {
             $byRank = $sort === self::SORT_NAME ? 0 : self::rank($b) <=> self::rank($a);
+            $byName = strcmp(self::normalize($a['name']), self::normalize($b['name']));
 
-            return $byRank !== 0 ? $byRank : strcmp(self::normalize($a['name']), self::normalize($b['name']));
+            return $byRank ?: ($byName ?: strcmp(self::normalize($a['supplier']), self::normalize($b['supplier'])));
         });
 
         return $articles;
@@ -83,11 +99,11 @@ class SupplierPriceService
      * Newest first, and within one invoice the last line of an article first,
      * so a correction line beats the line it corrects.
      */
-    private static function loadLines(string $supplierId, ?string $search): Collection
+    private static function loadLines(?string $supplierId, ?string $search): Collection
     {
         $query = ClientInvoiceItem::query()
             ->join('client_invoices', 'client_invoices.id', '=', 'client_invoice_items.client_invoice_id')
-            ->where('client_invoices.client_account', $supplierId)
+            ->join('client_bank_accounts', 'client_bank_accounts.id', '=', 'client_invoices.client_account')
             ->where('client_invoices.amount', '>', 0)
             ->where('client_invoices.status', '!=', ClientInvoice::STATUS_CANCELLED)
             ->where('client_invoice_items.quantity', '>', 0)
@@ -95,6 +111,12 @@ class SupplierPriceService
                 $prices->where('client_invoice_items.unit_price', '>', 0)
                     ->orWhere('client_invoice_items.unit_price_gross', '>', 0);
             });
+
+        if ($supplierId !== null) {
+            $query->where('client_invoices.client_account', $supplierId);
+        } else {
+            $query->where('client_bank_accounts.track_prices', true);
+        }
 
         if ($search !== null && trim($search) !== '') {
             $query->where('client_invoice_items.name', 'like', '%' . addcslashes(trim($search), '%_\\') . '%');
@@ -110,8 +132,11 @@ class SupplierPriceService
                 'client_invoice_items.unit',
                 'client_invoice_items.unit_price',
                 'client_invoice_items.unit_price_gross',
+                'client_invoice_items.vat_rate',
                 'client_invoices.invoice_number',
                 'client_invoices.issue_date',
+                'client_invoices.client_account',
+                'client_bank_accounts.name as supplier',
             ]);
     }
 
@@ -119,12 +144,14 @@ class SupplierPriceService
     {
         $observations = self::observations($lines);
         $oldest = end($observations);
-        $latest = $observations[0]['unit_price'];
-        $previous = count($observations) > 1 ? $observations[1]['unit_price'] : null;
+        $latest = $observations[0]['unit_price_gross'];
+        $previous = count($observations) > 1 ? $observations[1]['unit_price_gross'] : null;
 
         return [
             'name' => $lines[0]->name,
             'unit' => $lines[0]->unit,
+            'supplier' => $lines[0]->supplier,
+            'client_account' => $lines[0]->client_account,
             'levels' => self::levels($observations),
             'entries' => array_slice($observations, 0, self::HISTORY_LENGTH),
             'observations' => count($observations),
@@ -133,14 +160,14 @@ class SupplierPriceService
             'changed' => $previous !== null && !self::samePrice($latest, $previous),
             // What the price has done over the whole history, not just since
             // the invoice before this one.
-            'total_change' => count($observations) > 1 ? self::changePercent($latest, $oldest['unit_price']) : null,
+            'total_change' => count($observations) > 1 ? self::changePercent($latest, $oldest['unit_price_gross']) : null,
         ];
     }
 
     /**
-     * A price the supplier charged, and for how long. Invoicing weekly at a
-     * steady price is one level, not twelve: without this a stable article
-     * fills its whole history with the same number and the change that
+     * A price with VAT the supplier charged, and for how long. Invoicing
+     * weekly at a steady price is one level, not twelve: without this a stable
+     * article fills its whole history with the same number and the change that
      * matters falls off the end.
      *
      * Oldest first, each level running from the first invoice that charged it
@@ -153,19 +180,18 @@ class SupplierPriceService
         foreach (array_reverse($observations) as $observation) {
             $current = count($levels) > 0 ? $levels[count($levels) - 1] : null;
 
-            if ($current !== null && self::samePrice($current['unit_price'], $observation['unit_price'])) {
+            if ($current !== null && self::samePrice($current['price'], $observation['unit_price_gross'])) {
                 $levels[count($levels) - 1]['to'] = $observation['date'];
                 $levels[count($levels) - 1]['invoices']++;
                 continue;
             }
 
             $levels[] = [
-                'unit_price' => $observation['unit_price'],
-                'unit_price_gross' => $observation['unit_price_gross'],
+                'price' => $observation['unit_price_gross'],
                 'from' => $observation['date'],
                 'to' => $observation['date'],
                 'invoices' => 1,
-                'change' => $current === null ? null : self::changePercent($observation['unit_price'], $current['unit_price']),
+                'change' => $current === null ? null : self::changePercent($observation['unit_price_gross'], $current['price']),
             ];
         }
 
@@ -192,7 +218,7 @@ class SupplierPriceService
                 'date' => $line->issue_date,
                 'invoice_number' => $line->invoice_number,
                 'unit_price' => (float) $line->unit_price,
-                'unit_price_gross' => $line->unit_price_gross === null ? null : (float) $line->unit_price_gross,
+                'unit_price_gross' => self::grossPrice($line),
             ];
         }
 
@@ -200,7 +226,22 @@ class SupplierPriceService
     }
 
     /**
-     * An earlier price of zero — the exporter sent only cena_sa_pdv — has no
+     * What the restaurant actually pays for one unit, and the price every
+     * comparison is made on. A line that arrived without cena_sa_pdv still
+     * carries its VAT rate, so the gross price is derived rather than left
+     * missing and dropped out of the history.
+     */
+    private static function grossPrice(ClientInvoiceItem $line): float
+    {
+        if ($line->unit_price_gross !== null && (float) $line->unit_price_gross > 0) {
+            return (float) $line->unit_price_gross;
+        }
+
+        return round((float) $line->unit_price * (1 + (float) $line->vat_rate / self::PERCENT), self::MONEY_SCALE);
+    }
+
+    /**
+     * An earlier price of zero — the exporter sent neither price — has no
      * percentage to give, and dividing by it would throw.
      */
     private static function changePercent(float $latest, ?float $previous): ?float
@@ -209,7 +250,7 @@ class SupplierPriceService
             return null;
         }
 
-        return round((($latest - $previous) / $previous) * 100, self::PERCENT_SCALE);
+        return round((($latest - $previous) / $previous) * self::PERCENT, self::PERCENT_SCALE);
     }
 
     private static function samePrice(float $first, float $second): bool
@@ -218,13 +259,14 @@ class SupplierPriceService
     }
 
     /**
-     * The unit is part of the identity: the same name sold by kilogram and by
+     * The supplier and the unit are part of the identity: two bakeries selling
+     * hleb are not one article, and the same name sold by kilogram and by
      * komad is not one article whose price tripled. A null unit and an empty
      * one are the same absence.
      */
-    private static function articleKey(string $name, ?string $unit): string
+    private static function articleKey(string $supplierId, string $name, ?string $unit): string
     {
-        return self::normalize($name) . '|' . self::normalize($unit);
+        return $supplierId . '|' . self::normalize($name) . '|' . self::normalize($unit);
     }
 
     private static function normalize(?string $value): string

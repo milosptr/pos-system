@@ -18,7 +18,12 @@ class ClientBankAccount extends Model
       'pib',
       'bank_account',
       'reference_number',
-      'active'
+      'active',
+      'track_prices'
+    ];
+
+    protected $casts = [
+      'track_prices' => 'boolean'
     ];
 
 }

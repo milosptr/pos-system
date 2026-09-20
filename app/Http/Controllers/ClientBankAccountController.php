@@ -29,6 +29,15 @@ class ClientBankAccountController extends Controller
         return ClientBankAccount::all();
     }
 
+    public function update(Request $request, ClientBankAccount $clientBankAccount)
+    {
+        $clientBankAccount->update($request->validate([
+            'track_prices' => 'required|boolean',
+        ]));
+
+        return $clientBankAccount;
+    }
+
     public function store(Request $request)
     {
         $clientBankAccount = ClientBankAccount::create($request->all());

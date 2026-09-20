@@ -83,13 +83,13 @@ class SupplierPricesTest extends TestCase
         $levels = $this->prices(['client_account' => $supplier->id])->json('articles.0.levels');
 
         $this->assertCount(2, $levels);
-        $this->assertEquals(60.10, $levels[0]['unit_price']);
+        $this->assertEquals(66.11, $levels[0]['price']);
         $this->assertEquals('2026-07-01', $levels[0]['from']);
         $this->assertEquals('2026-07-15', $levels[0]['to']);
         $this->assertEquals(3, $levels[0]['invoices']);
         $this->assertNull($levels[0]['change']);
 
-        $this->assertEquals(62.50, $levels[1]['unit_price']);
+        $this->assertEquals(68.75, $levels[1]['price']);
         $this->assertEquals('2026-07-22', $levels[1]['from']);
         $this->assertEquals(2, $levels[1]['invoices']);
         $this->assertEquals(4.0, $levels[1]['change']);
@@ -106,7 +106,7 @@ class SupplierPricesTest extends TestCase
         $levels = $this->prices(['client_account' => $supplier->id])->json('articles.0.levels');
 
         $this->assertCount(3, $levels);
-        $this->assertEquals([60.0, 70.0, 60.0], array_column($levels, 'unit_price'));
+        $this->assertEquals([66.0, 77.0, 66.0], array_column($levels, 'price'));
     }
 
     public function test_the_total_change_is_measured_from_the_oldest_price()
@@ -230,27 +230,72 @@ class SupplierPricesTest extends TestCase
         $this->assertEquals(40.0, $response->json('articles.0.entries.0.unit_price'));
     }
 
-    public function test_an_earlier_price_of_zero_reports_no_percentage()
+    public function test_a_line_without_cena_sa_pdv_is_compared_on_its_vat_rate()
+    {
+        $supplier = $this->supplier();
+
+        $this->item($this->invoice($supplier, '2026-08-01', 101), ['unit_price' => 40.0, 'vat_rate' => 10]);
+        $this->item($this->invoice($supplier, '2026-09-01', 102), ['unit_price' => 44.0, 'vat_rate' => 10]);
+
+        $response = $this->prices(['client_account' => $supplier->id]);
+
+        $this->assertEquals([48.4, 44.0], array_column($response->json('articles.0.entries'), 'unit_price_gross'));
+        $this->assertEquals(10.0, $response->json('articles.0.change'));
+    }
+
+    public function test_a_derived_price_matches_the_one_the_exporter_sent_for_the_same_price()
+    {
+        $supplier = $this->supplier();
+
+        // 5.71 * 1.2 is 6.852, and the exporter writes 6.85. Held apart, the
+        // two spellings of one price would read as a change.
+        $this->item($this->invoice($supplier, '2026-08-01', 101), ['unit_price' => 5.71, 'unit_price_gross' => 6.85, 'vat_rate' => 20]);
+        $this->item($this->invoice($supplier, '2026-09-01', 102), ['unit_price' => 5.71, 'vat_rate' => 20]);
+
+        $response = $this->prices(['client_account' => $supplier->id]);
+
+        $response->assertJsonPath('articles.0.changed', false);
+        $response->assertJsonCount(1, 'articles.0.levels');
+        $this->assertEquals(6.85, $response->json('articles.0.levels.0.price'));
+    }
+
+    public function test_a_line_with_only_cena_sa_pdv_still_has_a_price()
     {
         $supplier = $this->supplier();
 
         $this->item($this->invoice($supplier, '2026-08-01', 101), ['unit_price' => 0.0, 'unit_price_gross' => 33.0]);
-        $this->item($this->invoice($supplier, '2026-09-01', 102), ['unit_price' => 45.0]);
+        $this->item($this->invoice($supplier, '2026-09-01', 102), ['unit_price' => 30.0, 'vat_rate' => 10]);
 
         $response = $this->prices(['client_account' => $supplier->id]);
 
         $response->assertStatus(200);
-        $response->assertJsonPath('articles.0.change', null);
-        $response->assertJsonPath('articles.0.changed', true);
         $this->assertEquals(33.0, $response->json('articles.0.entries.1.unit_price_gross'));
+        $response->assertJsonPath('articles.0.change', null);
+        $response->assertJsonPath('articles.0.changed', false);
     }
 
-    public function test_a_vat_change_alone_is_not_a_price_change()
+    public function test_a_vat_change_is_a_price_change_because_the_bill_changes()
     {
         $supplier = $this->supplier();
 
         $this->item($this->invoice($supplier, '2026-08-01', 101), ['unit_price' => 40.0, 'unit_price_gross' => 44.0, 'vat_rate' => 10]);
         $this->item($this->invoice($supplier, '2026-09-01', 102), ['unit_price' => 40.0, 'unit_price_gross' => 48.0, 'vat_rate' => 20]);
+
+        $response = $this->prices(['client_account' => $supplier->id]);
+
+        $response->assertJsonPath('articles.0.changed', true);
+        $this->assertEquals(9.1, $response->json('articles.0.change'));
+
+        $changed = $this->prices(['client_account' => $supplier->id, 'changed' => 1]);
+        $changed->assertJsonCount(1, 'articles');
+    }
+
+    public function test_the_same_bill_at_a_different_vat_split_is_not_a_price_change()
+    {
+        $supplier = $this->supplier();
+
+        $this->item($this->invoice($supplier, '2026-08-01', 101), ['unit_price' => 40.0, 'unit_price_gross' => 44.0, 'vat_rate' => 10]);
+        $this->item($this->invoice($supplier, '2026-09-01', 102), ['unit_price' => 36.67, 'unit_price_gross' => 44.0, 'vat_rate' => 20]);
         $this->item($this->invoice($supplier, '2026-09-02', 103), ['name' => 'KIFLA', 'unit_price' => 22.0]);
         $this->item($this->invoice($supplier, '2026-09-03', 104), ['name' => 'KIFLA', 'unit_price' => 25.0]);
 
@@ -345,9 +390,133 @@ class SupplierPricesTest extends TestCase
         $this->prices(['client_account' => $supplier->id, 'sort' => 'cena'])->assertStatus(422);
     }
 
-    public function test_a_missing_or_unknown_supplier_is_refused()
+    public function test_an_unknown_supplier_is_refused()
     {
-        $this->prices([])->assertStatus(422);
         $this->prices(['client_account' => \Illuminate\Support\Str::uuid()->toString()])->assertStatus(422);
+    }
+
+    public function test_without_a_supplier_every_article_is_returned_with_the_supplier_it_came_from()
+    {
+        $bakery = $this->supplier();
+        $market = $this->supplier('Maxi');
+
+        $this->item($this->invoice($bakery, '2026-09-01', 101));
+        $this->item($this->invoice($market, '2026-09-02', 102), ['name' => 'ULJE 1l']);
+
+        $response = $this->prices([]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'articles');
+        $this->assertEquals(
+            ['Pekara Trajković' => 'HLEB 500g', 'Maxi' => 'ULJE 1l'],
+            collect($response->json('articles'))->pluck('name', 'supplier')->all()
+        );
+    }
+
+    public function test_the_same_article_from_two_suppliers_is_two_price_histories()
+    {
+        $bakery = $this->supplier();
+        $other = $this->supplier('Pekara Zlatni Klas');
+
+        $this->item($this->invoice($bakery, '2026-08-01', 101), ['unit_price' => 40.0]);
+        $this->item($this->invoice($bakery, '2026-09-01', 102), ['unit_price' => 44.0]);
+        $this->item($this->invoice($other, '2026-09-02', 103), ['unit_price' => 50.0]);
+
+        $articles = $this->prices([])->json('articles');
+
+        $this->assertCount(2, $articles);
+
+        $theirs = collect($articles)->firstWhere('supplier', 'Pekara Zlatni Klas');
+        $this->assertEquals(1, $theirs['observations']);
+        $this->assertEquals(55.0, $theirs['entries'][0]['unit_price_gross']);
+
+        $ours = collect($articles)->firstWhere('supplier', 'Pekara Trajković');
+        $this->assertEquals(2, $ours['observations']);
+        $this->assertEquals(10.0, $ours['change']);
+    }
+
+    public function test_all_the_suppliers_can_be_read_in_one_alphabetical_list()
+    {
+        $bakery = $this->supplier();
+        $market = $this->supplier('Maxi');
+
+        $this->item($this->invoice($bakery, '2026-09-01', 101), ['name' => 'HLEB 500g']);
+        $this->item($this->invoice($market, '2026-09-02', 102), ['name' => 'ULJE 1l']);
+        $this->item($this->invoice($market, '2026-09-03', 103), ['name' => 'BRASNO 1kg']);
+
+        $response = $this->prices(['sort' => 'name']);
+
+        $this->assertEquals(
+            ['BRASNO 1kg', 'HLEB 500g', 'ULJE 1l'],
+            array_column($response->json('articles'), 'name')
+        );
+    }
+
+    public function test_an_untracked_supplier_is_left_out_of_the_list_of_everything()
+    {
+        $bakery = $this->supplier();
+        $utility = $this->supplier('EPS Snabdevanje');
+
+        $this->item($this->invoice($bakery, '2026-09-01', 101));
+        $this->item($this->invoice($utility, '2026-09-02', 102), ['name' => 'Električna energija']);
+
+        $utility->update(['track_prices' => false]);
+
+        $response = $this->prices([]);
+
+        $response->assertJsonCount(1, 'articles');
+        $response->assertJsonPath('articles.0.supplier', 'Pekara Trajković');
+    }
+
+    public function test_an_untracked_supplier_is_still_answered_for_when_it_is_asked_for()
+    {
+        $utility = $this->supplier('EPS Snabdevanje');
+        $this->item($this->invoice($utility, '2026-09-02', 102), ['name' => 'Električna energija']);
+
+        $utility->update(['track_prices' => false]);
+
+        $response = $this->prices(['client_account' => $utility->id]);
+
+        $response->assertJsonCount(1, 'articles');
+        $response->assertJsonPath('articles.0.name', 'Električna energija');
+    }
+
+    public function test_a_supplier_is_tracked_until_it_is_turned_off()
+    {
+        $supplier = $this->supplier();
+
+        $this->assertTrue($supplier->fresh()->track_prices);
+
+        $this->putJson('/api/bank-accounts/' . $supplier->id, ['track_prices' => false])
+            ->assertStatus(200)
+            ->assertJsonPath('track_prices', false);
+
+        $this->assertFalse($supplier->fresh()->track_prices);
+
+        $this->putJson('/api/bank-accounts/' . $supplier->id, ['track_prices' => true])->assertStatus(200);
+
+        $this->assertTrue($supplier->fresh()->track_prices);
+    }
+
+    public function test_the_tracking_flag_has_to_be_a_boolean()
+    {
+        $supplier = $this->supplier();
+
+        $this->putJson('/api/bank-accounts/' . $supplier->id, [])->assertStatus(422);
+        $this->putJson('/api/bank-accounts/' . $supplier->id, ['track_prices' => 'mozda'])->assertStatus(422);
+    }
+
+    public function test_the_search_across_suppliers_keeps_only_the_matching_articles()
+    {
+        $bakery = $this->supplier();
+        $market = $this->supplier('Maxi');
+
+        $this->item($this->invoice($bakery, '2026-09-01', 101));
+        $this->item($this->invoice($market, '2026-09-02', 102), ['name' => 'HLEB CRNI']);
+        $this->item($this->invoice($market, '2026-09-03', 103), ['name' => 'ULJE 1l']);
+
+        $response = $this->prices(['search' => 'hleb']);
+
+        $response->assertJsonCount(2, 'articles');
     }
 }
