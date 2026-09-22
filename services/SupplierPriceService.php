@@ -143,7 +143,6 @@ class SupplierPriceService
     private static function buildArticle(array $lines): array
     {
         $observations = self::observations($lines);
-        $oldest = end($observations);
         $latest = $observations[0]['unit_price_gross'];
         $previous = count($observations) > 1 ? $observations[1]['unit_price_gross'] : null;
 
@@ -152,50 +151,11 @@ class SupplierPriceService
             'unit' => $lines[0]->unit,
             'supplier' => $lines[0]->supplier,
             'client_account' => $lines[0]->client_account,
-            'levels' => self::levels($observations),
             'entries' => array_slice($observations, 0, self::HISTORY_LENGTH),
             'observations' => count($observations),
-            'first' => $oldest,
             'change' => self::changePercent($latest, $previous),
             'changed' => $previous !== null && !self::samePrice($latest, $previous),
-            // What the price has done over the whole history, not just since
-            // the invoice before this one.
-            'total_change' => count($observations) > 1 ? self::changePercent($latest, $oldest['unit_price_gross']) : null,
         ];
-    }
-
-    /**
-     * A price with VAT the supplier charged, and for how long. Invoicing
-     * weekly at a steady price is one level, not twelve: without this a stable
-     * article fills its whole history with the same number and the change that
-     * matters falls off the end.
-     *
-     * Oldest first, each level running from the first invoice that charged it
-     * until the first invoice that did not.
-     */
-    private static function levels(array $observations): array
-    {
-        $levels = [];
-
-        foreach (array_reverse($observations) as $observation) {
-            $current = count($levels) > 0 ? $levels[count($levels) - 1] : null;
-
-            if ($current !== null && self::samePrice($current['price'], $observation['unit_price_gross'])) {
-                $levels[count($levels) - 1]['to'] = $observation['date'];
-                $levels[count($levels) - 1]['invoices']++;
-                continue;
-            }
-
-            $levels[] = [
-                'price' => $observation['unit_price_gross'],
-                'from' => $observation['date'],
-                'to' => $observation['date'],
-                'invoices' => 1,
-                'change' => $current === null ? null : self::changePercent($observation['unit_price_gross'], $current['price']),
-            ];
-        }
-
-        return $levels;
     }
 
     /**

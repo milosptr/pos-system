@@ -71,7 +71,7 @@ class SupplierPricesTest extends TestCase
         $this->assertTrue($response->json('articles.0.changed'));
     }
 
-    public function test_invoices_at_the_same_price_are_one_level()
+    public function test_an_invoice_that_repeats_the_price_is_not_a_change()
     {
         $supplier = $this->supplier();
 
@@ -80,22 +80,14 @@ class SupplierPricesTest extends TestCase
             $this->item($this->invoice($supplier, $date, 300 + $index), ['unit_price' => $price]);
         }
 
-        $levels = $this->prices(['client_account' => $supplier->id])->json('articles.0.levels');
+        $response = $this->prices(['client_account' => $supplier->id]);
 
-        $this->assertCount(2, $levels);
-        $this->assertEquals(66.11, $levels[0]['price']);
-        $this->assertEquals('2026-07-01', $levels[0]['from']);
-        $this->assertEquals('2026-07-15', $levels[0]['to']);
-        $this->assertEquals(3, $levels[0]['invoices']);
-        $this->assertNull($levels[0]['change']);
-
-        $this->assertEquals(68.75, $levels[1]['price']);
-        $this->assertEquals('2026-07-22', $levels[1]['from']);
-        $this->assertEquals(2, $levels[1]['invoices']);
-        $this->assertEquals(4.0, $levels[1]['change']);
+        $this->assertEquals(5, $response->json('articles.0.observations'));
+        $response->assertJsonPath('articles.0.change', null);
+        $response->assertJsonPath('articles.0.changed', false);
     }
 
-    public function test_a_price_that_returns_to_an_earlier_level_is_a_new_level()
+    public function test_a_price_that_falls_back_to_an_earlier_one_is_a_change()
     {
         $supplier = $this->supplier();
 
@@ -103,30 +95,14 @@ class SupplierPricesTest extends TestCase
             $this->item($this->invoice($supplier, $date, 400 + $index), ['unit_price' => $price]);
         }
 
-        $levels = $this->prices(['client_account' => $supplier->id])->json('articles.0.levels');
-
-        $this->assertCount(3, $levels);
-        $this->assertEquals([66.0, 77.0, 66.0], array_column($levels, 'price'));
-    }
-
-    public function test_the_total_change_is_measured_from_the_oldest_price()
-    {
-        $supplier = $this->supplier();
-
-        $this->item($this->invoice($supplier, '2026-03-01', 101), ['unit_price' => 56.0]);
-        $this->item($this->invoice($supplier, '2026-07-01', 102), ['unit_price' => 62.5]);
-        $this->item($this->invoice($supplier, '2026-09-01', 103), ['unit_price' => 64.8]);
-
         $response = $this->prices(['client_account' => $supplier->id]);
 
-        // The last step is small, the whole climb is not.
-        $this->assertEquals(3.7, $response->json('articles.0.change'));
-        $this->assertEquals(15.7, $response->json('articles.0.total_change'));
-        $this->assertEquals(56.0, $response->json('articles.0.first.unit_price'));
-        $this->assertEquals('2026-03-01', $response->json('articles.0.first.date'));
+        $this->assertEquals([66.0, 77.0, 66.0], array_reverse(array_column($response->json('articles.0.entries'), 'unit_price_gross')));
+        $this->assertEquals(-14.3, $response->json('articles.0.change'));
+        $response->assertJsonPath('articles.0.changed', true);
     }
 
-    public function test_a_single_price_is_its_own_first_and_has_no_total_change()
+    public function test_a_single_price_has_no_change_to_show()
     {
         $supplier = $this->supplier();
 
@@ -135,8 +111,8 @@ class SupplierPricesTest extends TestCase
         $response = $this->prices(['client_account' => $supplier->id]);
 
         $this->assertEquals(1, $response->json('articles.0.observations'));
-        $this->assertEquals(61.2, $response->json('articles.0.first.unit_price'));
-        $response->assertJsonPath('articles.0.total_change', null);
+        $response->assertJsonPath('articles.0.change', null);
+        $response->assertJsonPath('articles.0.changed', false);
     }
 
     public function test_the_history_sent_to_the_browser_is_capped()
@@ -153,8 +129,6 @@ class SupplierPricesTest extends TestCase
 
         $response->assertJsonCount(\Services\SupplierPriceService::HISTORY_LENGTH, 'articles.0.entries');
         $this->assertEquals($months, $response->json('articles.0.observations'));
-        // The oldest price is still known even though it was not sent.
-        $this->assertEquals(10.0, $response->json('articles.0.first.unit_price'));
     }
 
     public function test_case_and_spacing_differences_are_one_article_under_the_newest_spelling()
@@ -255,8 +229,8 @@ class SupplierPricesTest extends TestCase
         $response = $this->prices(['client_account' => $supplier->id]);
 
         $response->assertJsonPath('articles.0.changed', false);
-        $response->assertJsonCount(1, 'articles.0.levels');
-        $this->assertEquals(6.85, $response->json('articles.0.levels.0.price'));
+        $response->assertJsonPath('articles.0.change', null);
+        $this->assertEquals([6.85, 6.85], array_column($response->json('articles.0.entries'), 'unit_price_gross'));
     }
 
     public function test_a_line_with_only_cena_sa_pdv_still_has_a_price()
