@@ -47,9 +47,11 @@
 
   const TONES = [TONE_FLAT, TONE_DOWN, TONE_UP]
 
+  // The tones the rest of the screen already speaks: red-600 and green-600 as
+  // the badge and the chips use them, gray-400 for a price that never moved.
   const COLORS = {
-    [TONE_UP]: '#f43f5e',
-    [TONE_DOWN]: '#10b981',
+    [TONE_UP]: '#dc2626',
+    [TONE_DOWN]: '#16a34a',
     [TONE_FLAT]: '#9ca3af',
   }
 
