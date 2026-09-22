@@ -51,7 +51,7 @@
         Nema artikala u ovoj grupi.
       </div>
       <div v-else class="overflow-x-auto bg-white ring-1 ring-gray-200 rounded-lg">
-        <table class="w-full min-w-[980px] table-fixed text-left">
+        <table class="w-full min-w-[1060px] table-fixed text-left">
           <thead>
             <tr class="text-xs text-gray-400 bg-gray-50 border-b border-gray-200">
               <th class="font-medium py-2 px-4 w-96">Artikal</th>
