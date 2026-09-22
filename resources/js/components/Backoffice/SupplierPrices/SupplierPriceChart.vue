@@ -1,5 +1,5 @@
 <template>
-  <div ref="host" class="relative w-full min-w-[300px] max-w-full" :style="{ height: `${HEIGHT}px` }" @mousemove="track" @mouseleave="release">
+  <div ref="host" class="relative w-full min-w-[380px] max-w-full touch-pan-y" :style="{ height: `${HEIGHT}px` }" @click.stop @pointerdown="follow" @pointermove="follow" @pointerup="letGo" @pointercancel="letGo" @pointerleave="letGo">
     <svg v-if="width && visible.length" :width="width" :height="HEIGHT">
       <defs>
         <linearGradient v-for="tone in TONES" :id="`spg-${id}-${tone}`" :key="`gradient-${tone}`" gradientUnits="userSpaceOnUse" x1="0" :y1="topY" x2="0" :y2="HEIGHT">
@@ -40,6 +40,10 @@
   const VISIBLE_PRICES = 20
 
   const TOOLTIP_GAP = 12
+
+  // A finger hides the point it just tapped, so the tooltip outlives the touch
+  // long enough to be read. A mouse needs no such delay: it leaves.
+  const TOUCH_READ_MS = 2000
 
   const TONE_UP = 'up'
   const TONE_DOWN = 'down'
@@ -84,6 +88,7 @@
       width: 0,
       hoveredIndex: null,
       hostBox: null,
+      touching: false,
       HEIGHT,
       TONES,
       COLORS,
@@ -223,9 +228,35 @@
     },
     beforeUnmount() {
       this.observer.disconnect()
+      clearTimeout(this.readTimer)
       this.release()
     },
     methods: {
+      follow(event) {
+        const byMouse = event.pointerType === 'mouse'
+
+        if (!byMouse) {
+          if (event.type === 'pointermove' && !this.touching) {
+            return
+          }
+          this.touching = true
+          clearTimeout(this.readTimer)
+        }
+
+        this.track(event)
+      },
+      letGo(event) {
+        if (event.pointerType === 'mouse') {
+          this.release()
+          return
+        }
+
+        this.touching = false
+        clearTimeout(this.readTimer)
+        this.readTimer = setTimeout(() => {
+          this.release()
+        }, TOUCH_READ_MS)
+      },
       track(event) {
         if (!this.width || !this.visible.length) {
           return
