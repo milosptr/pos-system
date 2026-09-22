@@ -50,25 +50,27 @@
       <div v-else-if="!visibleArticles.length" class="bg-white ring-1 ring-gray-200 rounded-lg px-4 py-6 text-sm text-gray-400">
         Nema artikala u ovoj grupi.
       </div>
-      <table v-else class="w-full table-fixed text-left bg-white ring-1 ring-gray-200 rounded-lg overflow-hidden">
-        <thead>
-          <tr class="text-xs text-gray-400 bg-gray-50 border-b border-gray-200">
-            <th class="font-medium py-2 px-4 w-96">Artikal</th>
-            <th class="font-medium py-2 pr-4 border-r border-gray-300">Kretanje cene</th>
-            <th class="font-medium py-2 px-4 text-right w-36 whitespace-nowrap">Trenutna sa PDV</th>
-            <th class="font-medium py-2 pr-4 text-right w-28">Promena</th>
-            <th class="font-medium py-2 pr-4 w-8"></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <SupplierPriceRow
-            v-for="article in visibleArticles"
-            :key="article.client_account + article.name + article.unit"
-            :show-supplier="!clientAccount"
-            :article="article"
-          />
-        </tbody>
-      </table>
+      <div v-else class="overflow-x-auto bg-white ring-1 ring-gray-200 rounded-lg">
+        <table class="w-full min-w-[980px] table-fixed text-left">
+          <thead>
+            <tr class="text-xs text-gray-400 bg-gray-50 border-b border-gray-200">
+              <th class="font-medium py-2 px-4 w-96">Artikal</th>
+              <th class="font-medium py-2 pr-4 border-r border-gray-300">Kretanje cene</th>
+              <th class="font-medium py-2 px-4 text-right w-36 whitespace-nowrap">Trenutna sa PDV</th>
+              <th class="font-medium py-2 pr-4 text-right w-28">Promena</th>
+              <th class="font-medium py-2 pr-4 w-8"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <SupplierPriceRow
+              v-for="article in visibleArticles"
+              :key="article.client_account + article.name + article.unit"
+              :show-supplier="!clientAccount"
+              :article="article"
+            />
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
