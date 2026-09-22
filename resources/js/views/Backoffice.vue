@@ -5,7 +5,7 @@
       :show="sidebarOpen">
       <Dialog
         as="div"
-        class="relative z-40 md:hidden"
+        class="relative z-40 lg:hidden"
         @close="sidebarOpen = false">
         <TransitionChild
           as="template"
@@ -133,7 +133,7 @@
     </TransitionRoot>
 
     <!-- Static sidebar for desktop -->
-    <div class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
+    <div class="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
       <!-- Sidebar component, swap this element with another sidebar if you like -->
       <div class="flex-1 flex flex-col min-h-0 bg-gray-800">
         <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
@@ -228,8 +228,8 @@
         </div>
       </div>
     </div>
-    <div class="md:pl-64 flex flex-col flex-1">
-      <div class="sticky top-0 z-20 md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-800 text-right">
+    <div class="lg:pl-64 flex flex-col flex-1">
+      <div class="sticky top-0 z-20 lg:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-800 text-right">
         <div class="flex items-center justify-between">
           <svg
             class="h-5 w-auto"
