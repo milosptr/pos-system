@@ -41,7 +41,10 @@
             <td class="py-1.5 pr-6 text-right tabular-nums text-gray-400">{{ price(row.unit_price) }}</td>
             <td class="py-1.5 pr-6 text-right tabular-nums">{{ price(row.unit_price_gross) }}</td>
             <td class="py-1.5 pr-6 text-right tabular-nums" :class="stepClass(row.step)">{{ row.stepText }}</td>
-            <td class="py-1.5 text-right text-gray-400">{{ row.invoice_number }}</td>
+            <td class="py-1.5 text-right">
+              <span v-if="copied === row.invoice_number" class="text-green-600">Kopirano</span>
+              <span v-else class="cursor-pointer text-gray-400 hover:text-gray-900 hover:underline" title="Kopiraj broj računa" @click="copyInvoice(row.invoice_number)">{{ row.invoice_number }}</span>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -55,6 +58,8 @@
 <script>
   import SupplierPriceChart from './SupplierPriceChart.vue'
   import { changeDirection, DIRECTION_UP } from './priceChange'
+
+  const COPIED_FEEDBACK_MS = 1600
 
   const NOTABLE_CHANGE_PERCENT = 3
   const BIG_CHANGE_PERCENT = 10
@@ -88,6 +93,7 @@
     },
     data: () => ({
       expanded: false,
+      copied: null,
     }),
     computed: {
       current() {
@@ -123,7 +129,23 @@
         })
       },
     },
+    beforeUnmount() {
+      clearTimeout(this.copiedTimer)
+    },
     methods: {
+      copyInvoice(invoiceNumber) {
+        this.$copyText(invoiceNumber)
+          .then(() => {
+            this.copied = invoiceNumber
+            clearTimeout(this.copiedTimer)
+            this.copiedTimer = setTimeout(() => {
+              this.copied = null
+            }, COPIED_FEEDBACK_MS)
+          })
+          .catch((error) => {
+            console.error('Failed to copy the invoice number: ', error)
+          })
+      },
       price(value) {
         return value ? this.$filters.formatPrice(value, true) : '-'
       },
