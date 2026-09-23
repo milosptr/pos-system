@@ -38,7 +38,7 @@
       </div>
     </div>
     <div class="mx-auto mt-6">
-      <table class="w-full text-left bg-white border-l-2 border-r-2 border-gray-200">
+      <table class="w-full table-fixed text-left bg-white border-l-2 border-r-2 border-gray-200">
         <tbody>
           <template v-if="incomingInvoices.length">
             <tr class="text-sm leading-6 text-gray-900 bg-gray-50 border-b border-t border-gray-200">
@@ -62,7 +62,7 @@
           </template>
         </tbody>
       </table>
-      <table class="w-full text-left bg-white border-l-2 border-r-2 border-gray-200 mt-6">
+      <table class="w-full table-fixed text-left bg-white border-l-2 border-r-2 border-gray-200 mt-6">
         <tbody>
           <template v-if="historyInvoices.length">
             <tr class="text-sm leading-6 text-gray-900 border-b border-t border-gray-200 bg-gray-50">

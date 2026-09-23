@@ -1,6 +1,8 @@
 <template>
-  <tr class="w-full grid grid-cols-2 sm:grid-cols-3 cursor-pointer hover:bg-gray-50" @click="toggleDetails">
-    <td class="relative col-span-2 sm:col-span-1 w-full py-2 px-4 sm:border-b border-gray-200">
+  <tr class="cursor-pointer hover:bg-gray-50" @click="toggleDetails">
+    <td colspan="3" class="p-0">
+    <div class="grid grid-cols-2 sm:grid-cols-3">
+    <div class="relative col-span-2 sm:col-span-1 w-full py-2 px-4 sm:border-b border-gray-200">
       <div class="flex gap-x-6">
         <svg v-if="invoice.status === 0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="hidden h-6 w-5 flex-none text-gray-400 sm:block">
           <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm.53 5.47a.75.75 0 00-1.06 0l-3 3a.75.75 0 101.06 1.06l1.72-1.72v5.69a.75.75 0 001.5 0v-5.69l1.72 1.72a.75.75 0 101.06-1.06l-3-3z" clip-rule="evenodd" />
@@ -24,8 +26,8 @@
           <div class="mt-1 text-xs leading-5 text-gray-400" :class="[invoice.status === 1 && 'text-green-600']">{{ $filters.formatDate(invoice.payment_deadline) }}</div>
         </div>
       </div>
-    </td>
-    <td class="py-2 pr-6 sm:table-cell px-4 border-b border-gray-200">
+    </div>
+    <div class="py-2 pr-6 px-4 border-b border-gray-200">
       <div class="text-sm leading-6 text-gray-900">{{ invoice?.client_account?.name }}</div>
       <div v-if="invoice?.reference_number" class="text-sm leading-6 text-gray-900">
         <span class="mt-1 text-sm leading-5 cursor-pointer" :class="copied === 'reference' ? 'text-green-600' : 'text-gray-400'" title="Klikni da kopiraš poziv na broj" @click.stop="clickToCopy(invoice.reference_number, 'reference')">
@@ -35,8 +37,8 @@
         <span v-if="copied === 'reference'" class="ml-2 text-xs font-medium text-green-600">Kopirano</span>
       </div>
 
-    </td>
-    <td class="py-2 px-4 border-b border-gray-200">
+    </div>
+    <div class="py-2 px-4 border-b border-gray-200">
       <div class="flex items-center justify-end gap-5">
         <div class="md:w-32">
           <div class="mt-1 text-xs leading-5 text-gray-900 text-left" v-if="invoice.created_at !== invoice.transaction_date">Datum prometa</div>
@@ -73,6 +75,8 @@
         <BankInvoiceDeleteModal v-if="showDeleteInvoiceModal" @close="showDeleteInvoiceModal = false" @updateInvoice="showDeleteInvoiceModal = false; $emit('updateInvoiceStatus')" :invoice="invoice" />
         <BankInvoiceUpdateModal v-if="showUpdateModal" @close="showUpdateModal = false" @updateInvoice="showUpdateModal = false; $emit('updateInvoiceStatus')" :invoice="invoice" />
       </div>
+    </div>
+    </div>
     </td>
   </tr>
   <tr v-if="expanded" class="border-b border-gray-200 bg-gray-50">
@@ -90,7 +94,8 @@
         <span class="underline cursor-pointer" @click.stop="fetchItems">Pokušaj ponovo</span>
       </div>
       <div v-else-if="!items.length" class="mt-4 text-sm text-gray-400">Nema stavki za ovu fakturu.</div>
-      <table v-else class="mt-4 w-full text-left text-xs">
+      <div v-else class="mt-4 overflow-x-auto">
+      <table class="w-full text-left text-xs whitespace-nowrap">
         <thead>
           <tr class="text-gray-400 border-b border-gray-200">
             <th class="font-medium py-1 pr-3">Rb</th>
@@ -118,6 +123,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </td>
   </tr>
 </template>
