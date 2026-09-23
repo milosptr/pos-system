@@ -9,8 +9,8 @@ use Illuminate\Support\Collection;
 class SupplierPriceService
 {
     /**
-     * How many observations travel to the browser per article. The row shows
-     * the last few; the rest are there for the expanded history.
+     * How many observations travel to the browser per article. They feed the
+     * price chart and the current price; the expanded history reads changes.
      */
     public const HISTORY_LENGTH = 24;
 
@@ -153,6 +153,7 @@ class SupplierPriceService
             'client_account' => $lines[0]->client_account,
             'entries' => array_slice($observations, 0, self::HISTORY_LENGTH),
             'observations' => count($observations),
+            'changes' => self::priceChanges($observations),
             'change' => self::changePercent($latest, $previous),
             'changed' => $previous !== null && !self::samePrice($latest, $previous),
         ];
@@ -183,6 +184,27 @@ class SupplierPriceService
         }
 
         return $observations;
+    }
+
+    /**
+     * Oldest first: the starting price, then every invoice whose price differs
+     * from the invoice before it. Walks the whole history, not the capped
+     * entries, so an old change is never lost.
+     */
+    private static function priceChanges(array $observations): array
+    {
+        $changes = [];
+        $previous = null;
+
+        foreach (array_reverse($observations) as $observation) {
+            if ($previous === null || !self::samePrice($observation['unit_price_gross'], $previous['unit_price_gross'])) {
+                $changes[] = $observation;
+            }
+
+            $previous = $observation;
+        }
+
+        return $changes;
     }
 
     /**

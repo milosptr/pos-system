@@ -36,7 +36,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in rows" :key="row.date + row.invoice_number" class="border-b border-gray-200 last:border-0" :class="row.step ? 'text-gray-900' : 'text-gray-400'">
+          <tr v-for="row in rows" :key="row.date + row.invoice_number" class="border-b border-gray-200 last:border-0 text-gray-900">
             <td class="py-1.5 pr-6">{{ $filters.formatDate(row.date) }}</td>
             <td class="py-1.5 pr-6 text-right tabular-nums text-gray-400">{{ price(row.unit_price) }}</td>
             <td class="py-1.5 pr-6 text-right tabular-nums">{{ price(row.unit_price_gross) }}</td>
@@ -48,8 +48,8 @@
           </tr>
         </tbody>
       </table>
-      <div v-if="article.observations > article.entries.length" class="mt-2 text-xs text-gray-400">
-        Prikazano poslednjih {{ article.entries.length }} od {{ article.observations }} računa.
+      <div class="mt-2 text-xs text-gray-400">
+        Poslednji račun {{ $filters.formatDate(current.date) }}<template v-if="priceStillValid"> (cena i dalje važi)</template>
       </div>
     </td>
   </tr>
@@ -122,11 +122,14 @@
         return BADGE_CLASSES[this.direction][tier]
       },
       rows() {
-        return this.article.entries.map((entry, index) => {
-          const older = this.article.entries[index + 1]
-          const step = older ? entry.unit_price_gross - older.unit_price_gross : null
-          return { ...entry, step, stepText: this.stepLabel(step, older) }
+        return this.article.changes.map((change, index) => {
+          const older = this.article.changes[index - 1]
+          const step = older ? change.unit_price_gross - older.unit_price_gross : null
+          return { ...change, step, stepText: this.stepLabel(step, older) }
         })
+      },
+      priceStillValid() {
+        return this.article.entries.length > 1 && !this.article.changed
       },
     },
     beforeUnmount() {
@@ -153,17 +156,14 @@
         return `${Math.abs(value).toFixed(1).replace('.', ',')}%`
       },
       stepClass(step) {
-        if (!step) {
-          return ''
+        if (step === null) {
+          return 'text-gray-400'
         }
         return step > 0 ? 'text-red-600' : 'text-green-700'
       },
       stepLabel(step, older) {
         if (step === null) {
-          return '-'
-        }
-        if (step === 0) {
-          return 'ista cena'
+          return 'početna cena'
         }
         const percent = older.unit_price_gross > 0 ? ` (${this.percent((step / older.unit_price_gross) * 100)})` : ''
         return `${step > 0 ? '+' : '−'}${this.$filters.formatPrice(Math.abs(step), true)}${percent}`

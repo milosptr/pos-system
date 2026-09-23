@@ -131,6 +131,38 @@ class SupplierPricesTest extends TestCase
         $this->assertEquals($months, $response->json('articles.0.observations'));
     }
 
+    public function test_the_changes_are_the_starting_price_and_each_invoice_that_moved_it()
+    {
+        $supplier = $this->supplier();
+
+        foreach ([['2026-05-01', 100.0], ['2026-06-01', 100.0], ['2026-07-01', 110.0], ['2026-08-01', 110.0], ['2026-09-01', 100.0]] as $index => [$date, $price]) {
+            $this->item($this->invoice($supplier, $date, 500 + $index), ['unit_price' => $price]);
+        }
+
+        $response = $this->prices(['client_account' => $supplier->id]);
+
+        $changes = $response->json('articles.0.changes');
+        $this->assertEquals([100.0, 110.0, 100.0], array_column($changes, 'unit_price'));
+        $this->assertEquals(['2026-05-01', '2026-07-01', '2026-09-01'], array_column($changes, 'date'));
+        $this->assertEquals(['R-500', 'R-502', 'R-504'], array_column($changes, 'invoice_number'));
+    }
+
+    public function test_the_changes_reach_past_the_capped_history()
+    {
+        $supplier = $this->supplier();
+        $months = \Services\SupplierPriceService::HISTORY_LENGTH + 3;
+
+        for ($month = 0; $month < $months; $month++) {
+            $date = \Carbon\Carbon::create(2024, 1, 1)->addMonths($month)->format('Y-m-d');
+            $this->item($this->invoice($supplier, $date, 600 + $month), ['unit_price' => $month === 0 ? 20.0 : 25.0]);
+        }
+
+        $response = $this->prices(['client_account' => $supplier->id]);
+
+        $this->assertEquals([20.0, 25.0], array_column($response->json('articles.0.changes'), 'unit_price'));
+        $this->assertEquals(['2024-01-01', '2024-02-01'], array_column($response->json('articles.0.changes'), 'date'));
+    }
+
     public function test_case_and_spacing_differences_are_one_article_under_the_newest_spelling()
     {
         $supplier = $this->supplier();
